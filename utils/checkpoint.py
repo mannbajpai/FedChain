@@ -86,6 +86,8 @@ FINGERPRINT_KEYS = (
     "data_path",
     "num_clients",
     "enable_fl",
+    "enable_aggregation",
+    "fedavg_weighted",
     "enable_blockchain",
     "enable_ipfs",
     "dry_run",

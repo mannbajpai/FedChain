@@ -8,11 +8,16 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Data: keep the preparation script and the manifest, ignore the corpora
+# Data: keep the preparation script and the manifests, ignore the corpora.
+# The non-IID manifest records the per-client label histogram the Dirichlet
+# draw produced, which is needed to reproduce (and to report) that partition.
 data/*
 !data/.gitkeep
 !data/prepare_data.py
 !data/manifest.json
+!data/dirichlet/
+data/dirichlet/*
+!data/dirichlet/manifest.json
 
 # Model artefacts
 *.pt

@@ -1,16 +1,16 @@
 # =============================================================================
 # Experiment 1 :: Centralized Supervised Fine-Tuning (baseline / upper bound)
 # -----------------------------------------------------------------------------
-# A single trainer sees the whole Dolly-15k pool. No federation, no blockchain,
-# no IPFS. This is the accuracy reference the decentralized runs are measured
-# against, and the zero-overhead reference for the systems metrics.
+# A single trainer sees the pooled union of every client's data. No federation,
+# no blockchain, no IPFS. This is the accuracy reference the decentralized runs
+# are measured against, and the zero-overhead reference for the systems metrics.
 #
 #   python main.py --config configs/exp1_sft.yaml
 # =============================================================================
 extends: base_config.yaml
 
 exp_name: "exp1_sft"
-exp_description: "Centralized QLoRA SFT on the pooled Dolly-15k corpus"
+exp_description: "Centralized QLoRA SFT on the pooled union of the client shards"
 
 # --- Paradigm switches -------------------------------------------------------
 enable_fl: false
@@ -18,9 +18,22 @@ enable_blockchain: false
 enable_ipfs: false
 
 # --- Data --------------------------------------------------------------------
-data_path: "data/centralized_full.jsonl"
+# The baseline pools the *client shards themselves* rather than reading the head
+# of `centralized_full.jsonl`. That file is the shuffled training pool and the
+# shards are contiguous slices of it, so `centralized_full.jsonl[:4500]` is
+# literally client 1's data - a "centralized" baseline that never sees clients
+# 2 and 3. Listing the shards here makes the comparison exact: with
+# `max_train_samples: 1500` applied per shard, this run consumes precisely the
+# 4500 records the federated runs consume across 3 rounds x 3 clients x 500,
+# so E1 vs E2 isolates the effect of *federating* and nothing else.
+data_path:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
 
 # --- Compute budget ----------------------------------------------------------
-# Budget matched with Exp 2/3/4: 3 rounds x 3 clients x 500 = 4500 sample updates.
+# Budget matched with Exp 2/3/4 on both axes:
+#   updates - 1 round x 4500 samples          == 3 rounds x 3 clients x 500
+#   data    - 3 shards x 1500 unique samples  == the union of every client window
 num_rounds: 1
-max_train_samples: 4500
+max_train_samples: 1500     # per shard; 3 shards => 4500 pooled samples

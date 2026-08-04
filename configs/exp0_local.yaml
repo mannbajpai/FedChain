@@ -1,0 +1,42 @@
+# =============================================================================
+# Experiment 0 :: Local-only training (lower bound / isolation baseline)
+# -----------------------------------------------------------------------------
+# Three clients, same shards, same compute budget as Exp 2-4 - but no
+# aggregation ever happens. Each client warm-starts from its *own* previous
+# adapter, so no information crosses a participant boundary.
+#
+# This is the reference that makes the federated numbers interpretable. Exp 1
+# bounds accuracy from above (pool everything); this bounds it from below (pool
+# nothing). Without it, "federation costs +x% loss versus centralized" is only
+# half a result - it says what federation gives up and nothing about what it
+# buys. Reviewers ask for this every time.
+#
+# Reported accuracy is the mean over the three client models, with the spread
+# in `run_summary.per_client_evaluation` (that spread is itself a finding under
+# the non-IID split in Exp 5).
+#
+#   python main.py --config configs/exp0_local.yaml
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "exp0_local"
+exp_description: "Local-only QLoRA: three isolated clients, no aggregation"
+
+# --- Paradigm switches -------------------------------------------------------
+# enable_fl drives the multi-client loop; enable_aggregation turns FedAvg off
+# inside it. Together they give "federated schedule, zero collaboration".
+enable_fl: true
+enable_aggregation: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500

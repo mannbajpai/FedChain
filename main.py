@@ -92,7 +92,8 @@ METRIC_SCHEMA: Tuple[Tuple[str, str, str], ...] = (
     ("ipfs_upload_latency_sec", "IPFS Upload Latency (s)", "float4"),
     ("ipfs_download_latency_sec", "IPFS Download Latency (s)", "float4"),
     ("aggregation_time_sec", "Aggregation Time (s)", "float4"),
-    ("end_to_end_round_duration_sec", "End-to-End Round Duration (s)", "float2"),
+    ("end_to_end_round_duration_sec", "Mean Round Duration (s)", "float2"),
+    ("total_round_time_sec", "Total Round Time (s)", "float2"),
 )
 
 
@@ -292,7 +293,23 @@ def run_centralized(
     LOGGER.info("PIPELINE: centralized supervised fine-tuning (no federation)")
     LOGGER.info("=" * 78)
 
-    data_path = resolve_path(cfg.get("data_path", "data/centralized_full.jsonl"))
+    # `data_path` may be a single shard or a list of shards to pool. The list
+    # form is what makes the baseline a genuine upper bound: pointing it at the
+    # client shards makes the centralized trainer consume exactly the union of
+    # what the federated clients consume (max_train_samples applies per shard),
+    # so the paradigms differ in procedure alone. A single pre-shuffled corpus
+    # is NOT equivalent - slicing its head yields whichever partition happens to
+    # sit at the front of the file, not a sample of all of them.
+    raw_data_path = cfg.get("data_path", "data/centralized_full.jsonl")
+    if isinstance(raw_data_path, (list, tuple)):
+        data_path: Any = [resolve_path(p) for p in raw_data_path]
+        LOGGER.info(
+            "Pooled centralized corpus: %d shard(s), %s samples each",
+            len(data_path),
+            cfg.get("max_train_samples") or "all",
+        )
+    else:
+        data_path = resolve_path(raw_data_path)
     work_dir = resolve_path(cfg.get("output_root", "outputs")) / cfg.get("exp_name", "exp1_sft")
     adapter_dir = work_dir / "global"
 
@@ -426,7 +443,7 @@ def run_federated(
     orchestrator = FederatedOrchestrator(
         config=cfg,
         trainer=LocalTrainer(cfg),
-        aggregator=FedAvgAggregator(weighted=False),
+        aggregator=FedAvgAggregator(weighted=bool(cfg.get("fedavg_weighted", False))),
         blockchain_logger=blockchain_logger,
         ipfs_manager=ipfs_manager,
         evaluator=evaluator,
@@ -467,7 +484,19 @@ def collect_metrics(
         "ipfs_upload_latency_sec": ipfs_summary["total_upload_latency_sec"] if ipfs_summary else 0.0,
         "ipfs_download_latency_sec": ipfs_summary["total_download_latency_sec"] if ipfs_summary else 0.0,
         "aggregation_time_sec": run_summary.get("total_aggregation_time_sec", 0.0),
+        # Mean per *round*. Centralized runs a single round, so this equals its
+        # whole run while a 3-round federated run reports a third of its own.
+        # The two are only comparable via total_wall_clock_sec below - putting
+        # them side by side on the round row invites the wrong conclusion.
         "end_to_end_round_duration_sec": run_summary.get("avg_round_latency_sec", 0.0),
+        # Sum over rounds, not `total_wall_clock_sec`: round latencies are
+        # checkpointed, so this stays correct for a run that was interrupted and
+        # resumed, whereas the wall clock of the final session under-reports the
+        # work by however much an earlier session already did.
+        "total_round_time_sec": round(
+            sum(float(r.get("round_latency_sec", 0.0)) for r in run_summary.get("rounds", [])), 2
+        ),
+        "seed": cfg.get("seed"),
     }
     return metrics
 
@@ -634,7 +663,17 @@ def run_experiment(args: argparse.Namespace) -> Dict[str, Any]:
             run_summary = run_centralized(cfg, evaluator, checkpoint)
 
         # ---- final scoring of the global adapter --------------------------
-        if evaluator is not None and cfg.get("eval_final", True):
+        # The local-only ablation has no global adapter: the orchestrator has
+        # already scored every client and the headline number is their mean, so
+        # re-scoring one arbitrary client here would silently replace it.
+        skip_final_eval = run_summary.get("aggregation_enabled") is False
+        if skip_final_eval:
+            LOGGER.info(
+                "Local-only ablation: reporting the per-client mean over %s client(s) "
+                "instead of a single adapter.",
+                run_summary.get("num_clients"),
+            )
+        if evaluator is not None and cfg.get("eval_final", True) and not skip_final_eval:
             adapter_path = run_summary.get("global_adapter_path")
             cached_eval = checkpoint.final_evaluation
             if cached_eval and cached_eval.get("adapter_path") == adapter_path:

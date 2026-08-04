@@ -84,12 +84,23 @@ dataloader_num_workers: 0          # 0 is required on Windows for stability
 # ----------------------------------------------------------------------------
 # Compute budget
 # -----------------------------------------------------------------------------
-# The four experiments are budget-matched so their losses stay comparable:
-#   Exp 2/3/4 (FL): num_rounds(3) x num_clients(3) x 500 samples = 4500 updates
-#   Exp 1  (SFT)  : num_rounds(1) x 4500 samples                 = 4500 updates
+# The experiments are matched on BOTH axes so their losses stay comparable:
+#
+#   updates  Exp 2/3/4 (FL) : num_rounds(3) x num_clients(3) x 500 = 4500
+#            Exp 1  (SFT)   : num_rounds(1) x 3 shards x 1500      = 4500
+#
+#   data     Federated round r reads window [(r-1)*500, r*500) of each shard,
+#            so 3 rounds cover client_k[0:1500] and the union over k is 4500
+#            unique records. Exp 1 pools exactly that union.
+#
+# The windowing is what makes the data axis match: with a fixed head slice every
+# round, an R-round federated run is R epochs over 500 examples and sees R times
+# less unique data than the centralized baseline, so the measured "cost of
+# federation" would mostly be a data-budget artefact.
+#
 # Set to `null` to consume the full shard (multi-day on a T600).
 # ----------------------------------------------------------------------------
-max_train_samples: 500             # per client, per round
+max_train_samples: 500             # per client, per round (per shard in Exp 1)
 
 # ----------------------------------------------------------------------------
 # Evaluation
@@ -118,6 +129,17 @@ gen_max_prompt_tokens: 384         # prompt truncation before generation
 enable_fl: false
 enable_blockchain: false
 enable_ipfs: false
+
+# ----------------------------------------------------------------------------
+# Aggregation
+# ----------------------------------------------------------------------------
+# enable_aggregation: false keeps the federated schedule but removes FedAvg, so
+# each client trains in isolation. That is the Exp 0 lower-bound ablation.
+# fedavg_weighted: true weights each client by |D_k| (McMahan et al.). It is a
+# no-op under an equal-sized IID split and matters under Dirichlet skew, where
+# shard sizes differ substantially.
+enable_aggregation: true
+fedavg_weighted: false
 
 # ----------------------------------------------------------------------------
 # Blockchain defaults (inert unless enable_blockchain: true)

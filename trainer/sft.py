@@ -348,11 +348,17 @@ class LocalTrainer:
         eos = getattr(self.load_tokenizer(), "eos_token", "") or ""
         return prompt + response + eos
 
-    def load_dataset(self, dataset_path: PathLike, max_samples: Optional[int] = None) -> Any:
-        """Load a JSONL shard and add the rendered ``text`` column."""
+    def _slice_shard(
+        self, path: Path, max_samples: Optional[int], sample_offset: int
+    ) -> Tuple[Any, int]:
+        """Load one JSONL shard and take the ``[offset, offset+max_samples)`` window.
+
+        The window wraps around the end of the shard, so a schedule that asks
+        for more samples than the shard holds degrades to repeating data rather
+        than silently training on fewer examples than every other participant.
+        """
         from datasets import load_dataset as hf_load_dataset
 
-        path = Path(dataset_path)
         if not path.exists():
             raise FileNotFoundError(
                 f"Dataset shard not found: {path}\n"
@@ -360,10 +366,82 @@ class LocalTrainer:
             )
 
         dataset = hf_load_dataset("json", data_files=str(path), split="train")
-        original_size = len(dataset)
+        available = len(dataset)
+        if available == 0:
+            return dataset, 0
 
-        if max_samples is not None and max_samples > 0 and max_samples < original_size:
-            dataset = dataset.select(range(max_samples))
+        if max_samples is None or max_samples <= 0 or max_samples >= available:
+            if sample_offset % available == 0:
+                return dataset, available
+            take = available
+        else:
+            take = int(max_samples)
+
+        start = int(sample_offset) % available
+        indices = [(start + i) % available for i in range(take)]
+        if take > available:
+            LOGGER.warning(
+                "%s holds %d records but %d were requested; the window repeats samples.",
+                path.name,
+                available,
+                take,
+            )
+        return dataset.select(indices), available
+
+    def load_dataset(
+        self,
+        dataset_path: Union[PathLike, Sequence[PathLike]],
+        max_samples: Optional[int] = None,
+        sample_offset: int = 0,
+    ) -> Any:
+        """Load one or more JSONL shards and add the rendered ``text`` column.
+
+        Parameters
+        ----------
+        dataset_path:
+            A single shard, or a sequence of shards to **pool**. Pooling is how
+            the centralized baseline is built: it consumes exactly the union of
+            what the federated clients consume, so the two paradigms differ in
+            *procedure* only and never in the data they were shown.
+        max_samples:
+            Cap applied **per shard**, not to the pool. With three client shards
+            and ``max_samples=1500`` the pooled baseline sees 4500 records - the
+            same 4500 the federated run sees across 3 rounds x 3 clients x 500.
+        sample_offset:
+            Index the window starts at, again per shard. The federated loop
+            passes ``(round - 1) * max_samples`` so that each round trains on
+            *fresh* records. Without it every round replays the head of the
+            shard, which turns an R-round run into R epochs over the same
+            ``max_samples`` examples and silently gives federation R-times less
+            unique data than the centralized baseline it is compared against.
+        """
+        paths = (
+            [Path(p) for p in dataset_path]
+            if isinstance(dataset_path, (list, tuple))
+            else [Path(dataset_path)]
+        )
+
+        parts: List[Any] = []
+        total_available = 0
+        for path in paths:
+            part, available = self._slice_shard(path, max_samples, sample_offset)
+            total_available += available
+            if len(part) > 0:
+                parts.append(part)
+
+        if not parts:
+            raise ValueError(f"No usable records in: {', '.join(str(p) for p in paths)}")
+
+        if len(parts) == 1:
+            dataset = parts[0]
+        else:
+            from datasets import concatenate_datasets
+
+            # Interleave the shards so the pooled baseline does not see all of
+            # client 1, then all of client 2, ... - that ordering would be a
+            # curriculum artefact rather than the IID stream a centralized
+            # trainer would actually observe.
+            dataset = concatenate_datasets(parts).shuffle(seed=int(self._get("seed", 42)))
 
         dataset = dataset.map(
             lambda example: {"text": self.format_example(example)},
@@ -373,11 +451,12 @@ class LocalTrainer:
         dataset = dataset.filter(lambda row: bool(row["text"]) and row["text"].strip() != "")
 
         LOGGER.info(
-            "Loaded %s: %d samples (of %d available) from %s",
-            path.name,
+            "Loaded %s: %d samples (offset=%d, %d available) from %d shard(s)",
+            ", ".join(p.name for p in paths),
             len(dataset),
-            original_size,
-            path.parent,
+            sample_offset,
+            total_available,
+            len(paths),
         )
         return dataset
 
@@ -545,20 +624,21 @@ class LocalTrainer:
     # =========================================================================
     def train_client(
         self,
-        dataset_path: PathLike,
+        dataset_path: Union[PathLike, Sequence[PathLike]],
         output_dir: PathLike,
         init_adapter_path: Optional[PathLike] = None,
         client_id: str = "client",
         epochs: Optional[float] = None,
         max_samples: Optional[int] = None,
         allow_resume: bool = True,
+        sample_offset: int = 0,
     ) -> Tuple[str, float]:
-        """Fine-tune one LoRA adapter on one shard.
+        """Fine-tune one LoRA adapter on one shard (or on a pool of shards).
 
         Parameters
         ----------
         dataset_path:
-            JSONL shard for this client.
+            JSONL shard for this client, or a sequence of shards to pool.
         output_dir:
             Directory the adapter is written to (created if absent).
         init_adapter_path:
@@ -569,6 +649,10 @@ class LocalTrainer:
             Label used in logs and metrics.
         epochs / max_samples:
             Per-call overrides of ``local_epochs`` / ``max_train_samples``.
+        sample_offset:
+            Start index of this call's window into the shard. The federated
+            orchestrator advances it every round so each round sees fresh data;
+            see ``load_dataset`` for why that matters for comparability.
         allow_resume:
             When True (default) and a ``checkpoint-*`` directory from a killed
             run is present in ``output_dir``, training continues from it rather
@@ -586,8 +670,20 @@ class LocalTrainer:
         if max_samples is None:
             max_samples = self._get("max_train_samples", None)
 
+        shard_label = (
+            ", ".join(Path(p).name for p in dataset_path)
+            if isinstance(dataset_path, (list, tuple))
+            else Path(dataset_path).name
+        )
         LOGGER.info("=" * 78)
-        LOGGER.info("Training %s | shard=%s | epochs=%.2f", client_id, Path(dataset_path).name, epochs)
+        LOGGER.info(
+            "Training %s | shard=%s | epochs=%.2f | window=[%d, %s)",
+            client_id,
+            shard_label,
+            epochs,
+            sample_offset,
+            sample_offset + max_samples if max_samples else "end",
+        )
         LOGGER.info("=" * 78)
 
         resume_identity = self._training_identity(
@@ -596,6 +692,7 @@ class LocalTrainer:
             client_id=client_id,
             epochs=epochs,
             max_samples=max_samples,
+            sample_offset=sample_offset,
         )
         manifest = self._read_training_manifest(out_dir)
         identity_matches = bool(
@@ -656,7 +753,9 @@ class LocalTrainer:
         backend = "unknown"
 
         try:
-            dataset = self.load_dataset(dataset_path, max_samples=max_samples)
+            dataset = self.load_dataset(
+                dataset_path, max_samples=max_samples, sample_offset=sample_offset
+            )
             if len(dataset) == 0:
                 raise ValueError(f"Shard {dataset_path} produced zero usable training samples.")
 
@@ -800,27 +899,39 @@ class LocalTrainer:
     # =========================================================================
     def _training_identity(
         self,
-        dataset_path: PathLike,
+        dataset_path: Union[PathLike, Sequence[PathLike]],
         init_adapter_path: Optional[PathLike],
         client_id: str,
         epochs: float,
         max_samples: Optional[int],
+        sample_offset: int = 0,
     ) -> Dict[str, Any]:
-        """Identity proving that an on-disk client artefact is safe to reuse."""
-        dataset = Path(dataset_path).resolve()
-        dataset_hash = sha256_path(dataset) if dataset.is_file() else None
+        """Identity proving that an on-disk client artefact is safe to reuse.
+
+        ``sample_offset`` is part of the identity: two rounds that read
+        different windows of the same shard are different training jobs, and a
+        cached adapter from one must never be replayed for the other.
+        """
+        raw_paths = (
+            list(dataset_path) if isinstance(dataset_path, (list, tuple)) else [dataset_path]
+        )
+        datasets = [Path(p).resolve() for p in raw_paths]
+        dataset_hashes = [
+            sha256_path(d) if d.is_file() else None for d in datasets
+        ]
         init_path = Path(init_adapter_path).resolve() if init_adapter_path else None
         init_hash = sha256_path(init_path) if init_path and init_path.exists() else None
         identity: Dict[str, Any] = {
-            "checkpoint_version": 1,
+            "checkpoint_version": 2,
             "config_fingerprint": compute_fingerprint(self.config),
             "client_id": client_id,
-            "dataset": str(dataset),
-            "dataset_hash": dataset_hash,
+            "dataset": [str(d) for d in datasets],
+            "dataset_hash": dataset_hashes,
             "init_adapter_path": str(init_path) if init_path else None,
             "init_adapter_hash": init_hash,
             "epochs": float(epochs),
             "max_samples": int(max_samples) if max_samples is not None else None,
+            "sample_offset": int(sample_offset),
         }
         import hashlib
 
@@ -843,12 +954,19 @@ class LocalTrainer:
         _write_client_metadata(out_dir, payload)
 
     @staticmethod
-    def _manifest_sample_count(dataset_path: PathLike) -> int:
-        try:
-            with open(dataset_path, "r", encoding="utf-8") as handle:
-                return sum(1 for line in handle if line.strip())
-        except OSError:
-            return 0
+    def _manifest_sample_count(dataset_path: Union[PathLike, Sequence[PathLike]]) -> int:
+        """Records available across one shard or a pooled list of shards."""
+        paths = (
+            list(dataset_path) if isinstance(dataset_path, (list, tuple)) else [dataset_path]
+        )
+        total = 0
+        for path in paths:
+            try:
+                with open(path, "r", encoding="utf-8") as handle:
+                    total += sum(1 for line in handle if line.strip())
+            except OSError:
+                continue
+        return total
 
     # =========================================================================
     # Step-level crash recovery

@@ -32,13 +32,22 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 #: Canonical experiment order for the comparison table.
-DEFAULT_ORDER: Tuple[str, ...] = ("exp1_sft", "exp2_fl", "exp3_fl_bc", "exp4_fedchain")
+DEFAULT_ORDER: Tuple[str, ...] = (
+    "exp0_local",
+    "exp1_sft",
+    "exp2_fl",
+    "exp3_fl_bc",
+    "exp4_fedchain",
+    "exp5_noniid",
+)
 
 SHORT_LABELS: Dict[str, str] = {
+    "exp0_local": "E0: Local-only",
     "exp1_sft": "E1: Centralized SFT",
     "exp2_fl": "E2: FedAvg",
     "exp3_fl_bc": "E3: FL + Blockchain",
     "exp4_fedchain": "E4: FedChain",
+    "exp5_noniid": "E5: FedChain non-IID",
 }
 
 
@@ -63,7 +72,8 @@ def _load_schema() -> Tuple[Tuple[str, str, str], ...]:
             ("ipfs_upload_latency_sec", "IPFS Upload Latency (s)", "float4"),
             ("ipfs_download_latency_sec", "IPFS Download Latency (s)", "float4"),
             ("aggregation_time_sec", "Aggregation Time (s)", "float4"),
-            ("end_to_end_round_duration_sec", "End-to-End Round Duration (s)", "float2"),
+            ("end_to_end_round_duration_sec", "Mean Round Duration (s)", "float2"),
+            ("total_round_time_sec", "Total Round Time (s)", "float2"),
         )
 
 
@@ -119,6 +129,195 @@ def discover_reports(results_dir: Path, order: Sequence[str]) -> List[Tuple[str,
             ordered.append((name, found.pop(name)))
     ordered.extend(sorted(found.items()))
     return ordered
+
+
+# =============================================================================
+# Multi-seed aggregation
+# =============================================================================
+#: Two-sided 95% critical values of Student's t, indexed by degrees of freedom.
+#: A seed sweep has 2-9 degrees of freedom, where the normal approximation
+#: (1.96) understates the interval by 20-300% - at df=2 the true value is 4.303.
+#: Reporting +-1.96 sigma from three seeds would overstate significance badly,
+#: which is exactly the error a reviewer checks for.
+_T_CRITICAL_95: Dict[int, float] = {
+    1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365,
+    8: 2.306, 9: 2.262, 10: 2.228, 12: 2.179, 15: 2.131, 20: 2.086, 30: 2.042,
+}
+
+
+def t_critical_95(degrees_of_freedom: int) -> float:
+    """Two-sided 95% t critical value, conservative for unlisted df."""
+    if degrees_of_freedom < 1:
+        return float("nan")
+    for df in sorted(_T_CRITICAL_95):
+        if degrees_of_freedom <= df:
+            return _T_CRITICAL_95[df]
+    return 1.96
+
+
+def summarise_values(values: Sequence[float]) -> Optional[Dict[str, float]]:
+    """Mean, sample standard deviation and 95% CI half-width for a metric."""
+    numeric = [float(v) for v in values if v is not None]
+    if not numeric:
+        return None
+    n = len(numeric)
+    mean = sum(numeric) / n
+    if n == 1:
+        return {"mean": mean, "std": 0.0, "n": 1, "ci95": float("nan")}
+    variance = sum((v - mean) ** 2 for v in numeric) / (n - 1)
+    std = variance ** 0.5
+    return {
+        "mean": mean,
+        "std": std,
+        "n": n,
+        "ci95": t_critical_95(n - 1) * std / (n ** 0.5),
+    }
+
+
+def paired_delta(
+    treatment: Sequence[float], baseline: Sequence[float]
+) -> Optional[Dict[str, Any]]:
+    """Paired per-seed difference (treatment - baseline) with a 95% CI.
+
+    Pairing by seed is what makes 3-5 runs informative: seed-to-seed variation
+    is shared by both arms and cancels, so the CI is over the *effect* rather
+    than over the noisy absolute scores. If the interval spans zero, the
+    experiment has not shown a difference and the paper must not claim one.
+    """
+    pairs = [
+        (float(t), float(b))
+        for t, b in zip(treatment, baseline)
+        if t is not None and b is not None
+    ]
+    if len(pairs) < 2:
+        return None
+    differences = [t - b for t, b in pairs]
+    stats = summarise_values(differences)
+    if stats is None:
+        return None
+    significant = abs(stats["mean"]) > stats["ci95"]
+    return {
+        "mean_difference": stats["mean"],
+        "ci95": stats["ci95"],
+        "n_pairs": len(pairs),
+        "significant_at_95": bool(significant),
+    }
+
+
+def discover_seed_reports(
+    results_dir: Path, order: Sequence[str]
+) -> Dict[str, List[Tuple[int, Dict[str, Any]]]]:
+    """Collect ``seed_*/`` subdirectories into {experiment: [(seed, report)]}.
+
+    Falls back to treating ``results_dir`` itself as one seed, so a single-seed
+    tree still renders (with n=1 and no confidence intervals, which is the
+    honest presentation of one run).
+    """
+    by_experiment: Dict[str, List[Tuple[int, Dict[str, Any]]]] = {}
+    seed_dirs = sorted(p for p in results_dir.glob("seed_*") if p.is_dir())
+    if not seed_dirs:
+        seed_dirs = [results_dir]
+
+    for seed_dir in seed_dirs:
+        try:
+            seed = int(seed_dir.name.split("_", 1)[1])
+        except (IndexError, ValueError):
+            seed = -1
+        for name, report in discover_reports(seed_dir, order):
+            actual = (report.get("metrics") or {}).get("seed")
+            by_experiment.setdefault(name, []).append(
+                (int(actual) if actual is not None else seed, report)
+            )
+    return by_experiment
+
+
+def build_seed_tables(
+    by_experiment: Dict[str, List[Tuple[int, Dict[str, Any]]]],
+    order: Sequence[str],
+    baseline_key: str,
+) -> List[str]:
+    """Mean +- CI table over seeds, plus paired deltas against the baseline."""
+    names = [n for n in order if n in by_experiment]
+    names.extend(sorted(n for n in by_experiment if n not in names))
+    if not names:
+        return []
+
+    def values_for(name: str, key: str) -> List[float]:
+        return [
+            (report.get("metrics") or {}).get(key)
+            for _, report in sorted(by_experiment[name], key=lambda pair: pair[0])
+        ]
+
+    # Accuracy metrics are the only ones a seed sweep is about; systems metrics
+    # are deterministic given the configuration and are reported once.
+    accuracy_keys = [
+        ("validation_loss", "Validation Loss", 4),
+        ("perplexity", "Perplexity", 4),
+        ("rouge_l", "ROUGE-L", 4),
+        ("bleu", "BLEU", 4),
+    ]
+
+    lines = ["## Accuracy across seeds (mean +- 95% CI)", ""]
+    seed_counts = {name: len(by_experiment[name]) for name in names}
+    lines.append(
+        "_Seeds per experiment: "
+        + ", ".join(f"{SHORT_LABELS.get(n, n)}={seed_counts[n]}" for n in names)
+        + "._"
+    )
+    lines.append("")
+
+    rows: List[List[str]] = []
+    for key, label, places in accuracy_keys:
+        row = [label]
+        for name in names:
+            stats = summarise_values(values_for(name, key))
+            if stats is None:
+                row.append("n/a")
+            elif stats["n"] == 1:
+                row.append(f"{stats['mean']:.{places}f} (n=1)")
+            else:
+                row.append(f"{stats['mean']:.{places}f} +- {stats['ci95']:.{places}f}")
+        rows.append(row)
+    lines.append(markdown_table(["Metric"] + [SHORT_LABELS.get(n, n) for n in names], rows))
+    lines.append("")
+
+    if baseline_key in by_experiment:
+        delta_rows: List[List[str]] = []
+        for name in names:
+            if name == baseline_key:
+                continue
+            for key, label, places in accuracy_keys[:2]:
+                delta = paired_delta(values_for(name, key), values_for(baseline_key, key))
+                if delta is None:
+                    continue
+                delta_rows.append(
+                    [
+                        SHORT_LABELS.get(name, name),
+                        label,
+                        f"{delta['mean_difference']:+.{places}f}",
+                        f"+-{delta['ci95']:.{places}f}",
+                        str(delta["n_pairs"]),
+                        "yes" if delta["significant_at_95"] else "no",
+                    ]
+                )
+        if delta_rows:
+            lines.append(f"## Paired difference vs `{baseline_key}` (per seed)")
+            lines.append("")
+            lines.append(
+                markdown_table(
+                    ["Experiment", "Metric", "Mean diff", "95% CI", "Seeds", "Significant"],
+                    delta_rows,
+                )
+            )
+            lines.append("")
+            lines.append(
+                "_'Significant' means the 95% CI of the paired difference excludes zero. "
+                "A 'no' is a real result - it says the audit layer changed nothing "
+                "measurable, which is the claim these experiments exist to support._"
+            )
+            lines.append("")
+
+    return lines
 
 
 def integrity_warnings(name: str, report: Dict[str, Any]) -> List[str]:
@@ -188,7 +387,7 @@ def build_overhead_rows(
                 delta("perplexity"),
                 absolute("communication_volume_mb", "float3"),
                 absolute("blockchain_gas_used", "int"),
-                absolute("end_to_end_round_duration_sec", "float2"),
+                absolute("total_round_time_sec", "float2"),
             ]
         )
     return rows
@@ -246,7 +445,7 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
         ("communication_volume_mb", "Comm (MB)", "float3"),
         ("adapter_size_mb", "Adapter (MB)", "float3"),
         ("blockchain_gas_used", "Gas", "int"),
-        ("end_to_end_round_duration_sec", "Round (s)", "float2"),
+        ("total_round_time_sec", "Total time (s)", "float2"),
     ]
 
     rows: List[List[str]] = []
@@ -293,6 +492,16 @@ def main(argv: Optional[List[str]] = None) -> int:
         help="Comma-separated experiment order for the table columns.",
     )
     parser.add_argument("--baseline", default="exp1_sft", help="Experiment used as the overhead baseline.")
+    parser.add_argument(
+        "--seeds",
+        action="store_true",
+        help=(
+            "Aggregate across seed_<N>/ subdirectories: report accuracy as "
+            "mean +- 95%% CI and add paired per-seed deltas against the baseline. "
+            "Use this for any accuracy claim - a single run cannot separate an "
+            "effect from seed noise."
+        ),
+    )
     args = parser.parse_args(argv)
 
     results_dir = Path(args.results_dir)
@@ -316,7 +525,26 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"\nWritten: {out_path}")
         return 0
 
-    reports = discover_reports(results_dir, order)
+    seed_tables: List[str] = []
+    if args.seeds:
+        by_experiment = discover_seed_reports(results_dir, order)
+        if not by_experiment:
+            print(f"ERROR: no seed_*/ results under {results_dir}", file=sys.stderr)
+            return 2
+        seed_tables = build_seed_tables(by_experiment, order, args.baseline)
+        # The per-experiment tables below describe one representative run; the
+        # lowest seed is chosen so the choice is deterministic rather than
+        # whichever run happened to sort first on disk.
+        reports = [
+            (name, sorted(runs, key=lambda pair: pair[0])[0][1])
+            for name, runs in by_experiment.items()
+        ]
+        ordered_names = [n for n in order if n in dict(reports)]
+        ordered_names.extend(sorted(n for n, _ in reports if n not in ordered_names))
+        lookup = dict(reports)
+        reports = [(n, lookup[n]) for n in ordered_names]
+    else:
+        reports = discover_reports(results_dir, order)
     if not reports:
         print(f"ERROR: no *_metrics.json files in {results_dir}", file=sys.stderr)
         return 2
@@ -363,8 +591,22 @@ def main(argv: Optional[List[str]] = None) -> int:
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
+    if seed_tables:
+        lines.append(
+            "_Single representative seed. Accuracy with confidence intervals is "
+            "in the next section - quote that, not this._"
+        )
+        lines.append("")
     lines.append(markdown_table(headers, rows))
     lines.append("")
+    lines.append(
+        "_Communication and adapter sizes are MiB (2^20 bytes). "
+        "'Mean Round Duration' is per federated round, so it is not comparable "
+        "across paradigms with different round counts - use 'Total Round Time'._"
+    )
+    lines.append("")
+
+    lines.extend(seed_tables)
 
     overhead = build_overhead_rows(reports, args.baseline)
     if overhead:
@@ -372,7 +614,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         lines.append("")
         lines.append(
             markdown_table(
-                ["Experiment", "d Val. Loss", "d Perplexity", "Comm (MB)", "Gas", "Round (s)"],
+                [
+                    "Experiment",
+                    "d Val. Loss",
+                    "d Perplexity",
+                    "Comm (MiB)",
+                    "Gas",
+                    "Total time (s)",
+                ],
                 overhead,
             )
         )

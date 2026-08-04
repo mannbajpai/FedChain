@@ -1,0 +1,71 @@
+# =============================================================================
+# Experiment 5 :: FedChain under a non-IID (label-skewed) partition
+# -----------------------------------------------------------------------------
+# Identical to Exp 4 in every respect except the data partition: clients hold
+# Dirichlet(alpha) skewed mixtures of Dolly's eight task categories instead of
+# IID slices.
+#
+# Why this experiment exists
+# --------------------------
+# Exps 1-4 use an IID split, where FedAvg is close to its best case and the
+# accuracy gap to centralized training is small almost by construction. A
+# federated-learning paper that only reports IID results is not evaluating the
+# regime federation is actually deployed in, and reviewers treat IID-only
+# results as evidence the method was not stress-tested. The audit-layer claim -
+# that anchoring and IPFS transport cost accuracy nothing - also needs to hold
+# where aggregation is genuinely hard, not only where every client is a copy of
+# every other.
+#
+# Prepare the shards first:
+#   python data/prepare_data.py --partition dirichlet --alpha 0.3
+#   python main.py --config configs/exp5_noniid.yaml
+#
+# Report Exp 5 against an Exp 0/1/2 rerun on the same non-IID shards, not
+# against the IID numbers.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "exp5_noniid"
+exp_description: "FedChain on a Dirichlet(0.3) label-skewed partition of Dolly-15k"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: true
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet/client1.jsonl"
+  - "data/dirichlet/client2.jsonl"
+  - "data/dirichlet/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Aggregation -------------------------------------------------------------
+# Sample-weighted FedAvg (McMahan et al.): weight each client by |D_k|.
+#
+# Note what this does and does not buy here. `max_train_samples` caps every
+# client at 500 records per round, so as long as each Dirichlet shard is larger
+# than the cap - which it is at these sizes - all clients contribute 500 samples
+# and the weights come out uniform. The skew in this experiment is therefore
+# *label* skew with balanced quantities, which is the standard Dirichlet
+# benchmark, not quantity skew. Describe it that way in the paper.
+#
+# Weighting starts to matter if you raise the cap above the smallest shard, or
+# set it to null to consume whole shards. Left on so that those variants are
+# correct without a config change.
+fedavg_weighted: true
+
+# --- Blockchain --------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""
+private_key: ""
+log_global_model: true
+
+# --- IPFS --------------------------------------------------------------------
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_roundtrip_aggregation: true
+verify_hash_on_download: true

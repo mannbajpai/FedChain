@@ -429,7 +429,7 @@ class IPFSManager:
         return cid
 
     # -- download ------------------------------------------------------------
-    def download_adapter(self, cid: str, target_path: PathLike) -> float:
+    def download_adapter(self, cid: str, target_path: PathLike) -> Tuple[float, int]:
         """Fetch a CID and materialise it at ``target_path``.
 
         If the payload is a gzip archive and ``target_path`` has no file
@@ -437,7 +437,12 @@ class IPFSManager:
         what the aggregator wants for a PEFT adapter. Otherwise the raw bytes
         are written to ``target_path``.
 
-        Returns the wall-clock download latency in seconds.
+        Returns
+        -------
+        (latency_sec, wire_bytes)
+            ``wire_bytes`` is the size of the payload that actually crossed the
+            network - i.e. post-compression, symmetric with what
+            ``upload_adapter`` reports for the same artefact.
         """
         start = time.perf_counter()
         target = Path(target_path)
@@ -478,7 +483,7 @@ class IPFSManager:
                 bytes_to_mb(size_bytes),
                 latency,
             )
-            return round(latency, 6)
+            return round(latency, 6), size_bytes
 
         except Exception as exc:
             latency = time.perf_counter() - start

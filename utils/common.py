@@ -274,6 +274,48 @@ def sha256_file(file_path: PathLike) -> str:
     return digest.hexdigest()
 
 
+#: Files whose bytes are not reproducible across processes and must therefore be
+#: canonicalised before they enter an anchored digest. ``adapter_config.json`` is
+#: the offender: PEFT keeps ``target_modules`` in a ``set``, and Python salts
+#: string hashes per process (PYTHONHASHSEED), so two runs that produce
+#: bit-identical *weights* still serialise the config with the members in a
+#: different order. Hashing the raw bytes would then make the on-chain
+#: commitment unreproducible for an independent auditor - which would defeat the
+#: entire point of anchoring it.
+CANONICAL_JSON_FILENAMES: Tuple[str, ...] = ("adapter_config.json",)
+
+
+def _canonical_json_bytes(file_path: PathLike) -> bytes:
+    """Re-serialise a JSON file into a byte string that is stable across runs.
+
+    Keys are sorted, and any list whose members are all strings is sorted too
+    (that is the ``set``-valued fields such as ``target_modules`` and
+    ``modules_to_save``). Falls back to the raw bytes when the file is not
+    parseable JSON, so a malformed artefact is never silently treated as equal
+    to a well-formed one.
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        with open(file_path, "rb") as handle:
+            return handle.read()
+
+    def canonicalise(node: Any) -> Any:
+        if isinstance(node, dict):
+            return {key: canonicalise(node[key]) for key in sorted(node)}
+        if isinstance(node, list):
+            members = [canonicalise(item) for item in node]
+            if all(isinstance(item, str) for item in members):
+                return sorted(members)
+            return members
+        return node
+
+    return json.dumps(
+        canonicalise(payload), sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+
+
 def sha256_directory(dir_path: PathLike, only: Optional[Iterable[str]] = None) -> str:
     """Deterministic SHA-256 over the contents of a directory.
 
@@ -282,6 +324,12 @@ def sha256_directory(dir_path: PathLike, only: Optional[Iterable[str]] = None) -
     sorted relative path, which makes the result stable across filesystems and
     operating systems (important: the paper's clients are simulated on Windows
     but the artefacts must verify on Linux nodes).
+
+    Files listed in ``CANONICAL_JSON_FILENAMES`` are folded in as canonical JSON
+    rather than as raw bytes, so the digest depends on the *content* of the
+    adapter and not on incidental serialisation order. This is what makes an
+    anchored hash reproducible by a third party who retrains from the same
+    seed and data.
     """
     root = Path(dir_path)
     allow = set(only) if only is not None else None
@@ -298,9 +346,12 @@ def sha256_directory(dir_path: PathLike, only: Optional[Iterable[str]] = None) -
         rel = file_path.relative_to(root).as_posix()
         digest.update(rel.encode("utf-8"))
         digest.update(b"\x00")
-        with open(file_path, "rb") as handle:
-            for chunk in iter(lambda: handle.read(_HASH_CHUNK), b""):
-                digest.update(chunk)
+        if file_path.name in CANONICAL_JSON_FILENAMES:
+            digest.update(_canonical_json_bytes(file_path))
+        else:
+            with open(file_path, "rb") as handle:
+                for chunk in iter(lambda: handle.read(_HASH_CHUNK), b""):
+                    digest.update(chunk)
         digest.update(b"\xff")
     return digest.hexdigest()
 

@@ -682,8 +682,41 @@ Adding a fifth experiment is a new YAML file plus one line in
 
 ### Reporting checklist
 
+Infrastructure:
+
 - [ ] `comparison.md` Warnings section is empty (no dry runs, no mock modes)
 - [ ] `"mode": "live"` and `"backend": "local"` in exps 3 and 4
 - [ ] `integrity_checks_passed == integrity_checks_total` in exp 4
-- [ ] All four experiments used the same `max_train_samples` and `num_rounds`
 - [ ] `environment.device.gpu_name` matches the hardware you claim
+
+Comparability - each of these has a specific way of going wrong silently:
+
+- [ ] All experiments used the same `max_train_samples` and `num_rounds`
+- [ ] Exp 1's `data_path` is the **list** of client shards, not
+      `centralized_full.jsonl`. The shards are contiguous slices of that
+      shuffled pool, so its head is one client's data and a "centralized"
+      baseline built from it never sees the other clients.
+- [ ] Exp 1's `max_train_samples` equals `num_rounds x` the federated cap
+      (per shard), so both arms consume the same 4500 unique records. Check the
+      `window=[a, b)` lines in the logs.
+- [ ] Federated logs show *advancing* windows across rounds
+      (`[0, 500)`, `[500, 1000)`, `[1000, 1500)`). A repeated `[0, 500)` means
+      the federated arm is doing 3 epochs over 500 samples while the baseline
+      does 1 epoch over 4500 - the resulting gap is a data artefact, not a cost
+      of federation.
+
+Claims:
+
+- [ ] Any accuracy claim comes from a `--seeds` sweep, and is quoted from the
+      "Accuracy across seeds" / "Paired difference" tables, not the
+      single-representative-run table above them
+- [ ] Timing comparisons across paradigms use **Total Round Time**, never
+      **Mean Round Duration** (Exp 1 has one round, the federated runs have
+      three, so the per-round row makes federation look ~3x faster)
+- [ ] Exp 0 is reported alongside Exp 1, so the federated numbers are bracketed
+      from both sides rather than only compared to the upper bound
+- [ ] Exp 6 shows 100% detection and 0% false positives; a non-zero
+      false-positive rate means adapter digests are not canonical and an
+      auditor cannot reproduce your commitments
+- [ ] Communication figures are labelled MiB, not MB (`bytes_to_mb` divides by
+      2^20)

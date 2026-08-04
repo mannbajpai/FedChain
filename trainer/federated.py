@@ -95,6 +95,9 @@ class FederatedOrchestrator:
 
         self.enable_blockchain = bool(self._get("enable_blockchain", False)) and self.blockchain is not None
         self.enable_ipfs = bool(self._get("enable_ipfs", False)) and self.ipfs is not None
+        # Local-only ablation switch. Default True = ordinary FedAvg.
+        self.enable_aggregation = bool(self._get("enable_aggregation", True))
+        self.local_adapter_paths: Dict[str, Path] = {}
         self.log_global_model = bool(self._get("log_global_model", True))
         self.verify_on_download = bool(self._get("verify_hash_on_download", True))
         self.ipfs_roundtrip = bool(self._get("ipfs_roundtrip_aggregation", True))
@@ -370,16 +373,31 @@ class FederatedOrchestrator:
         # ---------------- aggregate -----------------------------------------
         global_dir = round_dir / "global"
         client_weights = [r["num_samples"] for r in client_records if r["included_in_aggregate"]]
-        aggregation_metrics = self.aggregator.aggregate_lora_adapters(
-            aggregation_inputs,
-            global_dir,
-            client_weights=client_weights if any(client_weights) else None,
-        )
+        if self.enable_aggregation:
+            aggregation_metrics = self.aggregator.aggregate_lora_adapters(
+                aggregation_inputs,
+                global_dir,
+                client_weights=client_weights if any(client_weights) else None,
+            )
+            self.global_adapter_path = global_dir
+        else:
+            # Local-only ablation: no FedAvg step at all. Each client keeps its
+            # own lineage (see `_init_adapter_for`), so this measures what a
+            # participant achieves training alone on its own shard for the same
+            # number of updates. It is the reference that shows whether
+            # federation buys anything at all - without it, "FL costs +x% loss"
+            # has no counterpart showing what isolation costs.
+            aggregation_metrics = self._no_aggregation_metrics(
+                aggregation_inputs, global_dir
+            )
+            self.global_adapter_path = Path(aggregation_metrics["global_adapter_path"])
         self.total_aggregation_time += aggregation_metrics["aggregation_time_sec"]
-        self.global_adapter_path = global_dir
 
         # ---------------- publish + anchor the global model -----------------
-        global_record = self._publish_global(round_index, global_dir)
+        # With aggregation off there is no `global/` directory to publish; the
+        # representative artefact is client 1's own adapter.
+        publish_dir = Path(self.global_adapter_path or global_dir)
+        global_record = self._publish_global(round_index, publish_dir)
         # Broadcast accounting for the new global adapter:
         #   without IPFS - the server pushes it to each of the N clients: N x size
         #   with IPFS    - the server pins it once, then each client pulls it:
@@ -391,7 +409,11 @@ class FederatedOrchestrator:
         round_comm_bytes += broadcast_bytes
 
         # ---------------- evaluate ------------------------------------------
-        eval_metrics = self._evaluate_round(round_index, global_dir)
+        # Local-only has no aggregate worth scoring per round; every client is
+        # scored once at the end by `_evaluate_local_only`.
+        eval_metrics = (
+            self._evaluate_round(round_index, publish_dir) if self.enable_aggregation else None
+        )
 
         round_time = time.perf_counter() - round_start
         self.total_communication_bytes += round_comm_bytes
@@ -407,8 +429,8 @@ class FederatedOrchestrator:
             "clients": client_records,
             "aggregation": aggregation_metrics,
             "global_model": global_record,
-            "global_adapter_path": str(global_dir),
-            "global_adapter_mb": bytes_to_mb(path_size_bytes(global_dir)),
+            "global_adapter_path": str(publish_dir),
+            "global_adapter_mb": bytes_to_mb(path_size_bytes(publish_dir)),
             "evaluation": eval_metrics,
         }
 
@@ -424,6 +446,52 @@ class FederatedOrchestrator:
         return metrics
 
     # -- step 1: one client ---------------------------------------------------
+    def _sample_offset(self, round_index: int) -> int:
+        """Start index into each client shard for ``round_index`` (1-based).
+
+        Rounds consume *disjoint* windows: round 1 reads ``[0, C)``, round 2
+        reads ``[C, 2C)``, and so on for a per-round cap of ``C``. Replaying the
+        head of the shard every round would make an R-round federated run an
+        R-epoch pass over ``C`` examples, so the federation would see R times
+        less unique data than the centralized baseline it is compared to - and
+        the reported "cost of federation" would really be a data-budget
+        artefact. ``LocalTrainer.load_dataset`` wraps the window if a shard is
+        too small to serve every round.
+        """
+        cap = self._get("max_train_samples", None)
+        if not cap:
+            return 0
+        return (int(round_index) - 1) * int(cap)
+
+    def _init_adapter_for(self, client_id: str) -> Optional[Path]:
+        """Weights a client warm-starts from this round.
+
+        Federated: the previous round's *global* adapter, which is what makes
+        FedAvg iterative. Local-only: the client's own previous adapter, so the
+        ablation never benefits from anyone else's data.
+        """
+        if self.enable_aggregation:
+            return self.global_adapter_path
+        return self.local_adapter_paths.get(client_id)
+
+    def _no_aggregation_metrics(
+        self, aggregation_inputs: List[Path], global_dir: Path
+    ) -> Dict[str, Any]:
+        """Stand-in for the FedAvg record when aggregation is disabled."""
+        representative = str(aggregation_inputs[0]) if aggregation_inputs else str(global_dir)
+        return {
+            "num_clients": len(aggregation_inputs),
+            "weighting": "none (local-only ablation)",
+            "aggregation_time_sec": 0.0,
+            "global_adapter_path": representative,
+            "artifact_size_mb": bytes_to_mb(path_size_bytes(representative)),
+            "note": (
+                "Aggregation disabled: no averaging took place. The reported "
+                "adapter is client 1's; per-client scores are in "
+                "`per_client_evaluation`."
+            ),
+        }
+
     def _run_client(
         self, round_index: int, client_id: str, shard_path: Path, round_dir: Path
     ) -> Dict[str, Any]:
@@ -431,10 +499,13 @@ class FederatedOrchestrator:
         adapter_path, training_time = self.trainer.train_client(
             dataset_path=shard_path,
             output_dir=adapter_dir,
-            init_adapter_path=self.global_adapter_path,
+            init_adapter_path=self._init_adapter_for(client_id),
             client_id=f"{client_id}@r{round_index}",
             allow_resume=self.allow_step_resume,
+            sample_offset=self._sample_offset(round_index),
         )
+        if not self.enable_aggregation:
+            self.local_adapter_paths[client_id] = Path(adapter_path)
 
         adapter_bytes = path_size_bytes(adapter_path)
         record: Dict[str, Any] = {
@@ -557,11 +628,16 @@ class FederatedOrchestrator:
 
             target = retrieval_dir / record["client_id"]
             try:
-                latency = self.ipfs.download_adapter(cid, target)
+                latency, wire_bytes = self.ipfs.download_adapter(cid, target)
                 record["ipfs_download_latency_sec"] = latency
-                downloaded = path_size_bytes(target)
-                record["download_bytes"] = downloaded
-                retrieved_bytes += downloaded
+                # Count what crossed the wire, not what it expanded to on disk.
+                # The upload side is measured post-compression, so charging the
+                # download the *unpacked* directory size would make the same
+                # artefact cost ~27% more to fetch than it did to publish and
+                # would inflate exp4's communication volume against exp2/exp3.
+                record["download_bytes"] = wire_bytes
+                record["unpacked_bytes"] = path_size_bytes(target)
+                retrieved_bytes += wire_bytes
             except Exception as exc:
                 LOGGER.error("IPFS download failed for %s (%s): %s", record["client_id"], cid, exc)
                 paths.append(Path(record["adapter_path"]))
@@ -654,6 +730,53 @@ class FederatedOrchestrator:
             return int(cap) if cap else 0
         return min(total, int(cap)) if cap else total
 
+    def _evaluate_local_only(self) -> Optional[Dict[str, Any]]:
+        """Score every client's final adapter for the local-only ablation.
+
+        Reporting a single client would be arbitrary, and with non-IID shards
+        the spread across clients is itself a result: it is the variance that
+        aggregation is supposed to remove.
+        """
+        if self.evaluator is None or self.enable_aggregation or not self.round_metrics:
+            return None
+
+        final_round = self.round_metrics[-1]
+        per_client: List[Dict[str, Any]] = []
+        for record in final_round.get("clients", []):
+            try:
+                free_cuda_memory()
+                scores = self.evaluator.evaluate(
+                    record["adapter_path"], label=f"local_only:{record['client_id']}"
+                )
+            except Exception as exc:
+                LOGGER.error("Local-only evaluation failed for %s: %s", record["client_id"], exc)
+                continue
+            per_client.append({"client_id": record["client_id"], **scores})
+
+        if not per_client:
+            return None
+
+        def spread(key: str) -> Dict[str, float]:
+            values = [float(p[key]) for p in per_client if p.get(key) is not None]
+            if not values:
+                return {}
+            mean = sum(values) / len(values)
+            variance = sum((v - mean) ** 2 for v in values) / max(1, len(values) - 1)
+            return {
+                "mean": round(mean, 6),
+                "std": round(variance ** 0.5, 6),
+                "min": round(min(values), 6),
+                "max": round(max(values), 6),
+            }
+
+        return {
+            "per_client": per_client,
+            "loss": spread("loss"),
+            "perplexity": spread("perplexity"),
+            "rouge_l": spread("rouge_l"),
+            "bleu": spread("bleu"),
+        }
+
     def _build_summary(self, total_wall_clock: float) -> Dict[str, Any]:
         last_eval = None
         for metrics in reversed(self.round_metrics):
@@ -691,6 +814,26 @@ class FederatedOrchestrator:
         if integrity_checks:
             summary["integrity_checks_total"] = len(integrity_checks)
             summary["integrity_checks_passed"] = sum(1 for v in integrity_checks if v)
+
+        if not self.enable_aggregation:
+            summary["paradigm"] = "local_only"
+            summary["aggregation_enabled"] = False
+            local_scores = self._evaluate_local_only()
+            if local_scores:
+                summary["per_client_evaluation"] = local_scores
+                # Report the client mean as the headline number: no single
+                # client's adapter is "the" model when nothing was aggregated.
+                mean_scores = {
+                    key: local_scores[key].get("mean")
+                    for key in ("loss", "perplexity", "rouge_l", "bleu")
+                    if local_scores.get(key)
+                }
+                if mean_scores:
+                    summary["last_round_evaluation"] = {
+                        "label": "local_only_mean",
+                        "num_clients_averaged": len(local_scores["per_client"]),
+                        **mean_scores,
+                    }
 
         return summary
 

@@ -14,11 +14,19 @@
 #   4. compile + stage the FedChainAudit contract artifact
 #   5. download and partition Dolly-15k (skipped if the shards already exist)
 #   6. run a fast dry-run smoke test of the whole pipeline
-#   7. run experiments 1-4 sequentially
+#   7. run experiments 0-4 sequentially (optionally once per seed)
 #   8. aggregate everything into results/comparison.md
 #
 # Nothing here is destructive: existing nodes are reused and left running,
 # existing data shards and results are kept unless you pass --fresh.
+#
+# For a result set that can carry an accuracy claim, run a seed sweep and the
+# audit-layer experiments - a single run cannot separate an effect from seed
+# noise, and experiments 0-5 never test whether the audit layer detects
+# anything:
+#
+#   ./run_all.sh --model smol --seeds "42 43 44" --audit-experiments
+#   ./run_all.sh --model smol --noniid --experiments 5   # non-IID regime
 #
 # Run `./run_all.sh --help` for options.
 # =============================================================================
@@ -35,7 +43,8 @@ RESULTS_DIR="$REPO_ROOT/results"
 LOG_DIR="$RESULTS_DIR/logs"
 TORCH_INDEX="${FEDCHAIN_TORCH_INDEX:-https://download.pytorch.org/whl/cu121}"
 
-EXPERIMENTS="1 2 3 4"
+EXPERIMENTS="0 1 2 3 4"
+SEEDS=""              # "" => single run at the config seed; else e.g. "42 43 44"
 MODEL=""              # "" => use the model_name in the config (Qwen2.5-1.5B)
 DO_SETUP=1
 DO_INFRA=1
@@ -45,6 +54,9 @@ DO_COMPARE=1
 KEEP_NODES=1          # nodes we start are left running by default
 FRESH=0
 FORCE_RERUN=0         # re-run experiments that already produced a metrics.json
+DO_NONIID=0
+NONIID_ALPHA="0.3"
+DO_AUDIT=0
 EXTRA_ARGS=()
 STARTED_ANVIL=0
 STARTED_IPFS=0
@@ -77,7 +89,27 @@ Options:
                               all                  the full ladder, smallest first
                             Artefacts are scoped to results/<key>/ and
                             outputs/<key>/, so tiers never overwrite each other.
-  --experiments "1 2 3 4"   Which experiments to run (default: all four)
+  --experiments "0 1 2 3 4" Which experiments to run (default: 0 1 2 3 4)
+                              0  local-only, no aggregation   (lower bound)
+                              1  centralized SFT, pooled      (upper bound)
+                              2  FedAvg
+                              3  FedAvg + on-chain audit
+                              4  FedChain (+ IPFS transport)
+                              5  FedChain, non-IID Dirichlet shards
+                            Run `--experiments 5` only after preparing the
+                            non-IID shards; see --noniid below.
+  --seeds "42 43 44"        Repeat every experiment once per seed, writing to
+                            results/<tier>/seed_<N>/. Required for any accuracy
+                            claim: one run cannot separate a real effect from
+                            seed noise, and the comparison table reports mean
+                            +- 95% CI plus paired per-seed deltas only when
+                            more than one seed is present.
+  --noniid [ALPHA]          Also generate Dirichlet-skewed shards into
+                            data/dirichlet/ (default alpha 0.3) for experiment 5.
+  --audit-experiments       After the training runs, execute the two audit-layer
+                            experiments (no GPU needed, a few minutes):
+                              6  tamper detection / false-positive rate
+                              7  gas and latency versus clients and model size
   --skip-setup              Do not create the venv or install dependencies
   --skip-infra              Do not start/check anvil or the IPFS daemon
   --skip-data               Do not run data/prepare_data.py
@@ -119,6 +151,13 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --model)        MODEL="$2"; shift 2 ;;
         --experiments)  EXPERIMENTS="$2"; shift 2 ;;
+        --seeds)        SEEDS="$2"; shift 2 ;;
+        --noniid)
+            DO_NONIID=1
+            # Optional numeric argument; bare --noniid keeps the default alpha.
+            if [[ "${2:-}" =~ ^[0-9]+([.][0-9]+)?$ ]]; then NONIID_ALPHA="$2"; shift; fi
+            shift ;;
+        --audit-experiments) DO_AUDIT=1; shift ;;
         --skip-setup)   DO_SETUP=0;   shift ;;
         --skip-infra)   DO_INFRA=0;   shift ;;
         --skip-data)    DO_DATA=0;    shift ;;
@@ -338,9 +377,25 @@ if [[ $DO_DATA -eq 0 ]]; then
 elif [[ $SHARDS_PRESENT -eq 1 ]]; then
     ok "all shards already present in data/ - not re-downloading"
 else
-    info "downloading and partitioning Dolly-15k"
+    info "downloading and partitioning Dolly-15k (IID)"
     "$PYTHON" data/prepare_data.py
     ok "data ready"
+fi
+
+# Non-IID shards are a separate partition of the same download, written to
+# data/dirichlet/ so both splits coexist and experiment 5 can be compared with
+# an IID rerun of experiments 0-2 on identical hyperparameters.
+if [[ $DO_NONIID -eq 1 && $DO_DATA -eq 1 ]]; then
+    if [[ -s "$REPO_ROOT/data/dirichlet/client1.jsonl" ]]; then
+        ok "non-IID shards already present in data/dirichlet/"
+    else
+        info "partitioning Dolly-15k with Dirichlet(alpha=$NONIID_ALPHA) label skew"
+        "$PYTHON" data/prepare_data.py --partition dirichlet --alpha "$NONIID_ALPHA"
+        ok "non-IID data ready"
+    fi
+    if ! grep -q "data/dirichlet/" configs/exp5_noniid.yaml 2>/dev/null; then
+        warn "configs/exp5_noniid.yaml does not point at data/dirichlet/ - check client_files"
+    fi
 fi
 
 # =============================================================================
@@ -371,13 +426,16 @@ fi
 step "[7/8] Running experiments: $EXPERIMENTS"
 
 declare -A CONFIG_OF=(
+    [0]="configs/exp0_local.yaml"
     [1]="configs/exp1_sft.yaml"
     [2]="configs/exp2_fl.yaml"
     [3]="configs/exp3_fl_bc.yaml"
     [4]="configs/exp4_fedchain.yaml"
+    [5]="configs/exp5_noniid.yaml"
 )
 declare -A NAME_OF=(
-    [1]="exp1_sft" [2]="exp2_fl" [3]="exp3_fl_bc" [4]="exp4_fedchain"
+    [0]="exp0_local" [1]="exp1_sft" [2]="exp2_fl" [3]="exp3_fl_bc"
+    [4]="exp4_fedchain" [5]="exp5_noniid"
 )
 
 # --- resolve the model ladder ------------------------------------------------
@@ -415,33 +473,51 @@ for mi in "${!MODEL_KEYS[@]}"; do
     model_id="${MODEL_IDS[$mi]}"
 
     if [[ -n "$model_key" ]]; then
-        exp_results_dir="$RESULTS_DIR/$model_key"
-        exp_output_root="$REPO_ROOT/outputs/$model_key"
-        MODEL_ARGS=(--model "$model_id"
-                    --results-dir "$exp_results_dir"
-                    --output-root "$exp_output_root")
+        tier_results_dir="$RESULTS_DIR/$model_key"
+        tier_output_root="$REPO_ROOT/outputs/$model_key"
         echo
         echo "#######################################################################"
         echo "# MODEL TIER: $model_key  ($model_id)"
         echo "#######################################################################"
     else
-        exp_results_dir="$RESULTS_DIR"
-        exp_output_root="$REPO_ROOT/outputs"
-        MODEL_ARGS=()
+        tier_results_dir="$RESULTS_DIR"
+        tier_output_root="$REPO_ROOT/outputs"
+    fi
+    mkdir -p "$tier_results_dir"
+    RESULT_DIRS+=("$tier_results_dir")
+
+# A seed sweep repeats the whole experiment set once per seed into its own
+# results/outputs subtree, so runs never share a checkpoint and the aggregator
+# can pair them by seed. The sentinel keeps the single-run layout unchanged.
+for seed in ${SEEDS:-__cfg__}; do
+    if [[ "$seed" == "__cfg__" ]]; then
+        exp_results_dir="$tier_results_dir"
+        exp_output_root="$tier_output_root"
+        SEED_ARGS=()
+        seed_label=""
+    else
+        exp_results_dir="$tier_results_dir/seed_$seed"
+        exp_output_root="$tier_output_root/seed_$seed"
+        SEED_ARGS=(--seed "$seed")
+        seed_label="seed_$seed/"
+        echo
+        echo "----- SEED $seed -----"
     fi
     mkdir -p "$exp_results_dir"
-    RESULT_DIRS+=("$exp_results_dir")
+
+    MODEL_ARGS=(--results-dir "$exp_results_dir" --output-root "$exp_output_root")
+    [[ -n "$model_key" ]] && MODEL_ARGS=(--model "$model_id" "${MODEL_ARGS[@]}")
 
 for n in $EXPERIMENTS; do
     cfg="${CONFIG_OF[$n]:-}"
     name="${NAME_OF[$n]:-}"
     if [[ -z "$cfg" ]]; then
-        warn "no such experiment: $n (expected 1-4)"
+        warn "no such experiment: $n (expected 0-5)"
         continue
     fi
 
-    label="$name"
-    [[ -n "$model_key" ]] && label="$model_key/$name"
+    label="$seed_label$name"
+    [[ -n "$model_key" ]] && label="$model_key/$seed_label$name"
     report="$exp_results_dir/${name}_metrics.json"
     ckpt="$exp_output_root/${name}/checkpoint.json"
 
@@ -484,7 +560,8 @@ PY
     echo "-----------------------------------------------------------------------"
 
     started=$SECONDS
-    RUN_ARGS=(--config "$cfg" ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"})
+    RUN_ARGS=(--config "$cfg" ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"}
+              ${SEED_ARGS[@]+"${SEED_ARGS[@]}"})
     [[ $FORCE_RERUN -eq 1 ]] && RUN_ARGS+=(--force)
     if "$PYTHON" main.py "${RUN_ARGS[@]}" ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}; then
         elapsed=$((SECONDS - started))
@@ -497,19 +574,72 @@ PY
         FAILED+=("$label")
     fi
 done   # experiments
+done   # seeds
 
 # Per-tier comparison table, built as soon as that tier finishes so a long
 # ladder produces usable output without waiting for the largest model.
+# With a seed sweep the table is built over seed_*/ and gains confidence
+# intervals plus paired deltas; without one it is the plain single-run table.
 if [[ $DO_COMPARE -eq 1 ]]; then
-    if compgen -G "$exp_results_dir/*_metrics.json" > /dev/null; then
-        "$PYTHON" scripts/compare_results.py --results-dir "$exp_results_dir" \
-            > "$exp_results_dir/comparison_stdout.txt" 2>&1 \
-            && ok "comparison table: $exp_results_dir/comparison.md" \
+    COMPARE_ARGS=(--results-dir "$tier_results_dir")
+    [[ -n "$SEEDS" ]] && COMPARE_ARGS+=(--seeds)
+    if compgen -G "$tier_results_dir/*_metrics.json" > /dev/null \
+       || compgen -G "$tier_results_dir/seed_*/*_metrics.json" > /dev/null; then
+        "$PYTHON" scripts/compare_results.py "${COMPARE_ARGS[@]}" \
+            > "$tier_results_dir/comparison_stdout.txt" 2>&1 \
+            && ok "comparison table: $tier_results_dir/comparison.md" \
             || warn "aggregation failed for ${model_key:-default}"
     fi
 fi
 
 done   # model tiers
+
+# =============================================================================
+# 7b. Audit-layer experiments (no GPU, minutes not hours)
+# =============================================================================
+if [[ $DO_AUDIT -eq 1 ]]; then
+    step "[7b/8] Audit-layer experiments (6: tamper detection, 7: scalability)"
+    audit_dir="${RESULT_DIRS[0]:-$RESULTS_DIR}"
+    audit_chain_args=()
+    # Reuse the live node when this script started or found one; otherwise the
+    # mock ledger gives identical detection results and estimated gas.
+    if [[ $STARTED_ANVIL -eq 0 ]] && ! curl -s -m 2 -X POST "$RPC_URL" \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' >/dev/null 2>&1; then
+        audit_chain_args+=(--mock-chain)
+        warn "no chain at $RPC_URL - audit experiments will report estimated gas"
+    fi
+
+    # A reference run's real adapters make the tamper experiment concrete;
+    # fall back to synthetic ones so it never depends on a finished GPU run.
+    tamper_args=(--results-dir "$audit_dir" --trials 20)
+    ref_root="$(ls -d "$REPO_ROOT"/outputs/*/exp4_fedchain 2>/dev/null | head -1 || true)"
+    if [[ -n "$ref_root" ]]; then
+        tamper_args+=(--adapter-root "$ref_root")
+        info "tamper experiment using real adapters from $ref_root"
+    else
+        tamper_args+=(--synthetic)
+        info "no completed exp4 run found; tamper experiment uses synthetic adapters"
+    fi
+
+    if "$PYTHON" scripts/tamper_experiment.py "${tamper_args[@]}" \
+            ${audit_chain_args[@]+"${audit_chain_args[@]}"} \
+            > "$audit_dir/exp6_tamper_stdout.txt" 2>&1; then
+        ok "tamper detection: $audit_dir/exp6_tamper_metrics.json"
+    else
+        fail "tamper experiment reported undetected attacks or false positives"
+        info "see $audit_dir/exp6_tamper_stdout.txt - this is a real failure, not a flake"
+        FAILED+=("exp6_tamper")
+    fi
+
+    if "$PYTHON" scripts/scalability_experiment.py --results-dir "$audit_dir" \
+            ${audit_chain_args[@]+"${audit_chain_args[@]}"} \
+            > "$audit_dir/exp7_scalability_stdout.txt" 2>&1; then
+        ok "scalability sweep: $audit_dir/exp7_scalability_metrics.json"
+    else
+        warn "scalability sweep failed (see $audit_dir/exp7_scalability_stdout.txt)"
+    fi
+fi
 
 # =============================================================================
 # 8. Aggregate
