@@ -195,6 +195,52 @@ contract_address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 ## 5. Running the experiments
 
+### Start with the model ladder, not the 1.5B model
+
+Qwen2.5-1.5B sits at the 4 GB VRAM ceiling and a full sweep takes 20–30 h.
+Do not debug at that scale. Run the same four experiments on progressively
+larger models and only commit to the top rung once the pipeline is proven:
+
+| Order | `--model` | Model | Purpose |
+|---|---|---|---|
+| 1 | `smol` (or `smollm2-360m`) | `HuggingFaceTB/SmolLM2-360M-Instruct` | Pipeline shakedown — fastest full run |
+| 2 | `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | Preliminary results at a usable scale |
+| 3 | `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | The configuration reported in the paper |
+
+```bash
+./run_all.sh --model smol           # 1. prove it works end to end
+./run_all.sh --model qwen-0.5b      # 2. sanity-check the numbers
+./run_all.sh --model qwen-1.5b      # 3. the paper run
+./run_all.sh --model all            # ...or all three back to back, smallest first
+```
+
+Each tier writes to its **own** directory, so nothing overwrites anything:
+
+```
+results/smollm2-360m/   outputs/smollm2-360m/
+results/qwen-0.5b/      outputs/qwen-0.5b/
+results/qwen-1.5b/      outputs/qwen-1.5b/
+results/comparison_across_models.md    <- all tiers in one table
+```
+
+Checkpoints are per-tier too, so `--model all` resumes correctly after a crash
+at any rung. See the ladder with `python utils/models.py --list`; any Hugging
+Face id also works (`--model Qwen/Qwen2.5-3B-Instruct`) and gets its own
+directory.
+
+Two things worth knowing:
+
+- **Hyperparameters are identical across tiers.** Only `model_name` changes.
+  That keeps the tiers comparable, and it means the 360M shakedown genuinely
+  exercises the same code path the 1.5B run will take.
+- **All three share the same LoRA target modules.** SmolLM2 is a Llama-family
+  model and Qwen2.5 is Qwen2-family, but both expose
+  `q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj` and both ship
+  a chat template. No config edits are needed to move between rungs.
+
+Omitting `--model` keeps the config default (Qwen2.5-1.5B) and the unscoped
+`results/` and `outputs/` paths, so earlier runs and docs stay valid.
+
 ### All four, autonomously
 
 ```bash
@@ -205,6 +251,7 @@ contract_address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 ```bash
 ./run_all.sh --experiments "3 4"
+./run_all.sh --model smol --experiments "3 4"
 ```
 
 ### One at a time
@@ -230,6 +277,8 @@ python scripts/compare_results.py
 ### Useful `main.py` flags
 
 ```
+--model TIER_OR_ID          Model tier (smol | qwen-0.5b | qwen-1.5b | any HF id);
+                            scopes artefacts to results/<key>/ and outputs/<key>/
 --num-rounds N              Override the federated round count
 --max-train-samples N       Samples per client per round
 --no-generation-metrics     Skip ROUGE-L / BLEU (saves several minutes per eval)
@@ -238,6 +287,8 @@ python scripts/compare_results.py
 --device cpu|cuda|auto      Force the compute device
 --force-mock-chain          Ignore a live RPC node
 --force-mock-ipfs           Ignore a live IPFS daemon
+--no-resume                 Ignore checkpoints and train from a clean start
+--force                     Archive prior recovery state and deliberately re-run
 --log-level DEBUG           Verbose logging
 ```
 
@@ -246,6 +297,83 @@ python scripts/compare_results.py
 ```bash
 ./run_all.sh -- --no-generation-metrics --log-level DEBUG
 ```
+
+### Resuming after a crash or reboot
+
+**Re-run the exact same command.** Nothing else is required — no flag, no
+cleanup step. Progress is recovered automatically and finished work is never
+repeated.
+
+```bash
+./run_all.sh          # crashed at hour 14
+./run_all.sh          # continues from hour 14, not from zero
+```
+
+#### What is saved, and how much you can lose
+
+Four levels of checkpointing cooperate, so the worst case is always small:
+
+| Level | What it protects | Worst-case loss |
+|---|---|---|
+| **Experiment** | `results/<exp>_metrics.json` exists | a whole experiment is skipped, 0 lost |
+| **Round** | committed round metrics + global adapter | the round in flight |
+| **Client stage** | trained → published → anchored → complete | one stage of one client |
+| **Optimizer step** | HF `checkpoint-N` every `save_steps` | ~25 optimizer steps (a few minutes) |
+
+Because the client record advances through stages, a crash *after* a client
+finished training but *before* its IPFS upload or on-chain anchor resumes at the
+upload — it does not retrain. Metrics recorded before the crash (training time,
+gas, transfer latency) are restored into the totals, so a resumed run reports
+the same numbers a single uninterrupted run would.
+
+#### Where the state lives
+
+```
+outputs/<exp_name>/checkpoint.json        current recovery state
+outputs/<exp_name>/checkpoint.json.bak    previous known-good generation
+outputs/<exp_name>/round_N/client_K/      per-client adapters (+ transient checkpoint-*)
+```
+
+Writes are atomic (`write` → `fsync` → `os.replace`), so a power cut leaves
+either the old complete checkpoint or the new one — never a truncated file.
+`checkpoint-*` step directories carry optimizer state and are deleted as soon as
+a client's final adapter is written, so they never inflate `adapter_size_mb` or
+the measured communication volume.
+
+#### Corruption is detected, not trusted
+
+Every checkpointed adapter records its SHA-256. On resume the file is re-hashed
+before it is reused. A half-written `adapter_model.safetensors` from a power cut
+fails that check and the client is retrained — it is never averaged into the
+global model.
+
+#### Do not change the config while resuming
+
+The checkpoint stores a fingerprint over the run-defining keys (model, seed,
+rounds, epochs, learning rate, LoRA settings, sample budget, client shards,
+feature switches). Change any of them and the stale checkpoint is **archived**
+as `checkpoint.stale-config-changed-<ts>.json` and the experiment restarts
+cleanly. This is deliberate: silently resuming across a hyperparameter change
+would produce a result corresponding to no single configuration.
+
+#### Deliberately starting over
+
+```bash
+./run_all.sh --force                    # re-run experiments that already finished
+./run_all.sh --no-resume                # ignore checkpoints, train from scratch
+./run_all.sh --fresh                    # delete outputs/ and results/ first
+python main.py --config configs/exp3_fl_bc.yaml --force --no-resume
+```
+
+#### Checking progress mid-run
+
+```bash
+python -c "import json;s=json.load(open('outputs/exp4_fedchain/checkpoint.json'));\
+print(s['status'], len(s['rounds']),'rounds done',\
+sorted((s.get('partial_round') or {}).get('clients',{})))"
+```
+
+`run_all.sh` prints the same summary before starting each experiment.
 
 ### Running unattended
 
@@ -442,13 +570,43 @@ which case stage the artifact manually (§4.5).
 Run `python data/prepare_data.py`.
 
 **Dataset download fails / gated**
-`huggingface-cli login`, then retry. Dolly-15k is public, so this is usually a
-network or proxy issue.
+Export a read-only Hugging Face token, then retry. This authenticates dataset,
+model, and tokenizer downloads and avoids the anonymous Hub warning:
+
+```bash
+export HF_TOKEN="hf_your_read_token"
+python data/prepare_data.py
+./run_all.sh
+```
+
+On PowerShell use `$env:HF_TOKEN = "hf_your_read_token"`. The code deliberately
+does not accept the token in YAML or CLI arguments, preventing it from leaking
+into reports, checkpoints, shell history, or process listings. Dolly-15k is
+public, so remaining failures are usually network or proxy issues.
 
 **A single experiment failed mid-run**
 `run_all.sh` continues to the next one and reports failures in its summary.
-Re-run just the failed one: `python main.py --config configs/exp3_fl_bc.yaml`,
-then `python scripts/compare_results.py`.
+Just re-run the same command — the failed experiment resumes from its
+checkpoint and the finished ones are skipped.
+
+**A run restarted from scratch instead of resuming**
+The configuration fingerprint changed. Look for
+`outputs/<exp>/checkpoint.stale-config-changed-*.json` and check the log line
+naming the change. Restore the original config to resume, or accept the clean
+restart. Note that `--quick`, `--num-rounds` and `--max-train-samples` all alter
+the fingerprint: a `--quick` pass and a full run are different experiments and
+cannot share a checkpoint.
+
+**Resumed run reports lower gas or transfer volume than expected**
+Only possible if the checkpoint was hand-edited or partially deleted. Delete
+`outputs/<exp>/checkpoint.json*` and re-run with `--force` for a clean
+measurement.
+
+**Disk filling up during a long run**
+`checkpoint-*` step directories hold optimizer state and are removed when each
+client finishes. If a run was killed mid-client they can linger; they are safe
+to delete once you accept losing that client's partial progress:
+`find outputs -name 'checkpoint-*' -type d -exec rm -rf {} +`
 
 **Ports 8545 / 5001 already in use**
 Either reuse what is running (the script does this automatically), or

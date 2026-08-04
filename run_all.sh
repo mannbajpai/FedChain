@@ -36,6 +36,7 @@ LOG_DIR="$RESULTS_DIR/logs"
 TORCH_INDEX="${FEDCHAIN_TORCH_INDEX:-https://download.pytorch.org/whl/cu121}"
 
 EXPERIMENTS="1 2 3 4"
+MODEL=""              # "" => use the model_name in the config (Qwen2.5-1.5B)
 DO_SETUP=1
 DO_INFRA=1
 DO_DATA=1
@@ -43,6 +44,7 @@ DO_SMOKE=1
 DO_COMPARE=1
 KEEP_NODES=1          # nodes we start are left running by default
 FRESH=0
+FORCE_RERUN=0         # re-run experiments that already produced a metrics.json
 EXTRA_ARGS=()
 STARTED_ANVIL=0
 STARTED_IPFS=0
@@ -66,6 +68,15 @@ usage() {
     cat <<'EOF'
 
 Options:
+  --model TIER              Model tier to run. Default: whatever the config says
+                            (Qwen2.5-1.5B). Accepts a key, an alias, a full
+                            Hugging Face id, a list, or "all":
+                              smollm2-360m | smol   HuggingFaceTB/SmolLM2-360M-Instruct
+                              qwen-0.5b            Qwen/Qwen2.5-0.5B-Instruct
+                              qwen-1.5b | qwen     Qwen/Qwen2.5-1.5B-Instruct
+                              all                  the full ladder, smallest first
+                            Artefacts are scoped to results/<key>/ and
+                            outputs/<key>/, so tiers never overwrite each other.
   --experiments "1 2 3 4"   Which experiments to run (default: all four)
   --skip-setup              Do not create the venv or install dependencies
   --skip-infra              Do not start/check anvil or the IPFS daemon
@@ -76,12 +87,29 @@ Options:
   --fresh                   Delete previous outputs/ and results/ before running
   --quick                   Fast sanity pass: 1 round, 20 samples, no generation
   --dry-run                 Synthetic adapters, no model download (~1 min total)
+  --force                   Re-run experiments that already have a metrics.json
+  --no-resume               Ignore checkpoints; restart each experiment from scratch
   --                        Everything after this is passed through to main.py
 
+Crash recovery:
+  Re-running the exact same command after a crash, an OOM kill or a reboot
+  continues where it stopped. Finished experiments are skipped, finished rounds
+  and clients are replayed from outputs/<exp>/checkpoint.json, and an
+  interrupted client restarts from its last step checkpoint - not from step 0.
+
+Recommended ladder (validate cheaply, then scale up):
+  ./run_all.sh --model smol           # 1. shakedown on SmolLM2-360M
+  ./run_all.sh --model qwen-0.5b      # 2. preliminary results
+  ./run_all.sh --model qwen-1.5b      # 3. the paper configuration
+  ./run_all.sh --model all            # ...or all three back to back
+
 Examples:
-  ./run_all.sh                                   # full benchmark
-  ./run_all.sh --quick                           # ~15 min end-to-end check
+  ./run_all.sh                                   # full benchmark, config default model
+  ./run_all.sh                                   # ...run again after a crash: resumes
+  ./run_all.sh --model smol --quick              # fastest possible sanity pass
   ./run_all.sh --experiments "3 4"               # only the decentralized runs
+  ./run_all.sh --force --experiments 2           # deliberately redo experiment 2
+  HF_TOKEN=hf_... ./run_all.sh                    # authenticated Hub downloads
   ./run_all.sh -- --no-generation-metrics        # skip ROUGE-L/BLEU everywhere
 EOF
 }
@@ -89,6 +117,7 @@ EOF
 # --- argument parsing --------------------------------------------------------
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --model)        MODEL="$2"; shift 2 ;;
         --experiments)  EXPERIMENTS="$2"; shift 2 ;;
         --skip-setup)   DO_SETUP=0;   shift ;;
         --skip-infra)   DO_INFRA=0;   shift ;;
@@ -101,6 +130,8 @@ while [[ $# -gt 0 ]]; do
             EXTRA_ARGS+=(--num-rounds 1 --max-train-samples 20 --no-generation-metrics)
             shift ;;
         --dry-run)      EXTRA_ARGS+=(--dry-run); DO_SMOKE=0; shift ;;
+        --force)        FORCE_RERUN=1; shift ;;
+        --no-resume)    EXTRA_ARGS+=(--no-resume); shift ;;
         -h|--help)      usage; exit 0 ;;
         --)             shift; while [[ $# -gt 0 ]]; do EXTRA_ARGS+=("$1"); shift; done ;;
         *)              fail "Unknown option: $1"; echo; usage; exit 2 ;;
@@ -117,6 +148,12 @@ echo " FedChain :: autonomous benchmark run"
 echo " started      : $(date -Is)"
 echo " repo         : $REPO_ROOT"
 echo " experiments  : $EXPERIMENTS"
+echo " model(s)     : ${MODEL:-<config default: Qwen2.5-1.5B>}"
+if [[ -n "${HF_TOKEN:-${HUGGING_FACE_HUB_TOKEN:-}}" ]]; then
+    echo " hf hub       : authenticated via HF_TOKEN"
+else
+    echo " hf hub       : anonymous (export HF_TOKEN to authenticate)"
+fi
 echo " transcript   : $RUN_LOG"
 echo "======================================================================="
 
@@ -311,7 +348,9 @@ fi
 # =============================================================================
 if [[ $DO_SMOKE -eq 1 ]]; then
     step "[6/8] Dry-run smoke test (no GPU, no model download)"
-    if "$PYTHON" main.py --config configs/exp4_fedchain.yaml --dry-run \
+    # --force so a leftover _smoke report from an earlier run cannot short-circuit
+    # the check; the scratch artefacts are removed immediately afterwards.
+    if "$PYTHON" main.py --config configs/exp4_fedchain.yaml --dry-run --force \
             --exp-name _smoke --log-level WARNING > "$LOG_DIR/smoke.log" 2>&1; then
         ok "full pipeline exercised: training -> IPFS -> chain -> FedAvg -> report"
         rm -f "$RESULTS_DIR/_smoke_metrics.json" "$RESULTS_DIR/_smoke_audit_trail.json" \
@@ -341,8 +380,57 @@ declare -A NAME_OF=(
     [1]="exp1_sft" [2]="exp2_fl" [3]="exp3_fl_bc" [4]="exp4_fedchain"
 )
 
+# --- resolve the model ladder ------------------------------------------------
+# utils/models.py is the single source of truth for keys, aliases and ids, so
+# the shell never hard-codes a Hugging Face repository name.
+MODEL_KEYS=()
+MODEL_IDS=()
+if [[ -n "$MODEL" ]]; then
+    # Invoked as a script, not `-m utils.models`: running the file directly
+    # bypasses utils/__init__.py, so resolving a model name never depends on
+    # PyYAML or anything else being importable.
+    if ! MODEL_LINES="$("$PYTHON" utils/models.py --resolve-list "$MODEL" 2>&1)"; then
+        fail "could not resolve --model '$MODEL'"
+        echo "$MODEL_LINES"
+        exit 2
+    fi
+    while IFS=$'\t' read -r _key _id; do
+        [[ -n "$_key" ]] || continue
+        MODEL_KEYS+=("$_key")
+        MODEL_IDS+=("$_id")
+    done <<< "$MODEL_LINES"
+    info "model ladder: ${MODEL_KEYS[*]}"
+else
+    MODEL_KEYS+=("")   # empty => keep the config's model_name and default paths
+    MODEL_IDS+=("")
+fi
+
 SUCCEEDED=()
 FAILED=()
+SKIPPED=()
+RESULT_DIRS=()
+
+for mi in "${!MODEL_KEYS[@]}"; do
+    model_key="${MODEL_KEYS[$mi]}"
+    model_id="${MODEL_IDS[$mi]}"
+
+    if [[ -n "$model_key" ]]; then
+        exp_results_dir="$RESULTS_DIR/$model_key"
+        exp_output_root="$REPO_ROOT/outputs/$model_key"
+        MODEL_ARGS=(--model "$model_id"
+                    --results-dir "$exp_results_dir"
+                    --output-root "$exp_output_root")
+        echo
+        echo "#######################################################################"
+        echo "# MODEL TIER: $model_key  ($model_id)"
+        echo "#######################################################################"
+    else
+        exp_results_dir="$RESULTS_DIR"
+        exp_output_root="$REPO_ROOT/outputs"
+        MODEL_ARGS=()
+    fi
+    mkdir -p "$exp_results_dir"
+    RESULT_DIRS+=("$exp_results_dir")
 
 for n in $EXPERIMENTS; do
     cfg="${CONFIG_OF[$n]:-}"
@@ -352,31 +440,91 @@ for n in $EXPERIMENTS; do
         continue
     fi
 
+    label="$name"
+    [[ -n "$model_key" ]] && label="$model_key/$name"
+    report="$exp_results_dir/${name}_metrics.json"
+    ckpt="$exp_output_root/${name}/checkpoint.json"
+
+    # Level 3 recovery: a completed experiment is never repeated.
+    if [[ -s "$report" && $FORCE_RERUN -eq 0 ]]; then
+        # A crash during an older/non-atomic report write may have left a
+        # non-empty but truncated file. Only valid JSON proves completion.
+        if "$PYTHON" -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$report" \
+                >/dev/null 2>&1; then
+            ok "$label already complete ($report) - skipping. Use --force to redo it."
+            SUCCEEDED+=("$label")
+            SKIPPED+=("$label")
+            continue
+        fi
+        warn "$report is not valid JSON; main.py will archive it and resume from checkpoint"
+    fi
+
     echo
     echo "-----------------------------------------------------------------------"
     echo " Experiment $n : $name"
     echo " config       : $cfg"
+    [[ -n "$model_key" ]] && echo " model        : $model_id  [$model_key]"
     echo " started      : $(date -Is)"
+    if [[ -s "$ckpt" ]]; then
+        # Levels 1+2 recovery: report what will be reused before starting.
+        "$PYTHON" - "$ckpt" <<'PY' || true
+import json, sys
+try:
+    s = json.load(open(sys.argv[1], encoding="utf-8"))
+except Exception:
+    sys.exit(0)
+partial = s.get("partial_round") or {}
+clients = sorted((partial.get("clients") or {}).keys())
+print(f" resume       : {len(s.get('rounds', []))} round(s) done"
+      + (f", round {partial['round']} has {len(clients)} client(s) done: {', '.join(clients)}"
+         if clients else "")
+      + f" [status={s.get('status')}, session #{s.get('sessions', 0) + 1}]")
+PY
+    fi
     echo "-----------------------------------------------------------------------"
 
     started=$SECONDS
-    if "$PYTHON" main.py --config "$cfg" ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}; then
+    RUN_ARGS=(--config "$cfg" ${MODEL_ARGS[@]+"${MODEL_ARGS[@]}"})
+    [[ $FORCE_RERUN -eq 1 ]] && RUN_ARGS+=(--force)
+    if "$PYTHON" main.py "${RUN_ARGS[@]}" ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}; then
         elapsed=$((SECONDS - started))
-        ok "$name finished in $((elapsed / 60))m $((elapsed % 60))s"
-        SUCCEEDED+=("$name")
+        ok "$label finished in $((elapsed / 60))m $((elapsed % 60))s"
+        SUCCEEDED+=("$label")
     else
         elapsed=$((SECONDS - started))
-        fail "$name FAILED after $((elapsed / 60))m $((elapsed % 60))s (see $RESULTS_DIR/$name.log)"
-        FAILED+=("$name")
+        fail "$label FAILED after $((elapsed / 60))m $((elapsed % 60))s (see $exp_results_dir/$name.log)"
+        info "progress is checkpointed - re-run this script to continue from here"
+        FAILED+=("$label")
     fi
-done
+done   # experiments
+
+# Per-tier comparison table, built as soon as that tier finishes so a long
+# ladder produces usable output without waiting for the largest model.
+if [[ $DO_COMPARE -eq 1 ]]; then
+    if compgen -G "$exp_results_dir/*_metrics.json" > /dev/null; then
+        "$PYTHON" scripts/compare_results.py --results-dir "$exp_results_dir" \
+            > "$exp_results_dir/comparison_stdout.txt" 2>&1 \
+            && ok "comparison table: $exp_results_dir/comparison.md" \
+            || warn "aggregation failed for ${model_key:-default}"
+    fi
+fi
+
+done   # model tiers
 
 # =============================================================================
 # 8. Aggregate
 # =============================================================================
 if [[ $DO_COMPARE -eq 1 && ${#SUCCEEDED[@]} -gt 0 ]]; then
-    step "[8/8] Building the comparison table"
-    "$PYTHON" scripts/compare_results.py --results-dir "$RESULTS_DIR" || warn "aggregation failed"
+    step "[8/8] Comparison tables"
+    for d in ${RESULT_DIRS[@]+"${RESULT_DIRS[@]}"}; do
+        [[ -f "$d/comparison.md" ]] && info "$d/comparison.md"
+    done
+    # Cross-tier view: only meaningful once more than one model has results.
+    if [[ ${#RESULT_DIRS[@]} -gt 1 ]] || compgen -G "$RESULTS_DIR/*/[a-z]*_metrics.json" > /dev/null; then
+        "$PYTHON" scripts/compare_results.py --across-models --results-dir "$RESULTS_DIR" \
+            && ok "cross-model table: $RESULTS_DIR/comparison_across_models.md" \
+            || warn "cross-model aggregation failed"
+    fi
 else
     step "[8/8] Aggregation (skipped)"
 fi
@@ -390,12 +538,17 @@ echo " RUN SUMMARY"
 echo "======================================================================="
 printf ' completed : %s\n' "${SUCCEEDED[*]:-none}"
 printf ' failed    : %s\n' "${FAILED[*]:-none}"
+printf ' skipped   : %s (already had results)\n' "${SKIPPED[*]:-none}"
 echo
 
 # Report whether the systems numbers are measured or synthetic - this decides
 # whether the run is publishable as-is.
-for name in ${SUCCEEDED[@]+"${SUCCEEDED[@]}"}; do
-    report="$RESULTS_DIR/${name}_metrics.json"
+for label in ${SUCCEEDED[@]+"${SUCCEEDED[@]}"}; do
+    if [[ "$label" == */* ]]; then
+        report="$RESULTS_DIR/${label%%/*}/${label##*/}_metrics.json"
+    else
+        report="$RESULTS_DIR/${label}_metrics.json"
+    fi
     [[ -f "$report" ]] || continue
     "$PYTHON" - "$report" <<'PY'
 import json, sys
@@ -408,17 +561,21 @@ if exp["enable_ipfs"]:
     bits.append(f"ipfs={ipfs['backend'] if ipfs else '?'}")
 suffix = f"  [{', '.join(bits)}]" if bits else ""
 flag = " <-- MOCK: systems metrics are synthetic" if "mock" in " ".join(bits) else ""
-print(f"   {exp['name']:<16} loss={report['metrics']['validation_loss']}"
+tier = exp.get("model_tier", "-")
+print(f"   {tier:<14} {exp['name']:<16} loss={report['metrics']['validation_loss']}"
       f" ppl={report['metrics']['perplexity']}{suffix}{flag}")
 PY
 done
 
 echo
 echo " artefacts:"
-echo "   $RESULTS_DIR/comparison.md      cross-experiment table"
-echo "   $RESULTS_DIR/comparison.csv     same numbers for plotting"
-echo "   $RESULTS_DIR/<exp>_metrics.json full per-run report"
-echo "   $LOG_DIR/                       transcripts and node logs"
+for d in ${RESULT_DIRS[@]+"${RESULT_DIRS[@]}"}; do
+    echo "   $d/comparison.md"
+done
+[[ -f "$RESULTS_DIR/comparison_across_models.md" ]] && \
+    echo "   $RESULTS_DIR/comparison_across_models.md   model-ladder table"
+echo "   <results-dir>/<exp>_metrics.json  full per-run report"
+echo "   $LOG_DIR/                         transcripts and node logs"
 if [[ $KEEP_NODES -eq 1 && ( $STARTED_ANVIL -eq 1 || $STARTED_IPFS -eq 1 ) ]]; then
     echo
     echo " note: anvil/ipfs were started by this script and are still running."

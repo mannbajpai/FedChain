@@ -194,9 +194,99 @@ def build_overhead_rows(
     return rows
 
 
+def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[str]:
+    """Table spanning every model tier that has results under ``results_root``.
+
+    Each tier writes to ``results/<model_key>/``, so a ladder run
+    (SmolLM2-360M -> Qwen2.5-0.5B -> Qwen2.5-1.5B) leaves one subdirectory per
+    rung. This renders them as one table so the effect of model size on both
+    accuracy and systems overhead is visible at a glance.
+    """
+    tiers: List[Tuple[str, str, List[Tuple[str, Dict[str, Any]]]]] = []
+    for sub in sorted(p for p in results_root.iterdir() if p.is_dir() and p.name != "logs"):
+        reports = discover_reports(sub, order)
+        if not reports:
+            continue
+        model_name = ""
+        for _, report in reports:
+            model_name = (report.get("experiment") or {}).get("model_name") or (
+                report.get("config") or {}
+            ).get("model_name", "")
+            if model_name:
+                break
+        tiers.append((sub.name, model_name, reports))
+
+    if not tiers:
+        return None
+
+    lines: List[str] = ["# FedChain - Model Ladder Comparison", ""]
+    lines.append(
+        "Each row is one (model tier, experiment) pair. Tiers are separate runs "
+        "with identical hyperparameters, so accuracy differences reflect model "
+        "capacity and systems differences reflect adapter size."
+    )
+    lines.append("")
+
+    lines.append("## Tiers")
+    lines.append("")
+    lines.append(
+        markdown_table(
+            ["Tier", "Model", "Experiments with results"],
+            [[key, name or "-", ", ".join(n for n, _ in reports)] for key, name, reports in tiers],
+        )
+    )
+    lines.append("")
+
+    columns = [
+        ("validation_loss", "Val Loss", "float4"),
+        ("perplexity", "PPL", "float4"),
+        ("rouge_l", "ROUGE-L", "float4"),
+        ("bleu", "BLEU", "float4"),
+        ("training_time_sec", "Train (s)", "float2"),
+        ("communication_volume_mb", "Comm (MB)", "float3"),
+        ("adapter_size_mb", "Adapter (MB)", "float3"),
+        ("blockchain_gas_used", "Gas", "int"),
+        ("end_to_end_round_duration_sec", "Round (s)", "float2"),
+    ]
+
+    rows: List[List[str]] = []
+    warnings: List[str] = []
+    for tier_key, _, reports in tiers:
+        for exp_name, report in reports:
+            metrics = report.get("metrics") or {}
+            rows.append(
+                [tier_key, SHORT_LABELS.get(exp_name, exp_name)]
+                + [format_value(metrics.get(key), kind) for key, _, kind in columns]
+            )
+            warnings.extend(f"{tier_key}/{w}" for w in integrity_warnings(exp_name, report))
+
+    lines.append("## Metrics")
+    lines.append("")
+    lines.append(
+        markdown_table(["Tier", "Experiment"] + [label for _, label, _ in columns], rows)
+    )
+    lines.append("")
+
+    if warnings:
+        lines.append("## Warnings")
+        lines.append("")
+        lines.extend(f"- {w}" for w in warnings)
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Aggregate FedChain experiment results.")
     parser.add_argument("--results-dir", default=str(PROJECT_ROOT / "results"))
+    parser.add_argument(
+        "--across-models",
+        action="store_true",
+        help=(
+            "Build results/comparison_across_models.md from every model-tier "
+            "subdirectory (results/<model_key>/) instead of a single directory."
+        ),
+    )
     parser.add_argument(
         "--order",
         default=",".join(DEFAULT_ORDER),
@@ -211,6 +301,21 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
 
     order = [s.strip() for s in args.order.split(",") if s.strip()]
+
+    if args.across_models:
+        markdown = build_across_models(results_dir, order)
+        if markdown is None:
+            print(
+                f"ERROR: no model-tier subdirectories with results under {results_dir}",
+                file=sys.stderr,
+            )
+            return 2
+        out_path = results_dir / "comparison_across_models.md"
+        out_path.write_text(markdown, encoding="utf-8")
+        print(markdown)
+        print(f"\nWritten: {out_path}")
+        return 0
+
     reports = discover_reports(results_dir, order)
     if not reports:
         print(f"ERROR: no *_metrics.json files in {results_dir}", file=sys.stderr)

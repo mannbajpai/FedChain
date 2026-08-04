@@ -719,6 +719,26 @@ class BlockchainLogger:
             LOGGER.error("INTEGRITY FAILURE: expected %s, computed %s", expected_hash, actual)
         return ok
 
+    def restore_receipts(self, receipts: List[Dict[str, Any]]) -> int:
+        """Re-seed receipts from a checkpoint after a crash.
+
+        On resume the transactions anchored before the crash are real and must
+        still count towards total gas and latency, but they must not be
+        re-submitted. Rehydrating them here keeps ``get_metrics_summary()``
+        reporting the whole run rather than only the current session.
+        """
+        restored = 0
+        known_fields = {f for f in AuditReceipt.__dataclass_fields__}  # type: ignore[attr-defined]
+        for entry in receipts or []:
+            try:
+                self.receipts.append(AuditReceipt(**{k: v for k, v in entry.items() if k in known_fields}))
+                restored += 1
+            except Exception as exc:
+                LOGGER.warning("Skipping unreadable checkpointed receipt: %s", exc)
+        if restored:
+            LOGGER.info("Restored %d blockchain receipt(s) from the checkpoint.", restored)
+        return restored
+
     def get_metrics_summary(self) -> Dict[str, Any]:
         """Aggregate systems metrics across every transaction of the run."""
         successful = [r for r in self.receipts if r.status == "success"]

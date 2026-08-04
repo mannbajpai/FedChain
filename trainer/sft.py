@@ -39,7 +39,16 @@ import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
-from utils.common import Timer, cuda_peak_memory_mb, format_duration, free_cuda_memory, get_device
+from utils.checkpoint import adapter_is_complete, adapter_matches_hash, compute_fingerprint
+from utils.common import (
+    Timer,
+    cuda_peak_memory_mb,
+    format_duration,
+    free_cuda_memory,
+    get_device,
+    hf_auth_kwargs,
+    sha256_path,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -127,6 +136,13 @@ class LocalTrainer:
         self.dry_run: bool = bool(self._get("dry_run", False))
         self.keep_model_loaded: bool = bool(self._get("keep_model_loaded", False))
 
+        # Intra-training crash recovery: HF Trainer writes optimizer + scheduler
+        # + adapter state every `save_steps`, and a killed run resumes from the
+        # last one instead of restarting the client from step 0.
+        self.step_checkpoints: bool = bool(self._get("enable_step_checkpoints", True))
+        self.save_steps: int = int(self._get("save_steps", 25))
+        self.save_total_limit: int = int(self._get("save_total_limit", 2))
+
         # 4-bit only makes sense on CUDA: bitsandbytes has no CPU kernels for it.
         self.use_4bit: bool = bool(self._get("load_in_4bit", True)) and self.use_cuda
         if bool(self._get("load_in_4bit", True)) and not self.use_cuda:
@@ -185,6 +201,7 @@ class LocalTrainer:
             self.model_name,
             trust_remote_code=bool(self._get("trust_remote_code", False)),
             use_fast=True,
+            **hf_auth_kwargs(),
         )
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
@@ -219,6 +236,7 @@ class LocalTrainer:
             "trust_remote_code": bool(self._get("trust_remote_code", False)),
             "attn_implementation": str(self._get("attn_implementation", "sdpa")),
             "low_cpu_mem_usage": True,
+            **hf_auth_kwargs(),
         }
 
         compute_dtype = self._compute_dtype()
@@ -409,7 +427,6 @@ class LocalTrainer:
             "max_grad_norm": float(self._get("max_grad_norm", 0.3)),
             "optim": optim,
             "logging_steps": int(self._get("logging_steps", 10)),
-            "save_strategy": "no",
             "report_to": [],
             "seed": int(self._get("seed", 42)),
             "gradient_checkpointing": bool(self._get("gradient_checkpointing", True)),
@@ -421,6 +438,17 @@ class LocalTrainer:
             "fp16": self.use_cuda and compute_dtype == torch.float16,
             "bf16": self.use_cuda and compute_dtype == torch.bfloat16,
         }
+
+        if self.step_checkpoints:
+            # Cap save_steps so short clients still get at least one mid-run
+            # checkpoint, and so a 1-step client does not save every step.
+            save_steps = max(1, min(self.save_steps, max(1, total_steps // 2)))
+            kwargs["save_strategy"] = "steps"
+            kwargs["save_steps"] = save_steps
+            kwargs["save_total_limit"] = max(1, self.save_total_limit)
+            kwargs["save_safetensors"] = True
+        else:
+            kwargs["save_strategy"] = "no"
 
         max_steps = int(self._get("max_steps", -1) or -1)
         if max_steps > 0:
@@ -523,6 +551,7 @@ class LocalTrainer:
         client_id: str = "client",
         epochs: Optional[float] = None,
         max_samples: Optional[int] = None,
+        allow_resume: bool = True,
     ) -> Tuple[str, float]:
         """Fine-tune one LoRA adapter on one shard.
 
@@ -540,6 +569,11 @@ class LocalTrainer:
             Label used in logs and metrics.
         epochs / max_samples:
             Per-call overrides of ``local_epochs`` / ``max_train_samples``.
+        allow_resume:
+            When True (default) and a ``checkpoint-*`` directory from a killed
+            run is present in ``output_dir``, training continues from it rather
+            than restarting at step 0. Pass False to force a clean restart, e.g.
+            after a configuration change invalidated the old state.
 
         Returns
         -------
@@ -556,8 +590,64 @@ class LocalTrainer:
         LOGGER.info("Training %s | shard=%s | epochs=%.2f", client_id, Path(dataset_path).name, epochs)
         LOGGER.info("=" * 78)
 
+        resume_identity = self._training_identity(
+            dataset_path=dataset_path,
+            init_adapter_path=init_adapter_path,
+            client_id=client_id,
+            epochs=epochs,
+            max_samples=max_samples,
+        )
+        manifest = self._read_training_manifest(out_dir)
+        identity_matches = bool(
+            manifest
+            and manifest.get("resume_fingerprint") == resume_identity["resume_fingerprint"]
+        )
+
+        if allow_resume and identity_matches and manifest.get("status") == "completed":
+            expected_hash = manifest.get("model_hash")
+            if adapter_is_complete(out_dir) and adapter_matches_hash(out_dir, expected_hash):
+                self._purge_step_checkpoints(out_dir, reason="completed adapter recovered")
+                training_time = float(manifest.get("training_time_sec", 0.0))
+                LOGGER.info(
+                    "Recovered completed adapter for %s from %s; no training repeated.",
+                    client_id,
+                    out_dir,
+                )
+                self.history.append(
+                    {
+                        "client_id": client_id,
+                        "dataset": str(dataset_path),
+                        "training_time_sec": round(training_time, 4),
+                        "adapter_path": str(out_dir),
+                        "recovered_completed_adapter": True,
+                    }
+                )
+                return str(out_dir), round(training_time, 4)
+
+        # Step checkpoints are only trustworthy when the adjacent manifest
+        # proves they were produced by this exact data/config/init-adapter
+        # combination. This also makes --no-resume a genuine clean restart.
+        if not allow_resume or not identity_matches:
+            self._purge_step_checkpoints(out_dir, reason="clean restart requested")
+
+        self._write_training_manifest(
+            out_dir,
+            {
+                **resume_identity,
+                "status": "in_progress",
+                "started_at": int(time.time()),
+            },
+        )
+
         if self.dry_run:
-            return self._train_dry_run(out_dir, client_id, init_adapter_path)
+            return self._train_dry_run(
+                out_dir,
+                client_id,
+                init_adapter_path,
+                dataset_path,
+                epochs,
+                resume_identity,
+            )
 
         start = time.perf_counter()
         trainer = None
@@ -574,17 +664,47 @@ class LocalTrainer:
             peft_model = self._prepare_peft_model(base_model, init_adapter_path)
             trainer, backend = self._build_trainer(peft_model, dataset, out_dir, epochs)
 
-            LOGGER.info("Starting local optimisation via %s ...", backend)
-            result = trainer.train()
+            resume_from = self._find_step_checkpoint(out_dir) if allow_resume else None
+            if resume_from:
+                LOGGER.info(
+                    "Resuming %s from step checkpoint %s (crash recovery).",
+                    client_id,
+                    Path(resume_from).name,
+                )
+                result = trainer.train(resume_from_checkpoint=resume_from)
+                resumed_from_step_checkpoint = True
+            else:
+                LOGGER.info("Starting local optimisation via %s ...", backend)
+                result = trainer.train()
+                resumed_from_step_checkpoint = False
             train_metrics = dict(getattr(result, "metrics", {}) or {})
 
             # `save_pretrained` on a PeftModel writes only the adapter
             # (adapter_config.json + adapter_model.safetensors), which is the
             # few-megabyte artefact that actually travels over IPFS.
             peft_model.save_pretrained(str(out_dir))
-            _write_client_metadata(out_dir, client_id, dataset_path, len(dataset), epochs, backend)
 
             training_time = time.perf_counter() - start
+            model_hash = sha256_path(out_dir)
+            self._write_training_manifest(
+                out_dir,
+                {
+                    **resume_identity,
+                    "status": "completed",
+                    "num_samples": len(dataset),
+                    "trainer_backend": backend,
+                    "training_time_sec": round(training_time, 4),
+                    "model_hash": model_hash,
+                    "completed_at": int(time.time()),
+                },
+            )
+
+            # Step checkpoints carry optimizer state and are far larger than the
+            # adapter. Remove them now that the final artefact exists, otherwise
+            # they would inflate adapter_size_mb, the IPFS payload and the
+            # measured communication volume.
+            self._purge_step_checkpoints(out_dir, reason="training completed")
+
             peak_mb = cuda_peak_memory_mb()
             LOGGER.info(
                 "%s finished in %s | train_loss=%s | peak VRAM=%s MB",
@@ -606,6 +726,7 @@ class LocalTrainer:
                     "train_runtime_sec": train_metrics.get("train_runtime"),
                     "peak_vram_mb": peak_mb,
                     "adapter_path": str(out_dir),
+                    "resumed_from_step_checkpoint": resumed_from_step_checkpoint,
                 }
             )
             return str(out_dir), round(training_time, 4)
@@ -621,7 +742,13 @@ class LocalTrainer:
             free_cuda_memory()
 
     def _train_dry_run(
-        self, out_dir: Path, client_id: str, init_adapter_path: Optional[PathLike]
+        self,
+        out_dir: Path,
+        client_id: str,
+        init_adapter_path: Optional[PathLike],
+        dataset_path: PathLike,
+        epochs: float,
+        resume_identity: Dict[str, Any],
     ) -> Tuple[str, float]:
         """Emit a structurally valid random adapter without loading any model."""
         start = time.perf_counter()
@@ -645,6 +772,18 @@ class LocalTrainer:
             init_from=init_adapter_path,
         )
         elapsed = time.perf_counter() - start
+        self._write_training_manifest(
+            out_dir,
+            {
+                **resume_identity,
+                "status": "completed",
+                "num_samples": self._manifest_sample_count(dataset_path),
+                "trainer_backend": "dry_run",
+                "training_time_sec": round(elapsed, 4),
+                "model_hash": sha256_path(out_dir),
+                "completed_at": int(time.time()),
+            },
+        )
         LOGGER.info("[dry-run] Synthetic adapter for %s written to %s (%.3fs)", client_id, out_dir, elapsed)
         self.history.append(
             {
@@ -655,6 +794,106 @@ class LocalTrainer:
             }
         )
         return str(out_dir), round(elapsed, 4)
+
+    # =========================================================================
+    # Per-client completion manifest
+    # =========================================================================
+    def _training_identity(
+        self,
+        dataset_path: PathLike,
+        init_adapter_path: Optional[PathLike],
+        client_id: str,
+        epochs: float,
+        max_samples: Optional[int],
+    ) -> Dict[str, Any]:
+        """Identity proving that an on-disk client artefact is safe to reuse."""
+        dataset = Path(dataset_path).resolve()
+        dataset_hash = sha256_path(dataset) if dataset.is_file() else None
+        init_path = Path(init_adapter_path).resolve() if init_adapter_path else None
+        init_hash = sha256_path(init_path) if init_path and init_path.exists() else None
+        identity: Dict[str, Any] = {
+            "checkpoint_version": 1,
+            "config_fingerprint": compute_fingerprint(self.config),
+            "client_id": client_id,
+            "dataset": str(dataset),
+            "dataset_hash": dataset_hash,
+            "init_adapter_path": str(init_path) if init_path else None,
+            "init_adapter_hash": init_hash,
+            "epochs": float(epochs),
+            "max_samples": int(max_samples) if max_samples is not None else None,
+        }
+        import hashlib
+
+        payload = json.dumps(identity, sort_keys=True, default=str).encode("utf-8")
+        identity["resume_fingerprint"] = hashlib.sha256(payload).hexdigest()
+        return identity
+
+    @staticmethod
+    def _read_training_manifest(out_dir: Path) -> Dict[str, Any]:
+        path = out_dir / "fedchain_client_meta.json"
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                value = json.load(handle)
+            return value if isinstance(value, dict) else {}
+        except (OSError, ValueError, TypeError):
+            return {}
+
+    @staticmethod
+    def _write_training_manifest(out_dir: Path, payload: Dict[str, Any]) -> None:
+        _write_client_metadata(out_dir, payload)
+
+    @staticmethod
+    def _manifest_sample_count(dataset_path: PathLike) -> int:
+        try:
+            with open(dataset_path, "r", encoding="utf-8") as handle:
+                return sum(1 for line in handle if line.strip())
+        except OSError:
+            return 0
+
+    # =========================================================================
+    # Step-level crash recovery
+    # =========================================================================
+    @staticmethod
+    def _find_step_checkpoint(out_dir: Path) -> Optional[str]:
+        """Locate the newest usable ``checkpoint-N`` directory, if any."""
+        if not out_dir.is_dir():
+            return None
+
+        try:
+            from transformers.trainer_utils import get_last_checkpoint
+
+            found = get_last_checkpoint(str(out_dir))
+            if found:
+                return found
+        except Exception as exc:  # older/newer transformers, or an odd layout
+            LOGGER.debug("get_last_checkpoint unavailable (%s); globbing instead.", exc)
+
+        candidates = []
+        for entry in out_dir.glob("checkpoint-*"):
+            if not entry.is_dir():
+                continue
+            suffix = entry.name.split("-")[-1]
+            if suffix.isdigit() and (entry / "trainer_state.json").exists():
+                candidates.append((int(suffix), entry))
+        if not candidates:
+            return None
+        return str(max(candidates)[1])
+
+    @staticmethod
+    def _purge_step_checkpoints(out_dir: Path, reason: str = "") -> int:
+        """Delete ``checkpoint-*`` directories; returns how many were removed."""
+        import shutil
+
+        if not out_dir.is_dir():
+            return 0
+        removed = 0
+        for entry in out_dir.glob("checkpoint-*"):
+            if entry.is_dir():
+                shutil.rmtree(entry, ignore_errors=True)
+                removed += 1
+        if removed:
+            LOGGER.debug("Removed %d step checkpoint(s) from %s (%s)", removed, out_dir, reason)
+        return removed
 
     # =========================================================================
     # Memory management
@@ -716,25 +955,16 @@ def _stable_offset(text: str, modulo: int = 1000) -> int:
     return int(hashlib.sha256(text.encode("utf-8")).hexdigest()[:8], 16) % modulo
 
 
-def _write_client_metadata(
-    out_dir: Path,
-    client_id: str,
-    dataset_path: PathLike,
-    num_samples: int,
-    epochs: float,
-    backend: str,
-) -> None:
-    """Sidecar provenance file (excluded from the on-chain adapter digest)."""
-    payload = {
-        "client_id": client_id,
-        "dataset": str(dataset_path),
-        "num_samples": num_samples,
-        "epochs": epochs,
-        "trainer_backend": backend,
-        "created_at": int(time.time()),
-    }
-    with open(out_dir / "fedchain_client_meta.json", "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
+def _write_client_metadata(out_dir: Path, payload: Dict[str, Any]) -> None:
+    """Atomically write the per-client recovery/provenance sidecar."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "fedchain_client_meta.json"
+    tmp_path = path.with_name(path.name + ".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2, default=str)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(tmp_path, path)
 
 
 def synthesize_adapter(

@@ -517,6 +517,27 @@ class IPFSManager:
         return blob_path.read_bytes()
 
     # -- metrics -------------------------------------------------------------
+    def restore_transfers(self, transfers: List[Dict[str, Any]]) -> int:
+        """Re-seed transfer records from a checkpoint after a crash.
+
+        Transfers completed before the crash really happened and must keep
+        contributing to the reported upload/download latency and volume, even
+        though the artefacts they moved are not re-uploaded on resume.
+        """
+        restored = 0
+        known_fields = {f for f in TransferRecord.__dataclass_fields__}  # type: ignore[attr-defined]
+        for entry in transfers or []:
+            try:
+                self.transfers.append(
+                    TransferRecord(**{k: v for k, v in entry.items() if k in known_fields})
+                )
+                restored += 1
+            except Exception as exc:
+                LOGGER.warning("Skipping unreadable checkpointed transfer: %s", exc)
+        if restored:
+            LOGGER.info("Restored %d IPFS transfer record(s) from the checkpoint.", restored)
+        return restored
+
     def get_metrics_summary(self) -> Dict[str, Any]:
         """Aggregate transfer metrics across the whole run."""
         uploads = [t for t in self.transfers if t.operation == "upload" and t.status == "success"]

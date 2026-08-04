@@ -145,6 +145,24 @@ ipfs_roundtrip_aggregation: true
 verify_hash_on_download: true
 
 # ----------------------------------------------------------------------------
+# Crash recovery
+# -----------------------------------------------------------------------------
+# A full sweep is 20-30 h; a power cut must not cost all of it. Four levels:
+#   1. step   - HF Trainer saves optimizer+adapter state every `save_steps`,
+#               so a killed client restarts from there, not from step 0.
+#   2. adapter- each finished adapter has an atomic, hash-verified manifest.
+#   3. client - trained/published/anchored stages and completed rounds are
+#               written to outputs/<exp>/checkpoint.json (+ a .bak generation).
+#   4. report - completed experiments are skipped on the next benchmark sweep.
+# The checkpoint is guarded by a fingerprint over the run-defining config keys:
+# change a hyperparameter and it is archived rather than silently reused.
+# ----------------------------------------------------------------------------
+enable_checkpointing: true         # manifests + staged client/round recovery
+enable_step_checkpoints: true      # intra-training optimizer checkpoints
+save_steps: 25                     # optimizer steps between step checkpoints
+save_total_limit: 2                # step checkpoints kept on disk at once
+
+# ----------------------------------------------------------------------------
 # I/O
 # ----------------------------------------------------------------------------
 output_root: "outputs"

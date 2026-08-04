@@ -22,6 +22,29 @@ fine-tuning paradigms, built to run end-to-end on consumer hardware
 - PyTorch SDPA attention
 - Automatic CUDA detection with graceful CPU fallback
 
+### Model ladder
+
+The 1.5B model sits at the 4 GB VRAM ceiling, so validate on smaller models
+first. `--model` selects the tier; hyperparameters are identical across all
+three, and each writes to its own `results/<key>/` and `outputs/<key>/`.
+
+| `--model` | Model | Purpose |
+|---|---|---|
+| `smol` / `smollm2-360m` | `HuggingFaceTB/SmolLM2-360M-Instruct` | pipeline shakedown |
+| `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | preliminary results |
+| `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | the paper configuration |
+
+```bash
+./run_all.sh --model smol         # 1. prove the pipeline
+./run_all.sh --model qwen-0.5b    # 2. check the numbers
+./run_all.sh --model qwen-1.5b    # 3. the paper run
+./run_all.sh --model all          # ...or all three, smallest first
+```
+
+`results/comparison_across_models.md` puts every tier in one table.
+Any Hugging Face id works too (`--model Qwen/Qwen2.5-3B-Instruct`); run
+`python utils/models.py --list` to see the ladder.
+
 ## Quick start
 
 Full setup and run instructions live in **[GUIDE.md](GUIDE.md)**. The short version:
@@ -33,6 +56,14 @@ Full setup and run instructions live in **[GUIDE.md](GUIDE.md)**. The short vers
 
 `run_all.sh` is idempotent and ends by writing `results/comparison.md`.
 Sanity-check first with `./run_all.sh --quick` (~15 min) or `./run_all.sh --dry-run` (~1 min).
+
+**Crash-safe.** A 20–30 h sweep survives power cuts, OOM kills and reboots: just
+re-run the same command. Finished experiments are skipped, finished rounds and
+clients are replayed from `outputs/<exp>/checkpoint.json`, and an interrupted
+client restarts from its last optimizer-step checkpoint rather than from step 0.
+Checkpointed adapters are re-hashed before reuse, so a half-written file from a
+power cut is retrained instead of silently averaged in. See
+[GUIDE.md](GUIDE.md#resuming-after-a-crash-or-reboot).
 
 Running a single experiment manually:
 
@@ -46,6 +77,26 @@ python main.py --config configs/exp4_fedchain.yaml
 python scripts/compare_results.py                    # build the comparison table
 ```
 
+For authenticated Hugging Face downloads (higher Hub rate limits and no
+unauthenticated-request warning), set `HF_TOKEN` before preparing data or
+starting training:
+
+```bash
+export HF_TOKEN="hf_your_read_token"
+./run_all.sh
+```
+
+PowerShell:
+
+```powershell
+$env:HF_TOKEN = "hf_your_read_token"
+python data/prepare_data.py
+python main.py --config configs/exp4_fedchain.yaml
+```
+
+The token is read only from the process environment; it is never placed in the
+YAML config, checkpoint fingerprint, logs, or metrics report.
+
 Validate the whole pipeline without a GPU or a model download:
 
 ```bash
@@ -55,6 +106,32 @@ python main.py --config configs/exp4_fedchain.yaml --dry-run
 `--dry-run` substitutes structurally valid synthetic LoRA adapters. Training and
 accuracy numbers become placeholders, but aggregation, hashing, IPFS transfer and
 on-chain anchoring all execute for real.
+
+## Crash recovery
+
+Checkpointing is enabled by default. If training is interrupted by a reboot,
+power loss, OOM kill, or closed terminal, run the **same command again**:
+
+```bash
+./run_all.sh
+# or: python main.py --config configs/exp4_fedchain.yaml
+```
+
+Recovery happens at four boundaries:
+
+- Hugging Face optimizer/adapter state is saved every `save_steps` (25 by
+  default), so an interrupted client resumes near its last optimizer step.
+- A completed adapter has an atomic, hash-verified client manifest, covering the
+  small crash window between training completion and orchestration bookkeeping.
+- Each trained/published/anchored client and each completed round is committed
+  to `outputs/<exp_name>/checkpoint.json`; the previous checkpoint generation
+  is retained as `checkpoint.json.bak`.
+- A finished experiment's metrics report causes `run_all.sh` to skip it.
+
+The checkpoint fingerprint includes training/evaluation settings and hashes of
+the configured data files. If either changes, stale state is archived and is
+not mixed into the new run. Use `--no-resume` for an intentional clean run, or
+`--force` to archive a completed run's checkpoint and execute it again.
 
 ## Outputs
 
@@ -66,6 +143,8 @@ results/<exp_name>_audit_trail.json      on-chain receipts + contract state   (e
 results/<exp_name>_ipfs_transfers.json   every upload/download with latency   (exp 4)
 results/<exp_name>.log                   run log
 outputs/<exp_name>/round_N/...           client and global adapters per round
+outputs/<exp_name>/checkpoint.json       atomic crash-recovery state
+outputs/<exp_name>/checkpoint.json.bak   previous known-good state
 ```
 
 Reported metrics: `validation_loss`, `perplexity`, `rouge_l`, `bleu`,

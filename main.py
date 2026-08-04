@@ -35,6 +35,7 @@ Results are printed as a Markdown table and written to
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
 import time
@@ -52,19 +53,28 @@ from ipfs.pinata_client import IPFSManager
 from trainer.aggregation import FedAvgAggregator
 from trainer.federated import FederatedOrchestrator
 from trainer.sft import LocalTrainer
+from utils.checkpoint import (
+    CheckpointManager,
+    adapter_is_complete,
+    adapter_matches_hash,
+    compute_fingerprint,
+)
 from utils.common import (
     bytes_to_mb,
     describe_environment,
     format_duration,
     free_cuda_memory,
     get_device,
+    get_hf_token,
     markdown_table,
     path_size_bytes,
     set_global_seed,
+    sha256_path,
     setup_logging,
     write_json,
 )
 from utils.config import load_config, resolve_path
+from utils.models import model_key_for, resolve_model
 
 LOGGER = logging.getLogger("fedchain")
 
@@ -107,6 +117,17 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Path to the experiment YAML (e.g. configs/exp4_fedchain.yaml).",
     )
     parser.add_argument("--exp-name", dest="exp_name", default=None, help="Override the experiment name.")
+    parser.add_argument(
+        "--model",
+        default=None,
+        metavar="TIER_OR_ID",
+        help=(
+            "Model tier to fine-tune. Accepts a ladder key or alias "
+            "(smollm2-360m|smol, qwen-0.5b, qwen-1.5b) or any Hugging Face id. "
+            "Artefacts are scoped under results/<key>/ and outputs/<key>/ so tiers "
+            "never overwrite each other. Run `python utils/models.py --list` for the ladder."
+        ),
+    )
     parser.add_argument("--seed", type=int, default=None, help="Override the random seed.")
     parser.add_argument("--num-rounds", dest="num_rounds", type=int, default=None, help="Override num_rounds.")
     parser.add_argument(
@@ -159,13 +180,29 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Force IPFS mock mode even when Pinata or a local daemon is reachable.",
     )
+    parser.add_argument(
+        "--no-resume",
+        action="store_true",
+        help=(
+            "Ignore any existing checkpoint and start this experiment from scratch. "
+            "By default a crashed run resumes from its last completed client/round."
+        ),
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-run even if results/<exp_name>_metrics.json already exists.",
+    )
     return parser
 
 
 def cli_overrides(args: argparse.Namespace) -> Dict[str, Any]:
     """Turn parsed flags into config overrides (``None`` values are dropped)."""
+    model_spec = resolve_model(getattr(args, "model", None))
+
     overrides: Dict[str, Any] = {
         "exp_name": args.exp_name,
+        "model_name": model_spec.hf_id if model_spec else None,
         "seed": args.seed,
         "num_rounds": args.num_rounds,
         "max_train_samples": args.max_train_samples,
@@ -181,6 +218,17 @@ def cli_overrides(args: argparse.Namespace) -> Dict[str, Any]:
     if args.skip_eval:
         overrides["eval_every_round"] = False
         overrides["eval_final"] = False
+    if args.no_resume:
+        overrides["enable_checkpointing"] = False
+
+    # Scope artefacts per model tier so a 360M shakedown cannot overwrite - or
+    # be mistaken for - a 1.5B result. Explicit --results-dir / --output-root
+    # always win, which is how run_all.sh drives multi-tier sweeps.
+    if model_spec is not None:
+        if args.results_dir is None:
+            overrides["results_dir"] = f"results/{model_spec.key}"
+        if args.output_root is None:
+            overrides["output_root"] = f"outputs/{model_spec.key}"
     return overrides
 
 
@@ -229,8 +277,17 @@ def build_evaluator(cfg: Any) -> Optional[Evaluator]:
 # =============================================================================
 # Experiment pipelines
 # =============================================================================
-def run_centralized(cfg: Any, evaluator: Optional[Evaluator]) -> Dict[str, Any]:
-    """Experiment 1: a single trainer over the pooled corpus."""
+def run_centralized(
+    cfg: Any, evaluator: Optional[Evaluator], checkpoint: CheckpointManager
+) -> Dict[str, Any]:
+    """Experiment 1: a single trainer over the pooled corpus.
+
+    Resumable at two levels: completed rounds are replayed from the checkpoint,
+    and an interrupted round restarts from the last ``checkpoint-N`` step
+    directory that HF Trainer wrote (see ``LocalTrainer._find_step_checkpoint``).
+    The step level matters most here - a single centralized pass over 4500
+    samples is hours of work with no natural round boundary.
+    """
     LOGGER.info("=" * 78)
     LOGGER.info("PIPELINE: centralized supervised fine-tuning (no federation)")
     LOGGER.info("=" * 78)
@@ -239,15 +296,36 @@ def run_centralized(cfg: Any, evaluator: Optional[Evaluator]) -> Dict[str, Any]:
     work_dir = resolve_path(cfg.get("output_root", "outputs")) / cfg.get("exp_name", "exp1_sft")
     adapter_dir = work_dir / "global"
 
+    checkpoint.load()
+    rounds: List[Dict[str, Any]] = checkpoint.completed_rounds
+    total_training_time = float(checkpoint.totals.get("training_time_sec", 0.0))
+    prior_wall_clock = float(checkpoint.totals.get("wall_clock_sec", 0.0))
+    allow_step_resume = bool(checkpoint.enabled) and (
+        checkpoint.stale_checkpoint_archived is None
+    )
+
+    global_adapter: Optional[Path] = None
+    stored_global = checkpoint.global_adapter_path
+    if stored_global and adapter_is_complete(stored_global) and adapter_matches_hash(
+        stored_global, checkpoint.global_adapter_hash
+    ):
+        global_adapter = Path(stored_global)
+    elif stored_global:
+        raise RuntimeError(
+            "Checkpointed centralized adapter is missing, incomplete, or corrupt: "
+            f"{stored_global}. Refusing to mark the run complete with invalid weights."
+        )
+
     trainer = LocalTrainer(cfg)
     overall_start = time.perf_counter()
-    total_training_time = 0.0
-    rounds: List[Dict[str, Any]] = []
-    global_adapter: Optional[Path] = None
+    num_rounds = int(cfg.get("num_rounds", 1))
+    start_round = len(rounds) + 1
+
+    if start_round > 1:
+        LOGGER.info("Resuming centralized run at round %d/%d.", start_round, num_rounds)
 
     try:
-        num_rounds = int(cfg.get("num_rounds", 1))
-        for round_index in range(1, num_rounds + 1):
+        for round_index in range(start_round, num_rounds + 1):
             round_start = time.perf_counter()
             round_output = adapter_dir if num_rounds == 1 else work_dir / f"round_{round_index}"
 
@@ -256,6 +334,7 @@ def run_centralized(cfg: Any, evaluator: Optional[Evaluator]) -> Dict[str, Any]:
                 output_dir=round_output,
                 init_adapter_path=global_adapter,
                 client_id=f"centralized@r{round_index}",
+                allow_resume=allow_step_resume,
             )
             total_training_time += training_time
             global_adapter = Path(adapter_path)
@@ -268,26 +347,51 @@ def run_centralized(cfg: Any, evaluator: Optional[Evaluator]) -> Dict[str, Any]:
                 except Exception as exc:
                     LOGGER.error("Round %d evaluation failed: %s", round_index, exc)
 
-            rounds.append(
-                {
-                    "round": round_index,
-                    "round_latency_sec": round(time.perf_counter() - round_start, 4),
-                    "training_time_sec": training_time,
+            round_metrics = {
+                "round": round_index,
+                "round_latency_sec": round(time.perf_counter() - round_start, 4),
+                "training_time_sec": training_time,
+                "aggregation_time_sec": 0.0,
+                "communication_mb": 0.0,
+                "global_adapter_path": str(global_adapter),
+                "global_adapter_mb": bytes_to_mb(path_size_bytes(global_adapter)),
+                "evaluation": round_eval,
+            }
+            rounds.append(round_metrics)
+            checkpoint.complete_round(
+                round_metrics=round_metrics,
+                global_adapter_path=str(global_adapter),
+                global_adapter_hash=sha256_path(global_adapter),
+                totals={
+                    "training_time_sec": total_training_time,
                     "aggregation_time_sec": 0.0,
-                    "communication_mb": 0.0,
-                    "global_adapter_path": str(global_adapter),
-                    "global_adapter_mb": bytes_to_mb(path_size_bytes(global_adapter)),
-                    "evaluation": round_eval,
-                }
+                    "communication_bytes": 0,
+                    "wall_clock_sec": prior_wall_clock,
+                },
             )
+    except Exception as exc:
+        checkpoint.mark_failed(str(exc))
+        LOGGER.error(
+            "Centralized run aborted (%s). Progress is checkpointed at %s - "
+            "re-run the same command to continue.",
+            exc,
+            checkpoint.path,
+        )
+        raise
     finally:
         trainer.cleanup()
+
+    session_wall_clock = time.perf_counter() - overall_start
+    total_wall_clock = prior_wall_clock + session_wall_clock
+    checkpoint.totals["wall_clock_sec"] = total_wall_clock
+    checkpoint.save()
 
     return {
         "paradigm": "centralized",
         "num_rounds": len(rounds),
         "num_clients": 1,
-        "total_wall_clock_sec": round(time.perf_counter() - overall_start, 4),
+        "total_wall_clock_sec": round(total_wall_clock, 4),
+        "session_wall_clock_sec": round(session_wall_clock, 4),
         "total_training_time_sec": round(total_training_time, 4),
         "total_aggregation_time_sec": 0.0,
         # Nothing crosses a participant boundary in the centralized baseline.
@@ -298,6 +402,7 @@ def run_centralized(cfg: Any, evaluator: Optional[Evaluator]) -> Dict[str, Any]:
         "global_adapter_path": str(global_adapter) if global_adapter else None,
         "global_adapter_mb": bytes_to_mb(path_size_bytes(global_adapter)) if global_adapter else 0.0,
         "last_round_evaluation": rounds[-1]["evaluation"] if rounds else None,
+        "checkpoint": checkpoint.describe(),
         "rounds": rounds,
     }
 
@@ -307,6 +412,7 @@ def run_federated(
     evaluator: Optional[Evaluator],
     blockchain_logger: Optional[BlockchainLogger],
     ipfs_manager: Optional[IPFSManager],
+    checkpoint: CheckpointManager,
 ) -> Dict[str, Any]:
     """Experiments 2-4: the federated loop, with optional audit and storage."""
     LOGGER.info("=" * 78)
@@ -324,6 +430,7 @@ def run_federated(
         blockchain_logger=blockchain_logger,
         ipfs_manager=ipfs_manager,
         evaluator=evaluator,
+        checkpoint=checkpoint,
     )
     try:
         return orchestrator.run()
@@ -403,6 +510,7 @@ def render_markdown(cfg: Any, metrics: Dict[str, Any], context: Dict[str, Any]) 
 
     context_rows = [
         ["Model", cfg.get("model_name")],
+        ["Model tier", context.get("model_tier")],
         ["Paradigm", context.get("paradigm")],
         ["Rounds x Clients", f"{context.get('num_rounds')} x {context.get('num_clients')}"],
         ["Device", context.get("device")],
@@ -437,7 +545,55 @@ def run_experiment(args: argparse.Namespace) -> Dict[str, Any]:
     LOGGER.info("FedChain :: %s", exp_name)
     LOGGER.info("%s", cfg.get("exp_description", ""))
     LOGGER.info("Config: %s", cfg.get("config_path"))
+    LOGGER.info(
+        "Model:  %s  [tier=%s]", cfg.get("model_name"), model_key_for(cfg.get("model_name"))
+    )
+    LOGGER.info(
+        "Hugging Face Hub: %s",
+        "authenticated via HF_TOKEN"
+        if get_hf_token()
+        else "anonymous (set HF_TOKEN for authenticated downloads)",
+    )
     LOGGER.info("=" * 78)
+
+    # Experiment-level short circuit: a finished run is not repeated.
+    report_path = results_dir / f"{exp_name}_metrics.json"
+    if report_path.exists() and not args.force:
+        try:
+            with open(report_path, "r", encoding="utf-8") as handle:
+                completed_report = json.load(handle)
+        except (OSError, ValueError, TypeError) as exc:
+            archived = report_path.with_name(
+                f"{report_path.stem}.corrupt-{int(time.time())}{report_path.suffix}"
+            )
+            LOGGER.warning(
+                "Existing report %s is unreadable (%s); archiving it as %s and resuming.",
+                report_path,
+                exc,
+                archived,
+            )
+            report_path.replace(archived)
+        else:
+            stored_fingerprint = str(
+                (completed_report.get("checkpoint") or {}).get("fingerprint") or ""
+            )
+            current_fingerprint = compute_fingerprint(cfg)
+            if not stored_fingerprint or current_fingerprint.startswith(stored_fingerprint):
+                LOGGER.info(
+                    "%s already exists - this experiment is complete. Pass --force to re-run it.",
+                    report_path,
+                )
+                return completed_report
+
+            archived = report_path.with_name(
+                f"{report_path.stem}.stale-config-{int(time.time())}{report_path.suffix}"
+            )
+            LOGGER.warning(
+                "Existing report was produced by a different config/data fingerprint; "
+                "archiving it as %s and starting the requested run.",
+                archived,
+            )
+            report_path.replace(archived)
 
     seed = set_global_seed(int(cfg.get("seed", 42)), bool(cfg.get("deterministic", False)))
     device, device_info = get_device(cfg.get("device", "auto"))
@@ -453,23 +609,49 @@ def run_experiment(args: argparse.Namespace) -> Dict[str, Any]:
     ipfs_manager = build_ipfs_manager(cfg, force_mock=args.force_mock_ipfs)
     evaluator = build_evaluator(cfg)
 
+    work_dir = resolve_path(cfg.get("output_root", "outputs")) / exp_name
+    work_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint = CheckpointManager(
+        checkpoint_path=work_dir / "checkpoint.json",
+        exp_name=exp_name,
+        config=cfg,
+        enabled=bool(cfg.get("enable_checkpointing", True)) and not args.no_resume,
+        paradigm="federated" if cfg.get("enable_fl", False) else "centralized",
+    )
+    if args.force:
+        LOGGER.info("--force: archiving existing recovery state and starting a new run.")
+        checkpoint.restart("forced-rerun")
+    if args.no_resume:
+        LOGGER.info("--no-resume: ignoring any existing checkpoint for %s.", exp_name)
+
     overall_start = time.perf_counter()
     final_eval: Optional[Dict[str, Any]] = None
 
     try:
         if cfg.get("enable_fl", False):
-            run_summary = run_federated(cfg, evaluator, blockchain_logger, ipfs_manager)
+            run_summary = run_federated(cfg, evaluator, blockchain_logger, ipfs_manager, checkpoint)
         else:
-            run_summary = run_centralized(cfg, evaluator)
+            run_summary = run_centralized(cfg, evaluator, checkpoint)
 
         # ---- final scoring of the global adapter --------------------------
         if evaluator is not None and cfg.get("eval_final", True):
             adapter_path = run_summary.get("global_adapter_path")
-            if adapter_path:
+            cached_eval = checkpoint.final_evaluation
+            if cached_eval and cached_eval.get("adapter_path") == adapter_path:
+                LOGGER.info(
+                    "Final evaluation restored from the checkpoint (loss=%s) - not re-scoring.",
+                    cached_eval.get("loss"),
+                )
+                final_eval = cached_eval
+            elif adapter_path:
                 LOGGER.info("Final evaluation of %s ...", adapter_path)
                 free_cuda_memory()
                 try:
                     final_eval = evaluator.evaluate(adapter_path, label="final")
+                    # Persist immediately: evaluation is expensive (500 forward
+                    # passes + 50 generations) and a crash while writing the
+                    # report should not force it to be redone.
+                    checkpoint.record_final_evaluation(final_eval)
                 except Exception as exc:
                     LOGGER.error("Final evaluation failed: %s", exc)
                     final_eval = None
@@ -480,6 +662,7 @@ def run_experiment(args: argparse.Namespace) -> Dict[str, Any]:
 
         context = {
             "paradigm": run_summary.get("paradigm"),
+            "model_tier": model_key_for(cfg.get("model_name")),
             "num_rounds": run_summary.get("num_rounds"),
             "num_clients": run_summary.get("num_clients"),
             "device": device,
@@ -492,14 +675,18 @@ def run_experiment(args: argparse.Namespace) -> Dict[str, Any]:
             cfg, metrics, context, run_summary, final_eval, blockchain_logger, ipfs_manager, device_info
         )
 
-        json_path = results_dir / f"{exp_name}_metrics.json"
-        write_json(json_path, report)
-        LOGGER.info("Detailed JSON report written to %s", json_path)
+        write_json(report_path, report)
+        LOGGER.info("Detailed JSON report written to %s", report_path)
 
         if blockchain_logger is not None:
             blockchain_logger.export_audit_trail(results_dir / f"{exp_name}_audit_trail.json")
         if ipfs_manager is not None:
             ipfs_manager.export_transfer_log(results_dir / f"{exp_name}_ipfs_transfers.json")
+
+        # The report is the durable artefact; once it exists the checkpoint has
+        # served its purpose and is marked complete rather than deleted, so a
+        # re-run can still tell the difference between "done" and "never ran".
+        checkpoint.mark_completed()
 
         print(render_markdown(cfg, metrics, context))
         return report
@@ -530,6 +717,8 @@ def build_report(
             "name": cfg.get("exp_name"),
             "description": cfg.get("exp_description"),
             "config_path": cfg.get("config_path"),
+            "model_name": cfg.get("model_name"),
+            "model_tier": model_key_for(cfg.get("model_name")),
             "paradigm": context.get("paradigm"),
             "enable_fl": bool(cfg.get("enable_fl", False)),
             "enable_blockchain": bool(cfg.get("enable_blockchain", False)),
@@ -540,6 +729,7 @@ def build_report(
         "metrics": metrics,
         "context": context,
         "evaluation_detail": final_eval or run_summary.get("last_round_evaluation"),
+        "checkpoint": run_summary.get("checkpoint"),
         "run_summary": {k: v for k, v in run_summary.items() if k != "rounds"},
         "rounds": run_summary.get("rounds", []),
         "blockchain": blockchain_logger.get_metrics_summary() if blockchain_logger else None,

@@ -41,7 +41,14 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
-from utils.common import Timer, cuda_peak_memory_mb, format_duration, free_cuda_memory, get_device
+from utils.common import (
+    Timer,
+    cuda_peak_memory_mb,
+    format_duration,
+    free_cuda_memory,
+    get_device,
+    hf_auth_kwargs,
+)
 from utils.config import resolve_path
 
 LOGGER = logging.getLogger(__name__)
@@ -170,7 +177,7 @@ class Evaluator:
 
         dataset_name = self._get("eval_dataset_name", "databricks/databricks-dolly-15k")
         split = f"train[:{self.num_samples}]" if self.num_samples > 0 else "train"
-        dataset = load_dataset(dataset_name, split=split)
+        dataset = load_dataset(dataset_name, split=split, **hf_auth_kwargs())
         LOGGER.info("Evaluation split: %d samples from %s (%s)", len(dataset), dataset_name, split)
         self._dataset = dataset
         return dataset
@@ -215,6 +222,7 @@ class Evaluator:
             self.model_name,
             trust_remote_code=bool(self._get("trust_remote_code", False)),
             use_fast=True,
+            **hf_auth_kwargs(),
         )
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
@@ -233,6 +241,7 @@ class Evaluator:
             "trust_remote_code": bool(self._get("trust_remote_code", False)),
             "attn_implementation": str(self._get("attn_implementation", "sdpa")),
             "low_cpu_mem_usage": True,
+            **hf_auth_kwargs(),
         }
         compute_dtype = self._compute_dtype()
         load_kwargs[_dtype_kwarg_name()] = compute_dtype

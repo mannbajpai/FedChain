@@ -40,6 +40,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from trainer.aggregation import FedAvgAggregator
 from trainer.sft import LocalTrainer
+from utils.checkpoint import (
+    CheckpointManager,
+    adapter_is_complete,
+    adapter_matches_hash,
+    reusable_adapter,
+)
 from utils.common import (
     bytes_to_mb,
     format_duration,
@@ -78,6 +84,7 @@ class FederatedOrchestrator:
         blockchain_logger: Any = None,
         ipfs_manager: Any = None,
         evaluator: Any = None,
+        checkpoint: Optional[CheckpointManager] = None,
     ) -> None:
         self.config = config
         self.trainer = trainer or LocalTrainer(config)
@@ -109,13 +116,28 @@ class FederatedOrchestrator:
         self.total_communication_bytes: int = 0
         self.total_training_time: float = 0.0
         self.total_aggregation_time: float = 0.0
+        self.prior_wall_clock: float = 0.0
+
+        # Crash recovery. When omitted, a manager is created from the config so
+        # the orchestrator is resumable even when driven directly.
+        self.checkpoint = checkpoint or CheckpointManager(
+            checkpoint_path=self.work_dir / "checkpoint.json",
+            exp_name=str(self._get("exp_name", "experiment")),
+            config=self.config,
+            enabled=bool(self._get("enable_checkpointing", True)),
+            paradigm="federated",
+        )
+        # A config change archives the old checkpoint; in that case any leftover
+        # step checkpoints on disk belong to the abandoned setup too.
+        self.allow_step_resume = self.checkpoint.enabled
 
         LOGGER.info(
-            "FederatedOrchestrator ready | rounds=%d clients=%d blockchain=%s ipfs=%s",
+            "FederatedOrchestrator ready | rounds=%d clients=%d blockchain=%s ipfs=%s checkpoint=%s",
             self.num_rounds,
             self.num_clients,
             self.enable_blockchain,
             self.enable_ipfs,
+            self.checkpoint.enabled,
         )
 
     # -- config access -------------------------------------------------------
@@ -129,30 +151,138 @@ class FederatedOrchestrator:
     # Public entry point
     # =========================================================================
     def run(self) -> Dict[str, Any]:
-        """Execute every federated round and return the collected metrics."""
+        """Execute every federated round and return the collected metrics.
+
+        Safe to re-invoke after a crash: completed rounds are replayed from the
+        checkpoint rather than recomputed, and the round that was in flight
+        resumes at the first client that had not finished.
+        """
         if self.num_clients == 0:
             raise ValueError("No client_files configured - cannot run a federated experiment.")
 
         self._check_shards()
+        self._restore_from_checkpoint()
+
         overall_start = time.perf_counter()
+        start_round = len(self.round_metrics) + 1
 
-        for round_index in range(1, self.num_rounds + 1):
-            metrics = self.run_round(round_index)
-            self.round_metrics.append(metrics)
+        if start_round > self.num_rounds:
+            LOGGER.info("All %d round(s) already complete in the checkpoint.", self.num_rounds)
+        elif start_round > 1:
+            LOGGER.info(
+                "Resuming at round %d/%d (%d round(s) restored from the checkpoint).",
+                start_round,
+                self.num_rounds,
+                start_round - 1,
+            )
 
-        total_wall_clock = time.perf_counter() - overall_start
+        try:
+            for round_index in range(start_round, self.num_rounds + 1):
+                metrics = self.run_round(round_index)
+                self.round_metrics.append(metrics)
+                self._commit_round(metrics)
+        except Exception as exc:
+            self.checkpoint.mark_failed(str(exc))
+            LOGGER.error(
+                "Round loop aborted (%s). Progress is checkpointed at %s - "
+                "re-run the same command to continue from here.",
+                exc,
+                self.checkpoint.path,
+            )
+            raise
+
+        session_wall_clock = time.perf_counter() - overall_start
+        total_wall_clock = self.prior_wall_clock + session_wall_clock
+        self.checkpoint.totals["wall_clock_sec"] = total_wall_clock
+        self.checkpoint.save()
+
         summary = self._build_summary(total_wall_clock)
+        summary["session_wall_clock_sec"] = round(session_wall_clock, 4)
 
         LOGGER.info("=" * 78)
         LOGGER.info(
-            "Federated run complete: %d round(s) in %s | comm=%.3f MB | train=%s",
+            "Federated run complete: %d round(s) in %s | comm=%.3f MB | train=%s%s",
             self.num_rounds,
             format_duration(total_wall_clock),
             summary["total_communication_mb"],
             format_duration(self.total_training_time),
+            f" (resumed across {self.checkpoint.state.get('sessions', 0)} sessions)"
+            if self.checkpoint.resumed
+            else "",
         )
         LOGGER.info("=" * 78)
         return summary
+
+    # =========================================================================
+    # Checkpoint plumbing
+    # =========================================================================
+    def _restore_from_checkpoint(self) -> None:
+        """Rehydrate round metrics, totals and external-service records."""
+        if not self.checkpoint.load():
+            # Either checkpointing is off, there was nothing to load, or the
+            # config changed. In the last case leftover step checkpoints belong
+            # to the abandoned configuration and must not be resumed into.
+            self.allow_step_resume = bool(self.checkpoint.enabled) and (
+                self.checkpoint.stale_checkpoint_archived is None
+            )
+            return
+
+        self.round_metrics = self.checkpoint.completed_rounds
+        totals = self.checkpoint.totals
+        self.total_training_time = float(totals.get("training_time_sec", 0.0))
+        self.total_aggregation_time = float(totals.get("aggregation_time_sec", 0.0))
+        self.total_communication_bytes = int(totals.get("communication_bytes", 0))
+        self.prior_wall_clock = float(totals.get("wall_clock_sec", 0.0))
+
+        stored_global = self.checkpoint.global_adapter_path
+        if stored_global and adapter_is_complete(stored_global) and adapter_matches_hash(
+            stored_global, self.checkpoint.global_adapter_hash
+        ):
+            self.global_adapter_path = Path(stored_global)
+            LOGGER.info("Restored global adapter: %s", stored_global)
+        elif stored_global:
+            raise RuntimeError(
+                "Checkpointed global adapter is missing, incomplete, or corrupt: "
+                f"{stored_global}. Refusing to silently continue from fresh weights."
+            )
+
+        # Chain and IPFS work already performed is real and must keep counting.
+        if self.blockchain is not None and hasattr(self.blockchain, "restore_receipts"):
+            self.blockchain.restore_receipts(self.checkpoint.state.get("blockchain_receipts", []))
+        if self.ipfs is not None and hasattr(self.ipfs, "restore_transfers"):
+            self.ipfs.restore_transfers(self.checkpoint.state.get("ipfs_transfers", []))
+
+    def _commit_round(self, metrics: Dict[str, Any]) -> None:
+        """Persist a finished round so it is never recomputed."""
+        self.checkpoint.complete_round(
+            round_metrics=metrics,
+            global_adapter_path=str(self.global_adapter_path) if self.global_adapter_path else None,
+            global_adapter_hash=(metrics.get("global_model") or {}).get("model_hash"),
+            totals={
+                "training_time_sec": self.total_training_time,
+                "aggregation_time_sec": self.total_aggregation_time,
+                "communication_bytes": self.total_communication_bytes,
+                "wall_clock_sec": self.prior_wall_clock,
+            },
+            blockchain_receipts=self._blockchain_receipt_dicts(),
+            ipfs_transfers=self._ipfs_transfer_dicts(),
+        )
+
+    def _blockchain_receipt_dicts(self) -> Optional[List[Dict[str, Any]]]:
+        if self.blockchain is None:
+            return None
+        try:
+            return [r.to_dict() for r in self.blockchain.receipts]
+        except Exception:
+            return None
+
+    def _ipfs_transfer_dicts(self) -> Optional[List[Dict[str, Any]]]:
+        if self.ipfs is None:
+            return None
+        try:
+            return [t.to_dict() for t in self.ipfs.transfers]
+        except Exception:
+            return None
 
     def _check_shards(self) -> None:
         missing = [str(p) for p in self.client_files if not p.exists()]
@@ -181,12 +311,49 @@ class FederatedOrchestrator:
         round_comm_bytes = 0
         round_training_time = 0.0
 
+        # Client records already completed for this round before a crash.
+        checkpointed = self.checkpoint.partial_clients(round_index)
+        if checkpointed:
+            LOGGER.info(
+                "Checkpoint holds %d/%d client(s) for round %d: %s",
+                len(checkpointed),
+                self.num_clients,
+                round_index,
+                ", ".join(sorted(checkpointed)),
+            )
+
         # ---------------- local training + publish + anchor -----------------
         for client_id, shard_path in zip(self.client_ids, self.client_files):
-            record = self._run_client(round_index, client_id, shard_path, round_dir)
+            saved = checkpointed.get(client_id)
+            if saved is not None and reusable_adapter(saved):
+                record = dict(saved)
+                if record.get("stage") == "complete":
+                    LOGGER.info(
+                        "Skipping %s in round %d - already trained and verified "
+                        "(%.1fs of work recovered).",
+                        client_id,
+                        round_index,
+                        float(saved.get("training_time_sec", 0.0)),
+                    )
+                else:
+                    LOGGER.info(
+                        "Recovered trained adapter for %s in round %d; continuing at stage '%s'.",
+                        client_id,
+                        round_index,
+                        record.get("stage", "trained"),
+                    )
+            else:
+                record = self._run_client(round_index, client_id, shard_path, round_dir)
+                # Persist before IPFS or blockchain work. A crash anywhere
+                # after local optimisation can therefore never retrain it.
+                self._persist_client(round_index, client_id, record)
+
+            if record.get("stage") != "complete":
+                record = self._finish_client(round_index, client_id, record)
+
             client_records.append(record)
-            round_training_time += record["training_time_sec"]
-            round_comm_bytes += record["upload_bytes"]
+            round_training_time += float(record.get("training_time_sec", 0.0))
+            round_comm_bytes += int(record.get("upload_bytes", 0))
 
         # ---------------- retrieve (Exp 4) ----------------------------------
         aggregation_inputs, retrieval_bytes = self._collect_for_aggregation(
@@ -266,6 +433,7 @@ class FederatedOrchestrator:
             output_dir=adapter_dir,
             init_adapter_path=self.global_adapter_path,
             client_id=f"{client_id}@r{round_index}",
+            allow_resume=self.allow_step_resume,
         )
 
         adapter_bytes = path_size_bytes(adapter_path)
@@ -286,10 +454,25 @@ class FederatedOrchestrator:
             "download_bytes": 0,
             "integrity_verified": None,
             "included_in_aggregate": True,
+            "ipfs_attempted": False,
+            "blockchain_attempted": False,
+            "stage": "trained",
         }
 
+        # Hash before any external side effect and before returning to the
+        # round loop, so the durable trained-stage record is self-validating.
+        record["model_hash"] = sha256_path(adapter_path)
+        return record
+
+    def _finish_client(
+        self, round_index: int, client_id: str, record: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Continue a trained client through publish/anchor without retraining."""
+        adapter_path = Path(record["adapter_path"])
+        adapter_bytes = path_size_bytes(adapter_path)
+
         # --- publish to IPFS (Exp 4) ---
-        if self.enable_ipfs:
+        if self.enable_ipfs and not record.get("ipfs_attempted", False):
             try:
                 cid, latency, size_mb = self.ipfs.upload_adapter(adapter_path)
                 record["ipfs_cid"] = cid
@@ -298,12 +481,19 @@ class FederatedOrchestrator:
             except Exception as exc:
                 LOGGER.error("IPFS upload failed for %s: %s", client_id, exc)
                 record["upload_bytes"] = adapter_bytes
-        else:
+            finally:
+                record["ipfs_attempted"] = True
+                record["stage"] = "published"
+                self._persist_client(round_index, client_id, record)
+        elif not self.enable_ipfs:
             # No IPFS: the adapter still travels to the aggregator.
             record["upload_bytes"] = adapter_bytes
+            record["ipfs_attempted"] = True
+            record["stage"] = "published"
+            self._persist_client(round_index, client_id, record)
 
         # --- anchor on-chain (Exp 3 & 4) ---
-        if self.enable_blockchain:
+        if self.enable_blockchain and not record.get("blockchain_attempted", False):
             receipt = self.blockchain.log_model_update(
                 round=round_index,
                 client_id=client_id,
@@ -311,12 +501,29 @@ class FederatedOrchestrator:
                 ipfs_cid=record["ipfs_cid"] or "",
             )
             record["blockchain"] = receipt
-            record["model_hash"] = receipt.get("model_hash")
-        else:
-            # The digest is cheap and makes every run auditable after the fact.
-            record["model_hash"] = sha256_path(adapter_path)
+            record["model_hash"] = receipt.get("model_hash") or record["model_hash"]
+            record["blockchain_attempted"] = True
+            record["stage"] = "anchored"
+            self._persist_client(round_index, client_id, record)
+        elif not self.enable_blockchain:
+            record["blockchain_attempted"] = True
+
+        record["stage"] = "complete"
+        self._persist_client(round_index, client_id, record)
 
         return record
+
+    def _persist_client(
+        self, round_index: int, client_id: str, record: Dict[str, Any]
+    ) -> None:
+        """Durably snapshot a client plus external-service accounting."""
+        self.checkpoint.record_client(
+            round_index,
+            client_id,
+            record,
+            blockchain_receipts=self._blockchain_receipt_dicts(),
+            ipfs_transfers=self._ipfs_transfer_dicts(),
+        )
 
     # -- step 2: retrieval ----------------------------------------------------
     def _collect_for_aggregation(
@@ -471,6 +678,7 @@ class FederatedOrchestrator:
             if self.global_adapter_path
             else 0.0,
             "last_round_evaluation": last_eval,
+            "checkpoint": self.checkpoint.describe(),
             "rounds": self.round_metrics,
         }
 

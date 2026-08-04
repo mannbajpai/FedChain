@@ -9,6 +9,8 @@ from utils.common import (
     format_duration,
     free_cuda_memory,
     get_device,
+    get_hf_token,
+    hf_auth_kwargs,
     markdown_table,
     path_size_bytes,
     set_global_seed,
@@ -20,6 +22,13 @@ from utils.common import (
     sha256_path,
     write_json,
 )
+from utils.checkpoint import (
+    CheckpointManager,
+    adapter_is_complete,
+    adapter_matches_hash,
+    compute_fingerprint,
+    reusable_adapter,
+)
 from utils.config import Config, deep_merge, load_config, resolve_path, validate_config
 
 __all__ = [
@@ -29,12 +38,20 @@ __all__ = [
     "resolve_path",
     "deep_merge",
     "validate_config",
+    # checkpointing
+    "CheckpointManager",
+    "compute_fingerprint",
+    "adapter_is_complete",
+    "adapter_matches_hash",
+    "reusable_adapter",
     # timing / formatting
     "Timer",
     "format_duration",
     "markdown_table",
     # device / memory
     "get_device",
+    "get_hf_token",
+    "hf_auth_kwargs",
     "free_cuda_memory",
     "cuda_peak_memory_mb",
     "set_global_seed",

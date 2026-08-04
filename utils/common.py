@@ -43,6 +43,27 @@ ADAPTER_FILENAMES: Tuple[str, ...] = (
 _HASH_CHUNK = 1024 * 1024  # 1 MiB
 
 
+@functools.lru_cache(maxsize=1)
+def get_hf_token() -> Optional[str]:
+    """Return Hugging Face credentials from the environment, never config.
+
+    Keeping the token out of YAML prevents it from being copied into metrics
+    reports or checkpoint fingerprints. ``HF_TOKEN`` is the current Hub name;
+    the legacy variable remains supported for existing environments.
+    """
+    token = (
+        os.environ.get("HF_TOKEN", "")
+        or os.environ.get("HUGGING_FACE_HUB_TOKEN", "")
+    ).strip()
+    return token or None
+
+
+def hf_auth_kwargs() -> Dict[str, str]:
+    """Keyword arguments for Hub-aware APIs, empty when unauthenticated."""
+    token = get_hf_token()
+    return {"token": token} if token else {}
+
+
 # =============================================================================
 # Logging
 # =============================================================================
@@ -378,11 +399,15 @@ class Timer:
 # Misc
 # =============================================================================
 def write_json(path: PathLike, payload: Any, indent: int = 2) -> Path:
-    """Serialise ``payload`` to JSON, creating parent directories as needed."""
+    """Atomically serialise JSON so a crash cannot leave a truncated report."""
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as handle:
+    tmp_path = out_path.with_name(out_path.name + ".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=indent, default=_json_default, ensure_ascii=False)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(tmp_path, out_path)
     return out_path
 
 

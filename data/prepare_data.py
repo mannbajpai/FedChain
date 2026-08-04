@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import List, Optional
@@ -37,6 +38,15 @@ DEFAULT_DATASET = "databricks/databricks-dolly-15k"
 DEFAULT_EVAL_SIZE = 500
 DEFAULT_NUM_CLIENTS = 3
 DEFAULT_SEED = 42
+
+
+def hf_auth_kwargs():
+    """Authenticate Hub downloads from environment without exposing the token."""
+    token = (
+        os.environ.get("HF_TOKEN", "")
+        or os.environ.get("HUGGING_FACE_HUB_TOKEN", "")
+    ).strip()
+    return {"token": token} if token else {}
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -87,8 +97,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Downloading {args.dataset} ...")
-    dataset = load_dataset(args.dataset, split="train")
+    auth_kwargs = hf_auth_kwargs()
+    auth_mode = "authenticated via HF_TOKEN" if auth_kwargs else "anonymous"
+    print(f"Downloading {args.dataset} ({auth_mode}) ...")
+    dataset = load_dataset(args.dataset, split="train", **auth_kwargs)
     total = len(dataset)
     print(f"  {total} records available.")
 
