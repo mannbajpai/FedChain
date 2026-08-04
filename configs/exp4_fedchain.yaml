@@ -1,0 +1,57 @@
+# =============================================================================
+# Experiment 4 :: FedChain (Federated Learning + Blockchain + IPFS)
+# -----------------------------------------------------------------------------
+# The full proposed system. Clients never hand weights to a trusted server:
+#   1. the client trains a QLoRA adapter locally
+#   2. the adapter is pinned to IPFS  -> content identifier (CID)
+#   3. SHA-256(adapter) + CID are anchored on-chain (FedChainAudit.logUpdate)
+#   4. the aggregator resolves each CID from IPFS, verifies the on-chain hash,
+#      and runs FedAvg over the retrieved adapters
+#   5. the new global adapter is pinned + anchored for the next round
+#
+#   python main.py --config configs/exp4_fedchain.yaml
+#
+# Credentials are read from the config first, then from the environment
+# (PINATA_API_KEY / PINATA_SECRET_KEY / PINATA_JWT). With neither available the
+# IPFSManager falls back to a local content-addressed mock store, and the run
+# still produces a complete, clearly-flagged metrics report.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "exp4_fedchain"
+exp_description: "FedChain: auditable federated QLoRA with blockchain anchoring and IPFS transport"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: true
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Blockchain --------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""
+private_key: ""
+log_global_model: true
+
+# --- IPFS --------------------------------------------------------------------
+pinata_api_key: ""
+pinata_secret_key: ""
+pinata_jwt: ""
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_gateway_url: "https://gateway.pinata.cloud/ipfs"
+ipfs_mock_dir: ""
+
+# Round-trip every artifact through IPFS (uploaded by the client, downloaded by
+# the aggregator) so the measured communication volume reflects real transport.
+ipfs_roundtrip_aggregation: true
+verify_hash_on_download: true

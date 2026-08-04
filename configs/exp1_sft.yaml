@@ -1,0 +1,26 @@
+# =============================================================================
+# Experiment 1 :: Centralized Supervised Fine-Tuning (baseline / upper bound)
+# -----------------------------------------------------------------------------
+# A single trainer sees the whole Dolly-15k pool. No federation, no blockchain,
+# no IPFS. This is the accuracy reference the decentralized runs are measured
+# against, and the zero-overhead reference for the systems metrics.
+#
+#   python main.py --config configs/exp1_sft.yaml
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "exp1_sft"
+exp_description: "Centralized QLoRA SFT on the pooled Dolly-15k corpus"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Data --------------------------------------------------------------------
+data_path: "data/centralized_full.jsonl"
+
+# --- Compute budget ----------------------------------------------------------
+# Budget matched with Exp 2/3/4: 3 rounds x 3 clients x 500 = 4500 sample updates.
+num_rounds: 1
+max_train_samples: 4500

@@ -1,0 +1,57 @@
+# =============================================================================
+# FedChain :: Python requirements
+# -----------------------------------------------------------------------------
+# Target: NVIDIA T600 (4 GB VRAM), CUDA 12.1, Python 3.10-3.11
+#
+# Install PyTorch FIRST, matched to your CUDA runtime, then this file:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+#   pip install -r requirements.txt
+#
+# CPU-only machines work too - the code detects the absence of CUDA and falls
+# back to full-precision CPU execution (bitsandbytes 4-bit is skipped).
+# =============================================================================
+
+# --- Deep learning / QLoRA stack ---------------------------------------------
+# Versions are floored, not pinned, because the trainer resolves API drift at
+# runtime (see _filter_kwargs in trainer/sft.py). Pin exactly for a paper run.
+torch>=2.1.0
+transformers>=4.44.0
+peft>=0.11.0
+trl>=0.9.0
+datasets>=2.19.0
+accelerate>=0.31.0
+safetensors>=0.4.2
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+
+# 4-bit NF4 quantization. CUDA only; the code skips it automatically on CPU.
+# On Windows use bitsandbytes>=0.43, which ships official native wheels.
+bitsandbytes>=0.43.0; platform_system != "Darwin"
+
+# --- Evaluation metrics -------------------------------------------------------
+# Optional: evaluation/eval_loss.py falls back to built-in ROUGE-L / BLEU
+# implementations when these are absent, so results never go missing.
+evaluate>=0.4.1
+rouge-score>=0.1.2
+nltk>=3.8.1
+absl-py>=1.4.0
+
+# --- Blockchain & decentralized storage --------------------------------------
+web3>=6.11.0
+eth-account>=0.10.0
+requests>=2.31.0
+
+# Optional: enables auto-compiling blockchain/contract.sol when no build
+# artifact and no deployed contract address are available.
+py-solc-x>=2.0.2
+
+# --- Utilities ----------------------------------------------------------------
+pyyaml>=6.0
+numpy>=1.24.0
+tqdm>=4.66.0
+
+# --- Optional accelerator ------------------------------------------------------
+# Unsloth roughly halves QLoRA VRAM use and can help on a 4 GB card, but it
+# pins its own torch/xformers builds and frequently conflicts with the versions
+# above. The trainer does NOT depend on it. Install separately if wanted:
+#   pip install "unsloth[cu121] @ git+https://github.com/unslothai/unsloth.git"

@@ -1,0 +1,38 @@
+# Environments
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Data: keep the preparation script and the manifest, ignore the corpora
+data/*
+!data/.gitkeep
+!data/prepare_data.py
+!data/manifest.json
+
+# Model artefacts
+*.pt
+*.safetensors
+*.bin
+outputs/
+
+# Results: keep the JSON reports, ignore the run logs
+results/*.log
+
+# Hardhat / local blockchain nodes
+node_modules/
+artifacts/
+cache/
+blockchain/artifacts/
+
+# IPFS mock store
+ipfs_mock/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+.context/

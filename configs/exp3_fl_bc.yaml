@@ -1,0 +1,42 @@
+# =============================================================================
+# Experiment 3 :: Federated Learning + Blockchain Audit Trail
+# -----------------------------------------------------------------------------
+# Identical to Experiment 2, plus every client update is fingerprinted with
+# SHA-256 and anchored on-chain through the FedChainAudit contract. Model
+# weights still move over the (simulated) local channel -- only the integrity
+# commitments are decentralized. This isolates the cost of auditability.
+#
+# Start a local chain first (recommended):
+#   npx hardhat node          # or:  anvil
+#
+#   python main.py --config configs/exp3_fl_bc.yaml
+#
+# If no RPC endpoint answers, BlockchainLogger transparently drops to MOCK mode
+# and the run still completes (metrics are flagged `"mode": "mock"`).
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "exp3_fl_bc"
+exp_description: "FedAvg over QLoRA adapters with an on-chain SHA-256 audit trail"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Blockchain --------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""      # "" => auto-deploy (needs a compiled artifact or py-solc-x)
+private_key: ""           # "" => use the node's first unlocked account
+log_global_model: true    # also anchor the aggregated global adapter each round

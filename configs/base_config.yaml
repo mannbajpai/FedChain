@@ -1,0 +1,153 @@
+# =============================================================================
+# FedChain :: Base Configuration
+# -----------------------------------------------------------------------------
+# Every experiment config (exp1..exp4) inherits this file through the
+# `extends:` key, which is resolved by utils/config.py (deep merge, child wins).
+#
+# Hardware target: NVIDIA T600 Laptop GPU (4 GB VRAM).
+# All defaults below are chosen so that a Qwen2.5-1.5B-Instruct QLoRA run fits
+# inside 4 GB: 4-bit NF4 weights + gradient checkpointing + micro-batch of 1.
+#
+# NOTE ON YAML FLOATS: PyYAML only resolves scientific notation when the mantissa
+# contains a '.' AND the exponent is explicitly signed (e.g. 2.0e-4, not 2e-4).
+# utils/config.py additionally coerces the known numeric keys, but please keep
+# the canonical `2.0e-4` style when editing.
+# =============================================================================
+
+# ----------------------------------------------------------------------------
+# Model
+# ----------------------------------------------------------------------------
+model_name: "Qwen/Qwen2.5-1.5B-Instruct"
+trust_remote_code: false
+attn_implementation: "sdpa"        # PyTorch scaled_dot_product_attention
+use_chat_template: true            # format samples with the Qwen2.5 ChatML template
+
+# ----------------------------------------------------------------------------
+# Reproducibility
+# ----------------------------------------------------------------------------
+seed: 42
+deterministic: false               # true => cudnn.deterministic (slower)
+
+# ----------------------------------------------------------------------------
+# Federated schedule
+# ----------------------------------------------------------------------------
+num_rounds: 3
+local_epochs: 1
+
+# ----------------------------------------------------------------------------
+# Optimisation (QLoRA on 4 GB VRAM)
+# ----------------------------------------------------------------------------
+learning_rate: 2.0e-4
+max_seq_length: 512
+batch_size: 1                      # micro batch size per device
+grad_accum_steps: 8                # effective batch size = 1 * 8 = 8
+weight_decay: 0.0
+warmup_ratio: 0.03
+lr_scheduler_type: "cosine"
+max_grad_norm: 0.3
+optim: "paged_adamw_8bit"          # auto-downgraded to adamw_torch when CUDA is absent
+logging_steps: 10
+max_steps: -1                      # -1 => derive the step count from the dataset
+
+# ----------------------------------------------------------------------------
+# LoRA / QLoRA
+# ----------------------------------------------------------------------------
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_bias: "none"
+lora_target_modules:
+  - "q_proj"
+  - "k_proj"
+  - "v_proj"
+  - "o_proj"
+  - "gate_proj"
+  - "up_proj"
+  - "down_proj"
+
+# ----------------------------------------------------------------------------
+# Quantization (BitsAndBytes 4-bit NormalFloat)
+# ----------------------------------------------------------------------------
+load_in_4bit: true
+bnb_4bit_quant_type: "nf4"
+bnb_4bit_use_double_quant: true
+bnb_4bit_compute_dtype: "auto"     # auto => bfloat16 when supported, else float16
+
+# ----------------------------------------------------------------------------
+# Memory / runtime
+# ----------------------------------------------------------------------------
+gradient_checkpointing: true
+device: "auto"                     # auto | cuda | cpu
+keep_model_loaded: false           # false => free the base model between clients
+dataloader_num_workers: 0          # 0 is required on Windows for stability
+
+# ----------------------------------------------------------------------------
+# Compute budget
+# -----------------------------------------------------------------------------
+# The four experiments are budget-matched so their losses stay comparable:
+#   Exp 2/3/4 (FL): num_rounds(3) x num_clients(3) x 500 samples = 4500 updates
+#   Exp 1  (SFT)  : num_rounds(1) x 4500 samples                 = 4500 updates
+# Set to `null` to consume the full shard (multi-day on a T600).
+# ----------------------------------------------------------------------------
+max_train_samples: 500             # per client, per round
+
+# ----------------------------------------------------------------------------
+# Evaluation
+# ----------------------------------------------------------------------------
+eval_data_path: "data/eval_500.jsonl"
+eval_dataset_name: "databricks/databricks-dolly-15k"
+eval_num_samples: 500
+eval_batch_size: 1
+eval_max_seq_length: 512
+eval_loss_on_completion_only: false   # false => full-sequence NLL (matches the SFT objective)
+eval_every_round: true
+eval_final: true
+
+# --- Generation quality (ROUGE-L / BLEU) ------------------------------------
+# Greedy decoding over a small prompt subset; uses the HuggingFace `evaluate`
+# library when installed, otherwise the built-in implementations in
+# evaluation/eval_loss.py. Both metrics are reported on the 0-1 scale.
+enable_generation_metrics: true
+gen_num_samples: 50                # prompts decoded for ROUGE-L / BLEU
+gen_max_new_tokens: 128            # generation budget per prompt
+gen_max_prompt_tokens: 384         # prompt truncation before generation
+
+# ----------------------------------------------------------------------------
+# Feature switches (overridden per experiment)
+# ----------------------------------------------------------------------------
+enable_fl: false
+enable_blockchain: false
+enable_ipfs: false
+
+# ----------------------------------------------------------------------------
+# Blockchain defaults (inert unless enable_blockchain: true)
+# ----------------------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""               # "" => deploy on first use, else mock mode
+contract_source: "blockchain/contract.sol"
+contract_artifact: "blockchain/artifacts/FedChainAudit.json"
+chain_id: null                     # null => read from the node
+private_key: ""                    # "" => use an unlocked node account (Hardhat/Anvil)
+blockchain_tx_timeout: 120
+log_global_model: true
+
+# ----------------------------------------------------------------------------
+# IPFS defaults (inert unless enable_ipfs: true)
+# ----------------------------------------------------------------------------
+pinata_api_key: ""
+pinata_secret_key: ""
+pinata_jwt: ""
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_gateway_url: "https://gateway.pinata.cloud/ipfs"
+ipfs_mock_dir: ""                  # "" => <system tmp>/ipfs_mock
+ipfs_timeout: 120
+ipfs_roundtrip_aggregation: true
+verify_hash_on_download: true
+
+# ----------------------------------------------------------------------------
+# I/O
+# ----------------------------------------------------------------------------
+output_root: "outputs"
+results_dir: "results"
+log_level: "INFO"
+dry_run: false                     # true => synthetic adapters, no model download

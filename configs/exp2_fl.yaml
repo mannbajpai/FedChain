@@ -1,0 +1,30 @@
+# =============================================================================
+# Experiment 2 :: Vanilla Federated Learning (FedAvg over LoRA adapters)
+# -----------------------------------------------------------------------------
+# Three simulated clients train locally on disjoint I.I.D. Dolly-15k shards.
+# A trusted central server averages the LoRA A/B matrices each round.
+# No audit trail (no blockchain), no decentralized storage (no IPFS):
+# this isolates the pure accuracy cost of federation.
+#
+#   python main.py --config configs/exp2_fl.yaml
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "exp2_fl"
+exp_description: "FedAvg over QLoRA adapters, trusted central aggregator"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
