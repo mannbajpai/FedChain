@@ -24,15 +24,26 @@ fine-tuning paradigms, built to run end-to-end on consumer hardware
 
 ## Quick start
 
+Full setup and run instructions live in **[GUIDE.md](GUIDE.md)**. The short version:
+
 ```bash
+./infra.sh          # once per machine: Foundry (anvil) + Kubo (IPFS)
+./run_all.sh        # everything else: venv, deps, nodes, data, all 4 experiments
+```
+
+`run_all.sh` is idempotent and ends by writing `results/comparison.md`.
+Sanity-check first with `./run_all.sh --quick` (~15 min) or `./run_all.sh --dry-run` (~1 min).
+
+Running a single experiment manually:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
 pip install torch --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 
 python data/prepare_data.py                          # download + partition Dolly-15k
-python main.py --config configs/exp1_sft.yaml
-python main.py --config configs/exp2_fl.yaml
-python main.py --config configs/exp3_fl_bc.yaml      # optional: npx hardhat node
 python main.py --config configs/exp4_fedchain.yaml
+python scripts/compare_results.py                    # build the comparison table
 ```
 
 Validate the whole pipeline without a GPU or a model download:
@@ -86,7 +97,11 @@ trainer/       sft.py (QLoRA), aggregation.py (FedAvg), federated.py (orchestrat
 evaluation/    eval_loss.py (loss, perplexity, ROUGE-L, BLEU)
 utils/         config inheritance, device detection, hashing, logging
 data/          prepare_data.py
-main.py        CLI entry point
+scripts/       compare_results.py (cross-experiment table)
+main.py        CLI entry point (one experiment)
+run_all.sh     autonomous driver (all experiments + aggregation)
+infra.sh       one-time host setup (Foundry + Kubo)
+GUIDE.md       complete setup, run and troubleshooting guide
 ```
 
 ## Notes on methodology
