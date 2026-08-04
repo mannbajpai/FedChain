@@ -1,0 +1,12 @@
+Initializing daemon...
+Kubo version: 0.43.0-e9914bb47
+Repo version: 18
+System version: amd64/linux
+Golang version: go1.26.5
+PeerID: 12D3KooWNobpYq2nLofzLyT6WAahXtQXekrrL3kwUAxLojTKgivg
+Swarm not listening, running in offline mode.
+RPC API server listening on /ip4/127.0.0.1/tcp/5001
+WebUI: http://127.0.0.1:5001/webui
+Gateway server listening on /ip4/127.0.0.1/tcp/8080
+Routing V1 API exposed at http://127.0.0.1:8080/routing/v1
+Daemon is ready

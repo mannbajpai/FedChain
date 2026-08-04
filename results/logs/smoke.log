@@ -1,0 +1,33 @@
+15:43:52 | WARNING  | fedchain                     | DRY RUN: synthetic adapters are used and no base model is loaded. Accuracy metrics are placeholders; systems metrics are real.
+
+## FedChain Results - `_smoke`
+
+_FedChain: auditable federated QLoRA with blockchain anchoring and IPFS transport_
+
+| Setting          | Value                      |
+|------------------|----------------------------|
+| Model            | Qwen/Qwen2.5-1.5B-Instruct |
+| Model tier       | qwen-1.5b                  |
+| Paradigm         | federated                  |
+| Rounds x Clients | 3 x 3                      |
+| Device           | cuda                       |
+| Blockchain       | live                       |
+| IPFS             | local                      |
+| Total wall clock | 11.02s                     |
+
+| Metric                        | Value     |
+|-------------------------------|-----------|
+| Validation Loss               | 2.0000    |
+| Perplexity                    | 7.3891    |
+| ROUGE-L                       | 0.0000    |
+| BLEU                          | 0.0000    |
+| Training Time (s)             | 0.06      |
+| Communication Volume (MB)     | 22.196    |
+| Adapter Size (MB)             | 0.882     |
+| Blockchain Tx Latency (s)     | 0.1936    |
+| Blockchain Gas Used           | 3,785,372 |
+| IPFS Upload Latency (s)       | 3.5023    |
+| IPFS Download Latency (s)     | 0.1783    |
+| Aggregation Time (s)          | 0.0195    |
+| End-to-End Round Duration (s) | 3.04      |
+

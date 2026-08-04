@@ -1,0 +1,15 @@
+{
+  "dataset": "databricks/databricks-dolly-15k",
+  "total_records": 15011,
+  "eval_size": 500,
+  "num_clients": 3,
+  "seed": 42,
+  "files": {
+    "eval_500.jsonl": 500,
+    "centralized_full.jsonl": 14511,
+    "client1.jsonl": 4837,
+    "client2.jsonl": 4837,
+    "client3.jsonl": 4837
+  },
+  "note": "eval_500.jsonl is the head of the raw dataset and is excluded from every training shard, so there is no train/eval leakage."
+}
