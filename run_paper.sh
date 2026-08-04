@@ -210,8 +210,18 @@ else
     # per-round federated windows must equal the pooled centralized corpus.
     info "checking budget matching against the real data shards ..."
     if ! "$PYTHON" - > "$LOG_DIR/verify_budget.log" 2>&1 <<'PY'
+import logging
 import sys
+from collections import Counter
+
 sys.path.insert(0, ".")
+logging.disable(logging.WARNING)
+try:
+    import datasets
+    datasets.disable_progress_bars()
+except Exception:
+    pass
+
 from utils.config import load_config, resolve_path
 from trainer.sft import LocalTrainer
 
@@ -242,27 +252,56 @@ class _Stub:            # avoid a Hub round-trip; slicing does not need a tokeni
     chat_template = None
 trainer.load_tokenizer = lambda: _Stub()
 
-federated = set()
+# Multisets, not sets. Dolly-15k contains records that render to identical
+# text (same instruction and response, differing only in metadata), and the
+# shuffle can place copies in different shards. Set logic would report those
+# as "repeated records" and fail a run whose windows are in fact disjoint.
+# Counter equality still catches the real bug: if every round replayed the
+# head of the shard, the federated side would hold 1500 records at count 3
+# while the pooled side holds 4500 at count 1.
+federated = Counter()
 for r in range(rounds):
     for shard in shards:
         part = trainer.load_dataset(shard, max_samples=per_round, sample_offset=r * per_round)
-        before = len(federated)
-        federated |= set(part["text"])
-        if len(federated) - before != len(part):
-            raise SystemExit(f"round {r + 1} of {shard.name} repeats earlier records")
+        federated.update(part["text"])
 
-pooled = set(trainer.load_dataset([resolve_path(p) for p in central_paths],
-                                  max_samples=central_cap)["text"])
+pooled = Counter(
+    trainer.load_dataset([resolve_path(p) for p in central_paths], max_samples=central_cap)["text"]
+)
+
 if federated != pooled:
-    raise SystemExit(
-        f"federated union ({len(federated)}) != centralized pool ({len(pooled)}); "
-        f"symmetric difference {len(federated ^ pooled)}"
+    only_fed = federated - pooled
+    only_pool = pooled - federated
+    print(
+        f"federated arm holds {sum(federated.values())} records ({len(federated)} distinct)\n"
+        f"centralized arm holds {sum(pooled.values())} records ({len(pooled)} distinct)"
     )
-print(f"OK  {len(pooled)} unique records, identical in both arms "
-      f"({rounds} rounds x {len(shards)} clients x {per_round})")
+    if sum(federated.values()) == sum(pooled.values()) and len(federated) < len(pooled):
+        print(
+            "\nSame total, fewer distinct records on the federated side: the rounds are\n"
+            "re-reading the same window instead of advancing. Check that\n"
+            "FederatedOrchestrator._sample_offset is present and that the training logs\n"
+            "show window=[0, N), [N, 2N), [2N, 3N)."
+        )
+    for label, diff in (("only in federated", only_fed), ("only in centralized", only_pool)):
+        if diff:
+            example = next(iter(diff))
+            print(f"\n{label}: {sum(diff.values())} record(s), e.g.\n  {example[:160]!r}")
+    raise SystemExit(1)
+
+duplicates = sum(count - 1 for count in pooled.values() if count > 1)
+note = f" ({duplicates} duplicate record(s) in the corpus, counted consistently)" if duplicates else ""
+print(
+    f"OK  {sum(pooled.values())} records, identical in both arms "
+    f"({rounds} rounds x {len(shards)} clients x {per_round}){note}"
+)
 PY
     then
-        cat "$LOG_DIR/verify_budget.log"
+        # Show the diagnosis, not the library chatter that surrounds it.
+        grep -vE 'examples/s|Generating train split|Formatting prompts|Filter:|quantisation|^\s*$' \
+            "$LOG_DIR/verify_budget.log" | sed 's/^/    /'
+        echo
+        info "full log: $LOG_DIR/verify_budget.log"
         die "budget-matching check failed - do NOT start the sweep"
     fi
     ok "$(grep '^OK' "$LOG_DIR/verify_budget.log" | sed 's/^OK  //')"
