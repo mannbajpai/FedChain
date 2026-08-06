@@ -1,0 +1,132 @@
+{
+  "experiment": {
+    "name": "exp7_scalability",
+    "description": "Audit-layer cost versus federation size and artefact size",
+    "timestamp_unix": 1785882767
+  },
+  "context": {
+    "chain_mode": "live",
+    "rpc_url": "http://127.0.0.1:8545",
+    "log_global_model": true,
+    "seed": 42
+  },
+  "clients_sweep": [
+    {
+      "num_clients": 1,
+      "transactions_per_round": 2,
+      "gas_per_round": 616560,
+      "gas_per_client": 616560.0,
+      "chain_latency_sec": 0.252775,
+      "wall_clock_sec": 0.2663
+    },
+    {
+      "num_clients": 3,
+      "transactions_per_round": 4,
+      "gas_per_round": 1163296,
+      "gas_per_client": 387765.3,
+      "chain_latency_sec": 0.503426,
+      "wall_clock_sec": 0.5368
+    },
+    {
+      "num_clients": 5,
+      "transactions_per_round": 6,
+      "gas_per_round": 1744914,
+      "gas_per_client": 348982.8,
+      "chain_latency_sec": 0.726073,
+      "wall_clock_sec": 0.7669
+    },
+    {
+      "num_clients": 10,
+      "transactions_per_round": 11,
+      "gas_per_round": 3198971,
+      "gas_per_client": 319897.1,
+      "chain_latency_sec": 1.348625,
+      "wall_clock_sec": 1.4367
+    },
+    {
+      "num_clients": 25,
+      "transactions_per_round": 26,
+      "gas_per_round": 7561286,
+      "gas_per_client": 302451.4,
+      "chain_latency_sec": 3.201845,
+      "wall_clock_sec": 3.4121
+    },
+    {
+      "num_clients": 50,
+      "transactions_per_round": 51,
+      "gas_per_round": 14831811,
+      "gas_per_client": 296636.2,
+      "chain_latency_sec": 6.267414,
+      "wall_clock_sec": 6.6694
+    },
+    {
+      "num_clients": 100,
+      "transactions_per_round": 101,
+      "gas_per_round": 29372873,
+      "gas_per_client": 293728.7,
+      "chain_latency_sec": 12.573165,
+      "wall_clock_sec": 13.3551
+    }
+  ],
+  "payload_sweep": [
+    {
+      "label": "tiny",
+      "adapter_mb": 0.2228,
+      "gas_used": 311439,
+      "chain_latency_sec": 0.12348,
+      "hash_latency_sec": 0.001369,
+      "hash_throughput_mb_s": 162.8,
+      "anchored_bytes": 32,
+      "digest": "d9aee0f3ae0001ac"
+    },
+    {
+      "label": "small",
+      "adapter_mb": 3.5145,
+      "gas_used": 311451,
+      "chain_latency_sec": 0.122423,
+      "hash_latency_sec": 0.00311,
+      "hash_throughput_mb_s": 1129.93,
+      "anchored_bytes": 32,
+      "digest": "fb1fcc5ab7f42dea"
+    },
+    {
+      "label": "medium",
+      "adapter_mb": 14.0288,
+      "gas_used": 311463,
+      "chain_latency_sec": 0.122962,
+      "hash_latency_sec": 0.010387,
+      "hash_throughput_mb_s": 1350.55,
+      "anchored_bytes": 32,
+      "digest": "614098bd5638c879"
+    },
+    {
+      "label": "large",
+      "adapter_mb": 49.0503,
+      "gas_used": 311451,
+      "chain_latency_sec": 0.123479,
+      "hash_latency_sec": 0.034716,
+      "hash_throughput_mb_s": 1412.92,
+      "anchored_bytes": 32,
+      "digest": "0cf1ab6181cddd65"
+    }
+  ],
+  "chain": {
+    "mode": "live",
+    "rpc_url": "http://127.0.0.1:8545",
+    "chain_id": 31337,
+    "contract_address": "0x33E45b187da34826aBCEDA1039231Be46f1b05Af",
+    "account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "connection_note": null,
+    "num_transactions": 205,
+    "num_successful": 205,
+    "num_failed": 0,
+    "total_latency_sec": 25.365667,
+    "avg_latency_sec": 0.123735,
+    "max_latency_sec": 0.231975,
+    "min_latency_sec": 0.116321,
+    "total_gas_used": 59735515,
+    "avg_gas_used": 291392,
+    "total_cost_eth": 0.059735515411,
+    "total_anchored_mb": 244.1982
+  }
+}

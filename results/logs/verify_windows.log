@@ -1,0 +1,134 @@
+22:31:13 | INFO     | utils.config                 | Applying 4 CLI override(s): {'exp_name': '_verify', 'output_root': '/tmp/tmp.rtXrFJ0mtb/out', 'results_dir': '/tmp/tmp.rtXrFJ0mtb', 'dry_run': True}
+22:31:13 | INFO     | fedchain                     | ==============================================================================
+22:31:13 | INFO     | fedchain                     | FedChain :: _verify
+22:31:13 | INFO     | fedchain                     | FedAvg over QLoRA adapters, trusted central aggregator
+22:31:13 | INFO     | fedchain                     | Config: /home/mann/FedChain/configs/exp2_fl.yaml
+22:31:13 | INFO     | fedchain                     | Model:  Qwen/Qwen2.5-1.5B-Instruct  [tier=qwen-1.5b]
+22:31:13 | INFO     | fedchain                     | Hugging Face Hub: authenticated via HF_TOKEN
+22:31:13 | INFO     | fedchain                     | ==============================================================================
+22:31:19 | INFO     | utils.common                 | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+22:31:19 | INFO     | fedchain                     | Seed=42 | device=cuda
+22:31:19 | WARNING  | fedchain                     | DRY RUN: synthetic adapters are used and no base model is loaded. Accuracy metrics are placeholders; systems metrics are real.
+22:31:19 | INFO     | evaluation.eval_loss         | Evaluator ready | 500 loss samples | 50 generation samples | seq_len=512 | device=cuda
+22:31:19 | INFO     | fedchain                     | --force: archiving existing recovery state and starting a new run.
+22:31:19 | INFO     | fedchain                     | ==============================================================================
+22:31:19 | INFO     | fedchain                     | PIPELINE: federated learning | blockchain=False | ipfs=False
+22:31:19 | INFO     | fedchain                     | ==============================================================================
+22:31:19 | INFO     | trainer.sft                  | LocalTrainer ready | model=Qwen/Qwen2.5-1.5B-Instruct device=cuda 4bit=True seq_len=512 dry_run=True
+22:31:19 | INFO     | trainer.federated            | FederatedOrchestrator ready | rounds=3 clients=3 blockchain=False ipfs=False checkpoint=True
+22:31:19 | INFO     | trainer.federated            | 
+22:31:19 | INFO     | trainer.federated            | ##############################################################################
+22:31:19 | INFO     | trainer.federated            | # ROUND 1 / 3
+22:31:19 | INFO     | trainer.federated            | ##############################################################################
+22:31:19 | INFO     | trainer.sft                  | ==============================================================================
+22:31:19 | INFO     | trainer.sft                  | Training client_1@r1 | shard=client1.jsonl | epochs=1.00 | window=[0, 500)
+22:31:19 | INFO     | trainer.sft                  | ==============================================================================
+22:31:19 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_1@r1 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_1/client_1 (0.004s)
+22:31:19 | INFO     | trainer.sft                  | ==============================================================================
+22:31:19 | INFO     | trainer.sft                  | Training client_2@r1 | shard=client2.jsonl | epochs=1.00 | window=[0, 500)
+22:31:19 | INFO     | trainer.sft                  | ==============================================================================
+22:31:19 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_2@r1 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_1/client_2 (0.003s)
+22:31:20 | INFO     | trainer.sft                  | ==============================================================================
+22:31:20 | INFO     | trainer.sft                  | Training client_3@r1 | shard=client3.jsonl | epochs=1.00 | window=[0, 500)
+22:31:20 | INFO     | trainer.sft                  | ==============================================================================
+22:31:20 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_3@r1 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_1/client_3 (0.008s)
+22:31:20 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+22:31:20 | INFO     | trainer.aggregation          | FedAvg complete: 56 LoRA tensors (229,376 params) merged in 0.014s -> /tmp/tmp.rtXrFJ0mtb/out/_verify/round_1/global (0.882 MB)
+22:31:21 | INFO     | evaluation.eval_loss         | [dry-run] Emitting placeholder evaluation metrics (loss=2.0000).
+22:31:21 | INFO     | trainer.federated            | Round 1 done in 1.56s | comm=5.297 MB | val_loss=2.0000 ppl=7.3891
+22:31:21 | INFO     | trainer.federated            | 
+22:31:21 | INFO     | trainer.federated            | ##############################################################################
+22:31:21 | INFO     | trainer.federated            | # ROUND 2 / 3
+22:31:21 | INFO     | trainer.federated            | ##############################################################################
+22:31:21 | INFO     | trainer.sft                  | ==============================================================================
+22:31:21 | INFO     | trainer.sft                  | Training client_1@r2 | shard=client1.jsonl | epochs=1.00 | window=[500, 1000)
+22:31:21 | INFO     | trainer.sft                  | ==============================================================================
+22:31:21 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_1@r2 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_2/client_1 (0.011s)
+22:31:21 | INFO     | trainer.sft                  | ==============================================================================
+22:31:21 | INFO     | trainer.sft                  | Training client_2@r2 | shard=client2.jsonl | epochs=1.00 | window=[500, 1000)
+22:31:21 | INFO     | trainer.sft                  | ==============================================================================
+22:31:21 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_2@r2 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_2/client_2 (0.011s)
+22:31:22 | INFO     | trainer.sft                  | ==============================================================================
+22:31:22 | INFO     | trainer.sft                  | Training client_3@r2 | shard=client3.jsonl | epochs=1.00 | window=[500, 1000)
+22:31:22 | INFO     | trainer.sft                  | ==============================================================================
+22:31:22 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_3@r2 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_2/client_3 (0.009s)
+22:31:22 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+22:31:22 | INFO     | trainer.aggregation          | FedAvg complete: 56 LoRA tensors (229,376 params) merged in 0.009s -> /tmp/tmp.rtXrFJ0mtb/out/_verify/round_2/global (0.882 MB)
+22:31:22 | INFO     | evaluation.eval_loss         | [dry-run] Emitting placeholder evaluation metrics (loss=2.0000).
+22:31:22 | INFO     | trainer.federated            | Round 2 done in 1.62s | comm=5.297 MB | val_loss=2.0000 ppl=7.3891
+22:31:22 | INFO     | trainer.federated            | 
+22:31:22 | INFO     | trainer.federated            | ##############################################################################
+22:31:22 | INFO     | trainer.federated            | # ROUND 3 / 3
+22:31:22 | INFO     | trainer.federated            | ##############################################################################
+22:31:22 | INFO     | trainer.sft                  | ==============================================================================
+22:31:22 | INFO     | trainer.sft                  | Training client_1@r3 | shard=client1.jsonl | epochs=1.00 | window=[1000, 1500)
+22:31:22 | INFO     | trainer.sft                  | ==============================================================================
+22:31:23 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_1@r3 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_3/client_1 (0.010s)
+22:31:23 | INFO     | trainer.sft                  | ==============================================================================
+22:31:23 | INFO     | trainer.sft                  | Training client_2@r3 | shard=client2.jsonl | epochs=1.00 | window=[1000, 1500)
+22:31:23 | INFO     | trainer.sft                  | ==============================================================================
+22:31:23 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_2@r3 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_3/client_2 (0.008s)
+22:31:23 | INFO     | trainer.sft                  | ==============================================================================
+22:31:23 | INFO     | trainer.sft                  | Training client_3@r3 | shard=client3.jsonl | epochs=1.00 | window=[1000, 1500)
+22:31:23 | INFO     | trainer.sft                  | ==============================================================================
+22:31:23 | INFO     | trainer.sft                  | [dry-run] Synthetic adapter for client_3@r3 written to /tmp/tmp.rtXrFJ0mtb/out/_verify/round_3/client_3 (0.012s)
+22:31:24 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+22:31:24 | INFO     | trainer.aggregation          | FedAvg complete: 56 LoRA tensors (229,376 params) merged in 0.009s -> /tmp/tmp.rtXrFJ0mtb/out/_verify/round_3/global (0.882 MB)
+22:31:24 | INFO     | trainer.federated            | Round 3 done in 1.33s | comm=5.297 MB | evaluation skipped
+22:31:24 | INFO     | trainer.federated            | ==============================================================================
+22:31:24 | INFO     | trainer.federated            | Federated run complete: 3 round(s) in 4.89s | comm=15.892 MB | train=0.08s
+22:31:24 | INFO     | trainer.federated            | ==============================================================================
+22:31:25 | INFO     | fedchain                     | Final evaluation of /tmp/tmp.rtXrFJ0mtb/out/_verify/round_3/global ...
+22:31:25 | INFO     | evaluation.eval_loss         | [dry-run] Emitting placeholder evaluation metrics (loss=2.0000).
+22:31:25 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+22:31:25 | INFO     | fedchain                     | COLLECTED METRICS
+22:31:25 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+22:31:25 | INFO     | fedchain                     |   validation_loss               : 2.0000
+22:31:25 | INFO     | fedchain                     |   perplexity                    : 7.3891
+22:31:25 | INFO     | fedchain                     |   rouge_l                       : 0.0000
+22:31:25 | INFO     | fedchain                     |   bleu                          : 0.0000
+22:31:25 | INFO     | fedchain                     |   training_time_sec             : 0.08
+22:31:25 | INFO     | fedchain                     |   communication_volume_mb       : 15.892
+22:31:25 | INFO     | fedchain                     |   adapter_size_mb               : 0.882
+22:31:25 | INFO     | fedchain                     |   blockchain_tx_latency_sec     : 0.0000
+22:31:25 | INFO     | fedchain                     |   blockchain_gas_used           : 0
+22:31:25 | INFO     | fedchain                     |   ipfs_upload_latency_sec       : 0.0000
+22:31:25 | INFO     | fedchain                     |   ipfs_download_latency_sec     : 0.0000
+22:31:25 | INFO     | fedchain                     |   aggregation_time_sec          : 0.0331
+22:31:25 | INFO     | fedchain                     |   end_to_end_round_duration_sec : 1.51
+22:31:25 | INFO     | fedchain                     |   total_round_time_sec          : 4.52
+22:31:25 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+22:31:26 | INFO     | fedchain                     | Detailed JSON report written to /tmp/tmp.rtXrFJ0mtb/_verify_metrics.json
+
+## FedChain Results - `_verify`
+
+_FedAvg over QLoRA adapters, trusted central aggregator_
+
+| Setting          | Value                      |
+|------------------|----------------------------|
+| Model            | Qwen/Qwen2.5-1.5B-Instruct |
+| Model tier       | qwen-1.5b                  |
+| Paradigm         | federated                  |
+| Rounds x Clients | 3 x 3                      |
+| Device           | cuda                       |
+| Blockchain       | disabled                   |
+| IPFS             | disabled                   |
+| Total wall clock | 6.32s                      |
+
+| Metric                    | Value  |
+|---------------------------|--------|
+| Validation Loss           | 2.0000 |
+| Perplexity                | 7.3891 |
+| ROUGE-L                   | 0.0000 |
+| BLEU                      | 0.0000 |
+| Training Time (s)         | 0.08   |
+| Communication Volume (MB) | 15.892 |
+| Adapter Size (MB)         | 0.882  |
+| Blockchain Tx Latency (s) | 0.0000 |
+| Blockchain Gas Used       | 0      |
+| IPFS Upload Latency (s)   | 0.0000 |
+| IPFS Download Latency (s) | 0.0000 |
+| Aggregation Time (s)      | 0.0331 |
+| Mean Round Duration (s)   | 1.51   |
+| Total Round Time (s)      | 4.52   |
+

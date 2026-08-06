@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "exp_name": "exp1_sft",
+  "fingerprint": "5474488a5e7fadcf35c9b957a86782e79343120895128718918808a664290d20",
+  "paradigm": "centralized",
+  "status": "in_progress",
+  "created_at": 1785849362,
+  "updated_at": 1785855266,
+  "sessions": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "round_latency_sec": 4746.2231,
+      "training_time_sec": 4745.0482,
+      "aggregation_time_sec": 0.0,
+      "communication_mb": 0.0,
+      "global_adapter_path": "/home/mann/FedChain/outputs/smollm2-360m/exp1_sft/global",
+      "global_adapter_mb": 16.6222,
+      "evaluation": null
+    }
+  ],
+  "partial_round": null,
+  "totals": {
+    "training_time_sec": 4745.0482,
+    "aggregation_time_sec": 0.0,
+    "communication_bytes": 0,
+    "wall_clock_sec": 4747.5441032789995
+  },
+  "global_adapter_path": "/home/mann/FedChain/outputs/smollm2-360m/exp1_sft/global",
+  "global_adapter_hash": "a7b42ee87c87ab939e6cbbda7c8ea52986186207a507e29d143992a7b1e2376b",
+  "blockchain_receipts": [],
+  "ipfs_transfers": [],
+  "final_evaluation": {
+    "label": "final",
+    "adapter_path": "/home/mann/FedChain/outputs/smollm2-360m/exp1_sft/global",
+    "loss": 1.988298,
+    "perplexity": 7.303096,
+    "rouge_l": 0.210641,
+    "bleu": 0.039748,
+    "eval_latency_sec": 519.9188,
+    "loss_latency_sec": 146.5539,
+    "generation_latency_sec": 363.5623,
+    "num_samples": 500,
+    "num_samples_skipped": 0,
+    "num_tokens": 88069,
+    "num_generation_samples": 50,
+    "generation_metric_backend": "builtin",
+    "completion_only": false,
+    "peak_vram_mb": 803.97
+  }
+}

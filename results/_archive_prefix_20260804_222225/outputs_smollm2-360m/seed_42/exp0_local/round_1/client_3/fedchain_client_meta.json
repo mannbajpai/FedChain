@@ -1,0 +1,19 @@
+{
+  "checkpoint_version": 2,
+  "config_fingerprint": "552151c1e8a5f8ae67371edc8b738b4898a91cb5e5a814052f3e264733358b18",
+  "client_id": "client_3@r1",
+  "dataset": [
+    "/home/mann/FedChain/data/client3.jsonl"
+  ],
+  "dataset_hash": [
+    "cb6244a9cd4e8026570306478e11aae39050c527a23fc02a98daf0736773fda5"
+  ],
+  "init_adapter_path": null,
+  "init_adapter_hash": null,
+  "epochs": 1.0,
+  "max_samples": 500,
+  "sample_offset": 0,
+  "resume_fingerprint": "e4859c8ea40d310fd12ad7fb42fcb65a9cf6902f7bffbb074ed548f95e5787c3",
+  "status": "in_progress",
+  "started_at": 1785882098
+}

@@ -1,0 +1,18 @@
+{
+  "checkpoint_version": 1,
+  "config_fingerprint": "2bae06777754bbf833285f2cf790bf862a305c6a208f8e19a7e9054d0d622d3e",
+  "client_id": "client_2@r1",
+  "dataset": "/home/mann/FedChain/data/client2.jsonl",
+  "dataset_hash": "ce56502677b6cd1d2032a28b64083f7e7f00f4e887a05e7e2556d32150e1cbfa",
+  "init_adapter_path": null,
+  "init_adapter_hash": null,
+  "epochs": 1.0,
+  "max_samples": 500,
+  "resume_fingerprint": "ecaf070293d9f26f12042f4133d15f19d897478729ea0b2f22aeae7c0bb2740f",
+  "status": "completed",
+  "num_samples": 500,
+  "trainer_backend": "trl.SFTTrainer",
+  "training_time_sec": 505.2457,
+  "model_hash": "2db9766a9bfe2bb601da7583bd1605d3cf43d840ec5ab38e4243f738b4d0b2e7",
+  "completed_at": 1785857280
+}

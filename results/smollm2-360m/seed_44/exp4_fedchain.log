@@ -1,0 +1,257 @@
+17:41:04 | INFO     | fedchain                     | ==============================================================================
+17:41:04 | INFO     | fedchain                     | FedChain :: exp4_fedchain
+17:41:04 | INFO     | fedchain                     | FedChain: auditable federated QLoRA with blockchain anchoring and IPFS transport
+17:41:04 | INFO     | fedchain                     | Config: /home/mann/FedChain/configs/exp4_fedchain.yaml
+17:41:04 | INFO     | fedchain                     | Model:  HuggingFaceTB/SmolLM2-360M-Instruct  [tier=smollm2-360m]
+17:41:04 | INFO     | fedchain                     | Hugging Face Hub: authenticated via HF_TOKEN
+17:41:04 | INFO     | fedchain                     | ==============================================================================
+17:41:11 | INFO     | utils.common                 | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+17:41:11 | INFO     | fedchain                     | Seed=44 | device=cuda
+17:41:11 | INFO     | fedchain                     | Initialising the blockchain audit layer ...
+17:41:11 | INFO     | blockchain.logger            | Using unlocked node account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+17:41:11 | INFO     | blockchain.logger            | Loaded contract bytecode from /home/mann/FedChain/blockchain/artifacts/FedChainAudit.json
+17:41:11 | INFO     | blockchain.logger            | Deployed FedChainAudit at 0x4458AcB1185aD869F982D51b5b0b87e23767A3A9 (gas=1431133, 0.120s)
+17:41:11 | INFO     | blockchain.logger            | BlockchainLogger connected: rpc=http://127.0.0.1:8545 chain_id=31337 account=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 contract=0x4458AcB1185aD869F982D51b5b0b87e23767A3A9
+17:41:11 | INFO     | fedchain                     | Initialising the IPFS storage layer ...
+17:41:11 | INFO     | ipfs.pinata_client           | IPFSManager backend: local IPFS daemon (http://127.0.0.1:5001)
+17:41:11 | INFO     | evaluation.eval_loss         | Evaluator ready | 500 loss samples | 50 generation samples | seq_len=512 | device=cuda
+17:41:11 | INFO     | fedchain                     | ==============================================================================
+17:41:11 | INFO     | fedchain                     | PIPELINE: federated learning | blockchain=True | ipfs=True
+17:41:11 | INFO     | fedchain                     | ==============================================================================
+17:41:11 | INFO     | trainer.sft                  | LocalTrainer ready | model=HuggingFaceTB/SmolLM2-360M-Instruct device=cuda 4bit=True seq_len=512 dry_run=False
+17:41:11 | INFO     | trainer.federated            | FederatedOrchestrator ready | rounds=3 clients=3 blockchain=True ipfs=True checkpoint=True
+17:41:11 | INFO     | utils.checkpoint             | No checkpoint at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/checkpoint.json; starting a fresh run.
+17:41:11 | INFO     | trainer.federated            | 
+17:41:11 | INFO     | trainer.federated            | ##############################################################################
+17:41:11 | INFO     | trainer.federated            | # ROUND 1 / 3
+17:41:11 | INFO     | trainer.federated            | ##############################################################################
+17:41:11 | INFO     | trainer.sft                  | ==============================================================================
+17:41:11 | INFO     | trainer.sft                  | Training client_1@r1 | shard=client1.jsonl | epochs=1.00 | window=[0, 500)
+17:41:11 | INFO     | trainer.sft                  | ==============================================================================
+17:41:14 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+17:41:14 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+17:41:15 | INFO     | trainer.sft                  | Base model load took 1.42s
+17:41:15 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+17:41:15 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+17:41:17 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+17:48:31 | INFO     | trainer.sft                  | client_1@r1 finished in 7m 19.8s | train_loss=2.1009 | peak VRAM=726.66 MB
+17:48:33 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_1 -> QmV9k4EbRLM5m1b1UVN7DLKCoGjVQ6pro3LKe638ZXcoyW (13.069 MB in 1.427s)
+17:48:34 | INFO     | blockchain.logger            | [chain:live] round=1 client=client_1 hash=a5de0bb5a769cf5f... cid=QmV9k4EbRLM5m1b1UVN7DLKCoGjVQ6pro3LKe638ZXcoyW gas=325691 latency=0.128s
+17:48:34 | INFO     | trainer.sft                  | ==============================================================================
+17:48:34 | INFO     | trainer.sft                  | Training client_2@r1 | shard=client2.jsonl | epochs=1.00 | window=[0, 500)
+17:48:34 | INFO     | trainer.sft                  | ==============================================================================
+17:48:35 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+17:48:35 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+17:48:36 | INFO     | trainer.sft                  | Base model load took 1.32s
+17:48:37 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+17:48:37 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+17:48:38 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+17:56:08 | INFO     | trainer.sft                  | client_2@r1 finished in 7m 34.0s | train_loss=2.0867 | peak VRAM=908.57 MB
+17:56:11 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_2 -> QmWurZwAjgcfFWos4L3uNnKG2GRUP3nGYQpuGy9N9xgQpo (13.071 MB in 1.350s)
+17:56:11 | INFO     | blockchain.logger            | [chain:live] round=1 client=client_2 hash=f070a581296994da... cid=QmWurZwAjgcfFWos4L3uNnKG2GRUP3nGYQpuGy9N9xgQpo gas=311391 latency=0.129s
+17:56:11 | INFO     | trainer.sft                  | ==============================================================================
+17:56:11 | INFO     | trainer.sft                  | Training client_3@r1 | shard=client3.jsonl | epochs=1.00 | window=[0, 500)
+17:56:11 | INFO     | trainer.sft                  | ==============================================================================
+17:56:12 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+17:56:12 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+17:56:14 | INFO     | trainer.sft                  | Base model load took 1.41s
+17:56:14 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+17:56:14 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+17:56:15 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+18:03:36 | INFO     | trainer.sft                  | client_3@r1 finished in 7m 24.6s | train_loss=2.1114 | peak VRAM=1088.17 MB
+18:03:39 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_3 -> QmSTAcevr5pzUHQ2dBKxFH97uypuULEYBTtxfbG16zzBqB (13.071 MB in 1.360s)
+18:03:39 | INFO     | blockchain.logger            | [chain:live] round=1 client=client_3 hash=07e70dc53d7990df... cid=QmSTAcevr5pzUHQ2dBKxFH97uypuULEYBTtxfbG16zzBqB gas=311391 latency=0.125s
+18:03:39 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmV9k4EbRLM5m1b1UVN7DLKCoGjVQ6pro3LKe638ZXcoyW -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/_retrieved/client_1 (13.069 MB in 0.325s)
+18:03:39 | INFO     | trainer.federated            | Integrity verified for client_1 (a5de0bb5a769cf5f...)
+18:03:40 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmWurZwAjgcfFWos4L3uNnKG2GRUP3nGYQpuGy9N9xgQpo -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/_retrieved/client_2 (13.071 MB in 0.365s)
+18:03:40 | INFO     | trainer.federated            | Integrity verified for client_2 (f070a581296994da...)
+18:03:40 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmSTAcevr5pzUHQ2dBKxFH97uypuULEYBTtxfbG16zzBqB -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/_retrieved/client_3 (13.071 MB in 0.349s)
+18:03:40 | INFO     | trainer.federated            | Integrity verified for client_3 (07e70dc53d7990df...)
+18:03:40 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+18:03:40 | INFO     | trainer.aggregation          | FedAvg complete: 448 LoRA tensors (8,683,520 params) merged in 0.094s -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/global (16.620 MB)
+18:03:42 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded global -> Qmd34wYyNXbrp19eLdXjS7FuWes98m98b88DoMy34cSm8m (13.126 MB in 1.387s)
+18:03:42 | INFO     | blockchain.logger            | [chain:live] round=1 client=server_global hash=2e960346c23f4520... cid=Qmd34wYyNXbrp19eLdXjS7FuWes98m98b88DoMy34cSm8m gas=311451 latency=0.123s
+18:03:43 | INFO     | evaluation.eval_loss         | Evaluation split: 500 samples from eval_500.jsonl
+18:03:45 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.34s
+18:03:45 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/global
+18:03:46 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+18:04:07 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0572 ppl=7.8238
+18:04:27 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0762 ppl=7.9737
+18:04:47 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=2.0537 ppl=7.7970
+18:05:08 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0644 ppl=7.8809
+18:05:30 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0821 ppl=8.0215
+18:05:30 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+18:06:30 | INFO     | evaluation.eval_loss         |   generated 10/50
+18:07:41 | INFO     | evaluation.eval_loss         |   generated 20/50
+18:08:24 | INFO     | evaluation.eval_loss         |   generated 30/50
+18:09:38 | INFO     | evaluation.eval_loss         |   generated 40/50
+18:10:35 | INFO     | evaluation.eval_loss         |   generated 50/50
+18:10:37 | WARNING  | evaluation.eval_loss         | The `evaluate` library failed to score (To be able to use evaluate-metric/rouge, you need to install the following dependencies['nltk'] using 'pip install nltk' for instance'); using the built-in implementation.
+18:10:37 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2380 BLEU=0.0526 (backend=builtin, 5m 05.1s)
+18:10:37 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0821 ppl=8.0215 rougeL=0.2380 bleu=0.0526 over 88,069 tokens in 6m 54.8s
+18:10:38 | INFO     | trainer.federated            | Round 1 done in 29m 26.7s | comm=130.924 MB | val_loss=2.0821 ppl=8.0215
+18:10:38 | INFO     | trainer.federated            | 
+18:10:38 | INFO     | trainer.federated            | ##############################################################################
+18:10:38 | INFO     | trainer.federated            | # ROUND 2 / 3
+18:10:38 | INFO     | trainer.federated            | ##############################################################################
+18:10:38 | INFO     | trainer.sft                  | ==============================================================================
+18:10:38 | INFO     | trainer.sft                  | Training client_1@r2 | shard=client1.jsonl | epochs=1.00 | window=[500, 1000)
+18:10:38 | INFO     | trainer.sft                  | ==============================================================================
+18:10:39 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+18:10:39 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+18:10:41 | INFO     | trainer.sft                  | Base model load took 1.43s
+18:10:41 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/global
+18:10:41 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+18:10:41 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+18:10:42 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+18:17:44 | INFO     | trainer.sft                  | client_1@r2 finished in 7m 05.6s | train_loss=2.0157 | peak VRAM=1266.83 MB
+18:17:46 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_1 -> QmdCNyPMfhBxqEgytw32b8qRSsCw9qKUf9zwwcgzpXnemJ (13.135 MB in 1.470s)
+18:17:47 | INFO     | blockchain.logger            | [chain:live] round=2 client=client_1 hash=ccb6270da4e9a90c... cid=QmdCNyPMfhBxqEgytw32b8qRSsCw9qKUf9zwwcgzpXnemJ gas=328491 latency=0.122s
+18:17:47 | INFO     | trainer.sft                  | ==============================================================================
+18:17:47 | INFO     | trainer.sft                  | Training client_2@r2 | shard=client2.jsonl | epochs=1.00 | window=[500, 1000)
+18:17:47 | INFO     | trainer.sft                  | ==============================================================================
+18:17:48 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+18:17:48 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+18:17:49 | INFO     | trainer.sft                  | Base model load took 1.30s
+18:17:49 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/global
+18:17:50 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+18:17:50 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+18:17:51 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+18:25:20 | INFO     | trainer.sft                  | client_2@r2 finished in 7m 32.7s | train_loss=2.0407 | peak VRAM=1448.3 MB
+18:25:22 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_2 -> QmfUV4iP9xVa6EFtoWfgGmTR3FkJY7k8MVYQedkpMDtbPQ (13.135 MB in 1.388s)
+18:25:23 | INFO     | blockchain.logger            | [chain:live] round=2 client=client_2 hash=dd3719995d376ff4... cid=QmfUV4iP9xVa6EFtoWfgGmTR3FkJY7k8MVYQedkpMDtbPQ gas=311391 latency=0.125s
+18:25:23 | INFO     | trainer.sft                  | ==============================================================================
+18:25:23 | INFO     | trainer.sft                  | Training client_3@r2 | shard=client3.jsonl | epochs=1.00 | window=[500, 1000)
+18:25:23 | INFO     | trainer.sft                  | ==============================================================================
+18:25:24 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+18:25:24 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+18:25:26 | INFO     | trainer.sft                  | Base model load took 1.53s
+18:25:26 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_1/global
+18:25:26 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+18:25:26 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+18:25:27 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+18:32:52 | INFO     | trainer.sft                  | client_3@r2 finished in 7m 29.3s | train_loss=2.0314 | peak VRAM=1626.75 MB
+18:32:55 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_3 -> QmTeVXQnx2CZd9DgQnBx79duaGr3DL33LsTbTMuY9moWdg (13.135 MB in 1.492s)
+18:32:55 | INFO     | blockchain.logger            | [chain:live] round=2 client=client_3 hash=48ea80615a997b39... cid=QmTeVXQnx2CZd9DgQnBx79duaGr3DL33LsTbTMuY9moWdg gas=311391 latency=0.126s
+18:32:56 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmdCNyPMfhBxqEgytw32b8qRSsCw9qKUf9zwwcgzpXnemJ -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/_retrieved/client_1 (13.135 MB in 0.318s)
+18:32:56 | INFO     | trainer.federated            | Integrity verified for client_1 (ccb6270da4e9a90c...)
+18:32:56 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmfUV4iP9xVa6EFtoWfgGmTR3FkJY7k8MVYQedkpMDtbPQ -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/_retrieved/client_2 (13.135 MB in 0.298s)
+18:32:56 | INFO     | trainer.federated            | Integrity verified for client_2 (dd3719995d376ff4...)
+18:32:56 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmTeVXQnx2CZd9DgQnBx79duaGr3DL33LsTbTMuY9moWdg -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/_retrieved/client_3 (13.135 MB in 0.297s)
+18:32:56 | INFO     | trainer.federated            | Integrity verified for client_3 (48ea80615a997b39...)
+18:32:56 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+18:32:56 | INFO     | trainer.aggregation          | FedAvg complete: 448 LoRA tensors (8,683,520 params) merged in 0.080s -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/global (16.620 MB)
+18:32:58 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded global -> QmfYNcUqpHjipc4KngyTryEGCYFAWBPyWvVWDLcaYaWoKb (13.145 MB in 1.602s)
+18:32:58 | INFO     | blockchain.logger            | [chain:live] round=2 client=server_global hash=72ff5dd8ba0e4fdd... cid=QmfYNcUqpHjipc4KngyTryEGCYFAWBPyWvVWDLcaYaWoKb gas=311451 latency=0.124s
+18:33:00 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.54s
+18:33:00 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/global
+18:33:01 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+18:33:23 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0150 ppl=7.5006
+18:33:44 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0316 ppl=7.6264
+18:34:05 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=2.0093 ppl=7.4578
+18:34:26 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0202 ppl=7.5396
+18:34:48 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0384 ppl=7.6786
+18:34:48 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+18:35:34 | INFO     | evaluation.eval_loss         |   generated 10/50
+18:36:55 | INFO     | evaluation.eval_loss         |   generated 20/50
+18:37:23 | INFO     | evaluation.eval_loss         |   generated 30/50
+18:38:15 | INFO     | evaluation.eval_loss         |   generated 40/50
+18:39:05 | INFO     | evaluation.eval_loss         |   generated 50/50
+18:39:05 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2445 BLEU=0.0451 (backend=builtin, 4m 16.5s)
+18:39:05 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0384 ppl=7.6786 rougeL=0.2445 bleu=0.0451 over 88,069 tokens in 6m 06.1s
+18:39:05 | INFO     | trainer.federated            | Round 2 done in 28m 27.4s | comm=131.393 MB | val_loss=2.0384 ppl=7.6786
+18:39:06 | INFO     | trainer.federated            | 
+18:39:06 | INFO     | trainer.federated            | ##############################################################################
+18:39:06 | INFO     | trainer.federated            | # ROUND 3 / 3
+18:39:06 | INFO     | trainer.federated            | ##############################################################################
+18:39:06 | INFO     | trainer.sft                  | ==============================================================================
+18:39:06 | INFO     | trainer.sft                  | Training client_1@r3 | shard=client1.jsonl | epochs=1.00 | window=[1000, 1500)
+18:39:06 | INFO     | trainer.sft                  | ==============================================================================
+18:39:07 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+18:39:07 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+18:39:09 | INFO     | trainer.sft                  | Base model load took 1.59s
+18:39:09 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/global
+18:39:09 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+18:39:09 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+18:39:10 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+18:46:21 | INFO     | trainer.sft                  | client_1@r3 finished in 7m 14.1s | train_loss=2.0026 | peak VRAM=1806.83 MB
+18:46:23 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_1 -> QmWHPaqG8UXgh3iVnH2QjfqJNu6qSnkoPVvQMUMwkZHTqk (13.124 MB in 1.544s)
+18:46:24 | INFO     | blockchain.logger            | [chain:live] round=3 client=client_1 hash=0cba4dba8e21baf8... cid=QmWHPaqG8UXgh3iVnH2QjfqJNu6qSnkoPVvQMUMwkZHTqk gas=328491 latency=0.128s
+18:46:24 | INFO     | trainer.sft                  | ==============================================================================
+18:46:24 | INFO     | trainer.sft                  | Training client_2@r3 | shard=client2.jsonl | epochs=1.00 | window=[1000, 1500)
+18:46:24 | INFO     | trainer.sft                  | ==============================================================================
+18:46:25 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+18:46:25 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+18:46:26 | INFO     | trainer.sft                  | Base model load took 1.40s
+18:46:26 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/global
+18:46:27 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+18:46:27 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+18:46:28 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+18:53:54 | INFO     | trainer.sft                  | client_2@r3 finished in 7m 30.1s | train_loss=2.0087 | peak VRAM=1988.3 MB
+18:53:57 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_2 -> QmRcAHjLSsMDhLrWcDLNzSshqoi2PkTkEGxpdZ8hxQGp1a (13.123 MB in 1.387s)
+18:53:57 | INFO     | blockchain.logger            | [chain:live] round=3 client=client_2 hash=1346f64000188c14... cid=QmRcAHjLSsMDhLrWcDLNzSshqoi2PkTkEGxpdZ8hxQGp1a gas=311391 latency=0.122s
+18:53:57 | INFO     | trainer.sft                  | ==============================================================================
+18:53:57 | INFO     | trainer.sft                  | Training client_3@r3 | shard=client3.jsonl | epochs=1.00 | window=[1000, 1500)
+18:53:57 | INFO     | trainer.sft                  | ==============================================================================
+18:53:58 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+18:53:58 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+18:54:00 | INFO     | trainer.sft                  | Base model load took 1.36s
+18:54:00 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_2/global
+18:54:00 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+18:54:00 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+18:54:01 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+19:01:35 | INFO     | trainer.sft                  | client_3@r3 finished in 7m 37.8s | train_loss=2.0114 | peak VRAM=2166.77 MB
+19:01:38 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded client_3 -> QmYPvi2ngeTZuMLRchkoNdou6VsUGuLJVTdfQHk1Ayiu7B (13.124 MB in 1.500s)
+19:01:38 | INFO     | blockchain.logger            | [chain:live] round=3 client=client_3 hash=897be5832d2f6bb9... cid=QmYPvi2ngeTZuMLRchkoNdou6VsUGuLJVTdfQHk1Ayiu7B gas=311391 latency=0.125s
+19:01:39 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmWHPaqG8UXgh3iVnH2QjfqJNu6qSnkoPVvQMUMwkZHTqk -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/_retrieved/client_1 (13.124 MB in 0.337s)
+19:01:39 | INFO     | trainer.federated            | Integrity verified for client_1 (0cba4dba8e21baf8...)
+19:01:39 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmRcAHjLSsMDhLrWcDLNzSshqoi2PkTkEGxpdZ8hxQGp1a -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/_retrieved/client_2 (13.123 MB in 0.345s)
+19:01:39 | INFO     | trainer.federated            | Integrity verified for client_2 (1346f64000188c14...)
+19:01:40 | INFO     | ipfs.pinata_client           | [ipfs:local] downloaded QmYPvi2ngeTZuMLRchkoNdou6VsUGuLJVTdfQHk1Ayiu7B -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/_retrieved/client_3 (13.124 MB in 0.346s)
+19:01:40 | INFO     | trainer.federated            | Integrity verified for client_3 (897be5832d2f6bb9...)
+19:01:40 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+19:01:40 | INFO     | trainer.aggregation          | FedAvg complete: 448 LoRA tensors (8,683,520 params) merged in 0.130s -> /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/global (16.620 MB)
+19:01:41 | INFO     | ipfs.pinata_client           | [ipfs:local] uploaded global -> QmVakD1bYVs3Tm7As7LCGoNwYjkFnebj7ofgih3d8bjh2D (13.132 MB in 1.504s)
+19:01:41 | INFO     | blockchain.logger            | [chain:live] round=3 client=server_global hash=d75422c9c839661f... cid=QmVakD1bYVs3Tm7As7LCGoNwYjkFnebj7ofgih3d8bjh2D gas=311451 latency=0.122s
+19:01:41 | INFO     | trainer.federated            | Round 3 done in 22m 35.2s | comm=131.269 MB | evaluation skipped
+19:01:42 | INFO     | trainer.federated            | ==============================================================================
+19:01:42 | INFO     | trainer.federated            | Federated run complete: 3 round(s) in 1h 20m 30.6s | comm=393.586 MB | train=1h 06m 48.1s
+19:01:42 | INFO     | trainer.federated            | ==============================================================================
+19:01:43 | INFO     | fedchain                     | Final evaluation of /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/global ...
+19:01:45 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.51s
+19:01:45 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/global
+19:01:45 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+19:02:08 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=1.9985 ppl=7.3777
+19:02:29 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0149 ppl=7.5002
+19:02:50 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=1.9930 ppl=7.3373
+19:03:12 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0039 ppl=7.4181
+19:03:34 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0225 ppl=7.5572
+19:03:34 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+19:04:28 | INFO     | evaluation.eval_loss         |   generated 10/50
+19:05:32 | INFO     | evaluation.eval_loss         |   generated 20/50
+19:05:59 | INFO     | evaluation.eval_loss         |   generated 30/50
+19:07:33 | INFO     | evaluation.eval_loss         |   generated 40/50
+19:08:32 | INFO     | evaluation.eval_loss         |   generated 50/50
+19:08:32 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2368 BLEU=0.0479 (backend=builtin, 4m 58.0s)
+19:08:32 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0225 ppl=7.5572 rougeL=0.2368 bleu=0.0479 over 88,069 tokens in 6m 48.9s
+19:08:33 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+19:08:33 | INFO     | fedchain                     | COLLECTED METRICS
+19:08:33 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+19:08:33 | INFO     | fedchain                     |   validation_loss               : 2.0225
+19:08:33 | INFO     | fedchain                     |   perplexity                    : 7.5572
+19:08:33 | INFO     | fedchain                     |   rouge_l                       : 0.2368
+19:08:33 | INFO     | fedchain                     |   bleu                          : 0.0479
+19:08:33 | INFO     | fedchain                     |   training_time_sec             : 4008.06
+19:08:33 | INFO     | fedchain                     |   communication_volume_mb       : 393.586
+19:08:33 | INFO     | fedchain                     |   adapter_size_mb               : 16.620
+19:08:33 | INFO     | fedchain                     |   blockchain_tx_latency_sec     : 1.4987
+19:08:33 | INFO     | fedchain                     |   blockchain_gas_used           : 3,785,372
+19:08:33 | INFO     | fedchain                     |   ipfs_upload_latency_sec       : 17.4125
+19:08:33 | INFO     | fedchain                     |   ipfs_download_latency_sec     : 2.9795
+19:08:33 | INFO     | fedchain                     |   aggregation_time_sec          : 0.3042
+19:08:33 | INFO     | fedchain                     |   end_to_end_round_duration_sec : 1609.77
+19:08:33 | INFO     | fedchain                     |   total_round_time_sec          : 4829.31
+19:08:33 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+19:08:33 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/smollm2-360m/seed_44/exp4_fedchain_metrics.json
+19:08:33 | INFO     | blockchain.logger            | Audit trail exported to /home/mann/FedChain/results/smollm2-360m/seed_44/exp4_fedchain_audit_trail.json
+19:08:33 | INFO     | ipfs.pinata_client           | IPFS transfer log exported to /home/mann/FedChain/results/smollm2-360m/seed_44/exp4_fedchain_ipfs_transfers.json

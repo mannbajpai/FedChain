@@ -1,0 +1,61 @@
+{
+  "dataset": "databricks/databricks-dolly-15k",
+  "total_records": 15011,
+  "eval_size": 500,
+  "num_clients": 3,
+  "seed": 42,
+  "partition": "dirichlet",
+  "dirichlet_alpha": 0.3,
+  "label_key": "category",
+  "partition_profile": [
+    {
+      "client": "client1",
+      "num_records": 4798,
+      "label_histogram": {
+        "brainstorming": 131,
+        "classification": 435,
+        "closed_qa": 1257,
+        "creative_writing": 594,
+        "general_qa": 635,
+        "information_extraction": 1272,
+        "open_qa": 425,
+        "summarization": 49
+      }
+    },
+    {
+      "client": "client2",
+      "num_records": 2715,
+      "label_histogram": {
+        "brainstorming": 1474,
+        "classification": 135,
+        "closed_qa": 19,
+        "general_qa": 211,
+        "information_extraction": 44,
+        "open_qa": 830,
+        "summarization": 2
+      }
+    },
+    {
+      "client": "client3",
+      "num_records": 6998,
+      "label_histogram": {
+        "brainstorming": 100,
+        "classification": 1501,
+        "closed_qa": 444,
+        "creative_writing": 93,
+        "general_qa": 1254,
+        "information_extraction": 145,
+        "open_qa": 2359,
+        "summarization": 1102
+      }
+    }
+  ],
+  "files": {
+    "eval_500.jsonl": 500,
+    "centralized_full.jsonl": 14511,
+    "client1.jsonl": 4798,
+    "client2.jsonl": 2715,
+    "client3.jsonl": 6998
+  },
+  "note": "eval_500.jsonl is the head of the raw dataset and is excluded from every training shard, so there is no train/eval leakage."
+}

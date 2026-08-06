@@ -1,0 +1,57 @@
+4-bit quantisation requested but no CUDA device is present; loading the model in full precision on CPU instead.
+.Checkpoint /tmp/tmpge90yolq/checkpoint.json is unreadable (Expecting property name enclosed in double quotes: line 1 column 2 (char 1)).
+Recovered progress from checkpoint backup /tmp/tmpge90yolq/checkpoint.json.bak.
+.==========================================================================
+CONFIGURATION CHANGED since the last run of 'exp'.
+The existing checkpoint was produced by a different setup and will NOT
+be reused - resuming across a hyperparameter change would silently mix
+two configurations into one result. Restarting this experiment.
+==========================================================================
+..Round loop aborted (simulated crash after local training). Progress is checkpointed at /tmp/tmpf2k85bir/outputs/recovery/checkpoint.json - re-run the same command to continue from here.
+......4-bit quantisation requested but no CUDA device is present; loading the model in full precision on CPU instead.
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 100 examples [00:00, 59756.43 examples/s]
+Formatting prompts:   0%|          | 0/10 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 10/10 [00:00<00:00, 3224.40 examples/s]
+Filter:   0%|          | 0/10 [00:00<?, ? examples/s]Filter: 100%|██████████| 10/10 [00:00<00:00, 3027.29 examples/s]
+Formatting prompts:   0%|          | 0/10 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 10/10 [00:00<00:00, 5198.69 examples/s]
+Filter:   0%|          | 0/10 [00:00<?, ? examples/s]Filter: 100%|██████████| 10/10 [00:00<00:00, 7196.82 examples/s]
+.4-bit quantisation requested but no CUDA device is present; loading the model in full precision on CPU instead.
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 100 examples [00:00, 71465.39 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 2739.23 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3549.08 examples/s]
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 100 examples [00:00, 71906.46 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 2286.22 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3659.95 examples/s]
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 100 examples [00:00, 87894.05 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 2303.30 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3834.62 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 1727.47 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3678.57 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 1390.68 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3688.92 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 1465.31 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3999.91 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 2259.13 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3759.68 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 2513.67 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3329.34 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 1962.34 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3522.85 examples/s]
+Formatting prompts:   0%|          | 0/45 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 45/45 [00:00<00:00, 10967.09 examples/s]
+Filter:   0%|          | 0/45 [00:00<?, ? examples/s]Filter: 100%|██████████| 45/45 [00:00<00:00, 31893.15 examples/s]
+.4-bit quantisation requested but no CUDA device is present; loading the model in full precision on CPU instead.
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 50 examples [00:00, 40322.09 examples/s]
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 50 examples [00:00, 43258.09 examples/s]
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 50 examples [00:00, 42677.09 examples/s]
+Formatting prompts:   0%|          | 0/60 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 60/60 [00:00<00:00, 12828.58 examples/s]
+Filter:   0%|          | 0/60 [00:00<?, ? examples/s]Filter: 100%|██████████| 60/60 [00:00<00:00, 44050.10 examples/s]
+.4-bit quantisation requested but no CUDA device is present; loading the model in full precision on CPU instead.
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 10 examples [00:00, 9112.11 examples/s]
+Formatting prompts:   0%|          | 0/5 [00:00<?, ? examples/s]Formatting prompts: 100%|██████████| 5/5 [00:00<00:00, 2497.20 examples/s]
+Filter:   0%|          | 0/5 [00:00<?, ? examples/s]Filter: 100%|██████████| 5/5 [00:00<00:00, 3648.49 examples/s]
+..../home/mann/FedChain/.venv/lib/python3.12/site-packages/websockets/legacy/__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+  warnings.warn(  # deprecated in 14.0 - 2024-11-09
+....
+----------------------------------------------------------------------
+Ran 21 tests in 9.069s
+
+OK

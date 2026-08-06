@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "exp_name": "exp0_local",
+  "fingerprint": "552151c1e8a5f8ae67371edc8b738b4898a91cb5e5a814052f3e264733358b18",
+  "paradigm": "federated",
+  "status": "in_progress",
+  "created_at": 1785881241,
+  "updated_at": 1785882098,
+  "sessions": 1,
+  "rounds": [],
+  "partial_round": {
+    "round": 1,
+    "clients": {
+      "client_1": {
+        "client_id": "client_1",
+        "round": 1,
+        "shard": "/home/mann/FedChain/data/client1.jsonl",
+        "adapter_path": "/home/mann/FedChain/outputs/smollm2-360m/seed_42/exp0_local/round_1/client_1",
+        "adapter_mb": 16.6222,
+        "training_time_sec": 432.7609,
+        "num_samples": 500,
+        "model_hash": "d77512b3abf209070686463ddad30a7fbd799e840e2e03ccf16c4cadb429a23d",
+        "ipfs_cid": null,
+        "ipfs_upload_latency_sec": 0.0,
+        "ipfs_download_latency_sec": 0.0,
+        "blockchain": null,
+        "upload_bytes": 17429685,
+        "download_bytes": 0,
+        "integrity_verified": null,
+        "included_in_aggregate": true,
+        "ipfs_attempted": true,
+        "blockchain_attempted": true,
+        "stage": "complete"
+      },
+      "client_2": {
+        "client_id": "client_2",
+        "round": 1,
+        "shard": "/home/mann/FedChain/data/client2.jsonl",
+        "adapter_path": "/home/mann/FedChain/outputs/smollm2-360m/seed_42/exp0_local/round_1/client_2",
+        "adapter_mb": 16.6222,
+        "training_time_sec": 421.5946,
+        "num_samples": 500,
+        "model_hash": "34b0191a1e03bdcc0f28b1b31c950c86cfaa2c786ed7c96b1086ab4535ff1933",
+        "ipfs_cid": null,
+        "ipfs_upload_latency_sec": 0.0,
+        "ipfs_download_latency_sec": 0.0,
+        "blockchain": null,
+        "upload_bytes": 17429685,
+        "download_bytes": 0,
+        "integrity_verified": null,
+        "included_in_aggregate": true,
+        "ipfs_attempted": true,
+        "blockchain_attempted": true,
+        "stage": "complete"
+      }
+    }
+  },
+  "totals": {
+    "training_time_sec": 0.0,
+    "aggregation_time_sec": 0.0,
+    "communication_bytes": 0,
+    "wall_clock_sec": 0.0
+  },
+  "global_adapter_path": null,
+  "global_adapter_hash": null,
+  "blockchain_receipts": [],
+  "ipfs_transfers": [],
+  "final_evaluation": null
+}

@@ -1,0 +1,17 @@
+
+## FedChain - Integrity under attack (Exp 6)
+
+_Chain mode: live | adapters: 12 | seed: 42_
+
+| Attack      | Type           | Trials | Detected | Detection rate | Verify (ms) |
+|-------------|----------------|--------|----------|----------------|-------------|
+| bitflip     | malicious      | 50     | 50       | 100.0%         | 13.13       |
+| scale       | malicious      | 50     | 50       | 100.0%         | 12.74       |
+| substitute  | malicious      | 50     | 50       | 100.0%         | 13.08       |
+| replay      | malicious      | 50     | 50       | 100.0%         | 13.11       |
+| reserialize | benign control | 50     | 0        | 0.0%           | 14.34       |
+
+**Detection:** 200/200 malicious artefacts rejected (100.0%).
+**False positives:** 0/50 benign re-serialisations rejected (0.0%).
+
+Written: /home/mann/FedChain/results/smollm2-360m/exp6_tamper_metrics.json

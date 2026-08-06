@@ -1,0 +1,44 @@
+# FedChain - Experiment Comparison
+
+**Model:** `HuggingFaceTB/SmolLM2-360M-Instruct`
+
+## Run context
+
+| Metric       | E1: Centralized SFT | E2: FedAvg | E3: FL + Blockchain | E4: FedChain |
+|--------------|---------------------|------------|---------------------|--------------|
+| Paradigm     | centralized         | federated  | federated           | federated    |
+| Rounds       | 1                   | 3          | 3                   | 3            |
+| Clients      | 1                   | 3          | 3                   | 3            |
+| Device       | cuda                | cuda       | cuda                | cuda         |
+| Chain mode   | -                   | -          | live                | live         |
+| IPFS backend | -                   | -          | -                   | local        |
+
+## Metrics
+
+| Metric                        | E1: Centralized SFT | E2: FedAvg | E3: FL + Blockchain | E4: FedChain |
+|-------------------------------|---------------------|------------|---------------------|--------------|
+| Validation Loss               | 1.9883              | 2.0236     | 2.0236              | 2.0236       |
+| Perplexity                    | 7.3031              | 7.5656     | 7.5656              | 7.5656       |
+| ROUGE-L                       | 0.2106              | 0.2338     | 0.2338              | 0.2338       |
+| BLEU                          | 0.0397              | 0.0448     | 0.0448              | 0.0448       |
+| Training Time (s)             | 4745.05             | 4169.39    | 4005.62             | 4119.08      |
+| Communication Volume (MB)     | 0.000               | 299.181    | 299.181             | 424.969      |
+| Adapter Size (MB)             | 16.622              | 16.620     | 16.620              | 16.620       |
+| Blockchain Tx Latency (s)     | 0.0000              | 0.0000     | 0.2252              | 0.2275       |
+| Blockchain Gas Used           | 0                   | 0          | 2,997,464           | 3,785,372    |
+| IPFS Upload Latency (s)       | 0.0000              | 0.0000     | 0.0000              | 16.9976      |
+| IPFS Download Latency (s)     | 0.0000              | 0.0000     | 0.0000              | 3.2051       |
+| Aggregation Time (s)          | 0.0000              | 0.2110     | 0.2052              | 0.2450       |
+| End-to-End Round Duration (s) | 4746.22             | 1666.57    | 1612.55             | 1701.29      |
+
+## Overhead relative to `exp1_sft`
+
+| Experiment          | d Val. Loss     | d Perplexity    | Comm (MB) | Gas       | Round (s) |
+|---------------------|-----------------|-----------------|-----------|-----------|-----------|
+| E2: FedAvg          | +0.0353 (+1.8%) | +0.2625 (+3.6%) | 299.181   | 0         | 1666.57   |
+| E3: FL + Blockchain | +0.0353 (+1.8%) | +0.2625 (+3.6%) | 299.181   | 2,997,464 | 1612.55   |
+| E4: FedChain        | +0.0353 (+1.8%) | +0.2625 (+3.6%) | 424.969   | 3,785,372 | 1701.29   |
+
+
+Written: /home/mann/FedChain/results/smollm2-360m/comparison.md
+Written: /home/mann/FedChain/results/smollm2-360m/comparison.csv
