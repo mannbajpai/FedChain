@@ -132,6 +132,34 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=None, help="Override the random seed.")
     parser.add_argument("--num-rounds", dest="num_rounds", type=int, default=None, help="Override num_rounds.")
     parser.add_argument(
+        "--local-epochs",
+        dest="local_epochs",
+        type=int,
+        default=None,
+        help="Override local_epochs (client passes over its window per round).",
+    )
+    parser.add_argument(
+        "--gen-num-samples",
+        dest="gen_num_samples",
+        type=int,
+        default=None,
+        help=(
+            "Override gen_num_samples, the prompt count decoded for ROUGE-L/BLEU. "
+            "The default of 50 gives intervals too wide to support a comparison; "
+            "use 250+ for any number that goes in a table."
+        ),
+    )
+    parser.add_argument(
+        "--eval-round-stride",
+        dest="eval_round_stride",
+        type=int,
+        default=None,
+        help=(
+            "Evaluate only every Nth round (the final round is always scored). "
+            "Bounds evaluation cost on long round sweeps."
+        ),
+    )
+    parser.add_argument(
         "--max-train-samples",
         dest="max_train_samples",
         type=int,
@@ -206,6 +234,9 @@ def cli_overrides(args: argparse.Namespace) -> Dict[str, Any]:
         "model_name": model_spec.hf_id if model_spec else None,
         "seed": args.seed,
         "num_rounds": args.num_rounds,
+        "local_epochs": args.local_epochs,
+        "gen_num_samples": args.gen_num_samples,
+        "eval_round_stride": args.eval_round_stride,
         "max_train_samples": args.max_train_samples,
         "device": args.device,
         "output_root": args.output_root,

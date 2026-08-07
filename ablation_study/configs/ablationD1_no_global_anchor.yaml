@@ -1,0 +1,60 @@
+# =============================================================================
+# Ablation D1 :: FedChain without global-model anchoring
+# -----------------------------------------------------------------------------
+# Isolates what anchoring the aggregated global model costs, as distinct from
+# anchoring the client updates.
+#
+# The baseline E4 issues 12 transactions over 3 rounds: 3 clients x 3 rounds = 9
+# client anchors, plus 3 global-model anchors. Turning log_global_model off
+# removes the latter.
+#
+# H-D1 predicts gas falls from 3,785,372 to ~2.84M (12 tx -> 9 tx) and the
+# global IPFS upload disappears from the transfer log.
+#
+# What this variant gives up, and why it is an ablation rather than a proposal:
+# without the global anchor there is no on-chain record of *what the aggregator
+# produced*, only of what the clients submitted. An auditor could verify every
+# client contribution and still not prove the published global model was the
+# correct FedAvg of them. The 3 transactions are the price of end-to-end
+# provenance, and this run measures that price precisely.
+#
+# Systems metrics only - accuracy is known to be identical (bit-identical
+# artefacts), so skip the 340 s/round evaluation:
+#
+#   python main.py --config ablation_study/configs/ablationD1_no_global_anchor.yaml \
+#       --model smol --seed 42 --skip-eval
+#
+# One seed is sufficient: systems metrics are deterministic given the config.
+# H-D4 requires the resulting client adapter hashes to match E4's exactly.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationD1_no_global_anchor"
+exp_description: "FedChain without global-model anchoring: the gas cost of end-to-end provenance"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: true
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Blockchain --------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""
+private_key: ""
+log_global_model: false       # <-- the ablated switch
+
+# --- IPFS --------------------------------------------------------------------
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_roundtrip_aggregation: true
+verify_hash_on_download: true

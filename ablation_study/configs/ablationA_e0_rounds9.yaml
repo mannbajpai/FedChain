@@ -1,0 +1,56 @@
+# =============================================================================
+# Ablation A2 :: Local-only extended to 9 rounds (IID)
+# -----------------------------------------------------------------------------
+# The isolation arm for Ablation A. Without this, A1 measures only "FedAvg
+# improves with rounds" - which is uninteresting - rather than "FedAvg pulls
+# away from isolation with rounds", which is the question.
+#
+# REQUIRES change C2 (ablation_study/04_changes.md).
+# The baseline local-only arm evaluates exactly once, at the end, reporting
+# `local_only_mean` over the 3 isolated clients. There is no per-round curve,
+# so the E2-vs-E0 trajectory cannot be plotted. C2 adds:
+#   eval_local_clients_every_round - evaluate each client adapter per round
+#   eval_round_stride              - only on rounds where round % stride == 0
+# Without C2 applied, the two keys below are inert and this run produces a
+# single end-point instead of a curve.
+#
+# Cost note: stride 2 evaluates at rounds 1, 3, 5, 7, 9 - five checkpoints x
+# three clients = 15 evaluations (~5,100 s), against 27 for every round.
+#
+#   python main.py --config ablation_study/configs/ablationA_e0_rounds9.yaml \
+#       --model smol --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationA_e0_rounds9"
+exp_description: "Local-only QLoRA over 9 rounds: the isolation trajectory that E2 must pull away from"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true               # keep the federated schedule ...
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Aggregation -------------------------------------------------------------
+# ... but remove FedAvg. Each client trains in isolation on its own shard for
+# the same number of updates, so the only difference from A1 is the averaging
+# step. That is what makes the pair a clean measurement of what aggregation buys.
+enable_aggregation: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 9
+local_epochs: 1
+max_train_samples: 500
+
+# --- Evaluation (requires C2) ------------------------------------------------
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true    # C2: score each client, not just the end
+eval_round_stride: 2                    # C2: rounds 1, 3, 5, 7, 9
+
+gen_num_samples: 50

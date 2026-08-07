@@ -57,6 +57,29 @@ from utils.config import resolve_path
 
 LOGGER = logging.getLogger(__name__)
 
+# The metrics carried through every evaluation record, in report order.
+_SCORE_KEYS = ("loss", "perplexity", "rouge_l", "bleu")
+
+
+def _spread(per_client: List[Dict[str, Any]], key: str) -> Dict[str, float]:
+    """Mean/std/min/max of `key` across per-client scores.
+
+    Sample standard deviation (n-1). With a single client the variance is
+    undefined rather than zero, so std is reported as 0.0 and the mean carries
+    the result.
+    """
+    values = [float(p[key]) for p in per_client if p.get(key) is not None]
+    if not values:
+        return {}
+    mean = sum(values) / len(values)
+    variance = sum((v - mean) ** 2 for v in values) / max(1, len(values) - 1)
+    return {
+        "mean": round(mean, 6),
+        "std": round(variance ** 0.5, 6),
+        "min": round(min(values), 6),
+        "max": round(max(values), 6),
+    }
+
 
 class FederatedOrchestrator:
     """Coordinates federated rounds across simulated clients.
@@ -101,6 +124,25 @@ class FederatedOrchestrator:
         self.log_global_model = bool(self._get("log_global_model", True))
         self.verify_on_download = bool(self._get("verify_hash_on_download", True))
         self.ipfs_roundtrip = bool(self._get("ipfs_roundtrip_aggregation", True))
+
+        # Communication is only real when an artefact crosses a participant
+        # boundary. With aggregation off there is no server, no peer and no
+        # recipient: clients train in isolation and nothing is transmitted. The
+        # local-only arm must therefore report 0 MiB, not the same volume as the
+        # federated arm - see `_counts_communication`.
+        self.counts_communication = self.enable_aggregation
+
+        # Local-only per-round evaluation (off by default: it costs one
+        # evaluation *per client* per round rather than one for the aggregate).
+        # Without it the local-only arm has no loss trajectory, so "does FedAvg
+        # pull away from isolation as rounds accumulate?" cannot be answered.
+        self.eval_local_clients_every_round = bool(
+            self._get("eval_local_clients_every_round", False)
+        )
+        # Evaluate only on rounds where `round % stride == 0` (the final round is
+        # always scored). Bounds the cost of long sweeps: at stride 2 a 9-round
+        # run scores rounds 1, 3, 5, 7, 9 instead of all nine.
+        self.eval_round_stride = max(1, int(self._get("eval_round_stride", 1) or 1))
 
         self.num_rounds = int(self._get("num_rounds", 3))
         self.client_files: List[Path] = [
@@ -356,7 +398,8 @@ class FederatedOrchestrator:
 
             client_records.append(record)
             round_training_time += float(record.get("training_time_sec", 0.0))
-            round_comm_bytes += int(record.get("upload_bytes", 0))
+            if self.counts_communication:
+                round_comm_bytes += int(record.get("upload_bytes", 0))
 
         # ---------------- retrieve (Exp 4) ----------------------------------
         aggregation_inputs, retrieval_bytes = self._collect_for_aggregation(
@@ -402,18 +445,34 @@ class FederatedOrchestrator:
         #   without IPFS - the server pushes it to each of the N clients: N x size
         #   with IPFS    - the server pins it once, then each client pulls it:
         #                  1 x size (upload) + N x size (downloads)
-        broadcast_bytes = global_record["upload_bytes"] * self.num_clients
-        if self.enable_ipfs:
-            broadcast_bytes = global_record["upload_bytes"] * (self.num_clients + 1)
+        #
+        # None of this happens in the local-only arm. There is no global model to
+        # broadcast (`_no_aggregation_metrics` points `global_adapter_path` at
+        # client 1's own directory) and no server to broadcast from, so charging
+        # a broadcast here made isolation report the same 299 MiB as real
+        # federation while every client's `download_bytes` stayed 0.
+        if self.counts_communication:
+            broadcast_bytes = global_record["upload_bytes"] * self.num_clients
+            if self.enable_ipfs:
+                broadcast_bytes = global_record["upload_bytes"] * (self.num_clients + 1)
+        else:
+            broadcast_bytes = 0
         global_record["broadcast_bytes"] = broadcast_bytes
         round_comm_bytes += broadcast_bytes
 
         # ---------------- evaluate ------------------------------------------
-        # Local-only has no aggregate worth scoring per round; every client is
-        # scored once at the end by `_evaluate_local_only`.
-        eval_metrics = (
-            self._evaluate_round(round_index, publish_dir) if self.enable_aggregation else None
-        )
+        # With aggregation on there is one artefact worth scoring: the global
+        # model. With it off there are N, and scoring them per round is opt-in
+        # (`eval_local_clients_every_round`) because it costs N evaluations
+        # instead of one. Opting in is what produces the isolation trajectory
+        # that the round-count ablation compares FedAvg against; without it the
+        # local-only arm yields a single end-point.
+        if self.enable_aggregation:
+            eval_metrics = self._evaluate_round(round_index, publish_dir)
+        elif self.eval_local_clients_every_round:
+            eval_metrics = self._evaluate_local_clients(round_index, client_records)
+        else:
+            eval_metrics = None
 
         round_time = time.perf_counter() - round_start
         self.total_communication_bytes += round_comm_bytes
@@ -557,8 +616,11 @@ class FederatedOrchestrator:
                 record["stage"] = "published"
                 self._persist_client(round_index, client_id, record)
         elif not self.enable_ipfs:
-            # No IPFS: the adapter still travels to the aggregator.
-            record["upload_bytes"] = adapter_bytes
+            # No IPFS: the adapter still travels to the aggregator - unless
+            # there is no aggregator. In the local-only arm the adapter is
+            # written to disk and read back by the same participant, so nothing
+            # crosses a boundary and nothing should be billed as communication.
+            record["upload_bytes"] = adapter_bytes if self.enable_aggregation else 0
             record["ipfs_attempted"] = True
             record["stage"] = "published"
             self._persist_client(round_index, client_id, record)
@@ -702,13 +764,28 @@ class FederatedOrchestrator:
         return record
 
     # -- step 4: evaluation ---------------------------------------------------
-    def _evaluate_round(self, round_index: int, global_dir: Path) -> Optional[Dict[str, Any]]:
+    def _should_evaluate_round(self, round_index: int) -> bool:
+        """Whether round `round_index` gets scored mid-run.
+
+        Three gates, in order: the evaluator exists and per-round scoring is on;
+        the round survives the stride filter; and the round is not the final one
+        (which main.py scores, so evaluating it here would pay for the same
+        forward pass twice).
+        """
         if self.evaluator is None or not bool(self._get("eval_every_round", True)):
-            return None
-        # The final round is scored by main.py; skipping it here avoids paying
-        # for the same forward pass twice.
+            return False
         if round_index == self.num_rounds and bool(self._get("eval_final", True)):
             LOGGER.debug("Deferring round %d evaluation to the final scoring pass.", round_index)
+            return False
+        if self.eval_round_stride > 1 and round_index % self.eval_round_stride != 0:
+            LOGGER.debug(
+                "Skipping round %d evaluation (stride %d).", round_index, self.eval_round_stride
+            )
+            return False
+        return True
+
+    def _evaluate_round(self, round_index: int, global_dir: Path) -> Optional[Dict[str, Any]]:
+        if not self._should_evaluate_round(round_index):
             return None
         try:
             free_cuda_memory()
@@ -716,6 +793,60 @@ class FederatedOrchestrator:
         except Exception as exc:
             LOGGER.error("Round %d evaluation failed: %s", round_index, exc)
             return None
+
+    def _evaluate_local_clients(
+        self, round_index: int, client_records: List[Dict[str, Any]]
+    ) -> Optional[Dict[str, Any]]:
+        """Score every client's adapter at `round_index` for the local-only arm.
+
+        Returns the same shape as `_evaluate_round` so the round record stays
+        uniform across arms and the trajectory tables need no special-casing -
+        with the per-client detail and spread carried alongside. Reporting a
+        single client would be arbitrary; the spread is itself a result, since
+        removing it is what aggregation is supposed to do.
+        """
+        if not self._should_evaluate_round(round_index):
+            return None
+
+        per_client: List[Dict[str, Any]] = []
+        for record in client_records:
+            try:
+                free_cuda_memory()
+                scores = self.evaluator.evaluate(
+                    record["adapter_path"],
+                    label=f"local_only:{record['client_id']}@r{round_index}",
+                )
+            except Exception as exc:
+                LOGGER.error(
+                    "Round %d local-only evaluation failed for %s: %s",
+                    round_index,
+                    record["client_id"],
+                    exc,
+                )
+                continue
+            per_client.append({"client_id": record["client_id"], **scores})
+
+        if not per_client:
+            return None
+
+        spreads = {key: _spread(per_client, key) for key in _SCORE_KEYS}
+        means = {key: spreads[key].get("mean") for key in _SCORE_KEYS if spreads.get(key)}
+
+        LOGGER.info(
+            "Round %d local-only mean over %d client(s) | val_loss=%s ppl=%s",
+            round_index,
+            len(per_client),
+            f"{means['loss']:.4f}" if means.get("loss") is not None else "n/a",
+            f"{means['perplexity']:.4f}" if means.get("perplexity") is not None else "n/a",
+        )
+
+        return {
+            "label": "local_only_mean",
+            "num_clients_averaged": len(per_client),
+            **means,
+            "per_client": per_client,
+            "spread": spreads,
+        }
 
     # =========================================================================
     # Bookkeeping
@@ -756,25 +887,9 @@ class FederatedOrchestrator:
         if not per_client:
             return None
 
-        def spread(key: str) -> Dict[str, float]:
-            values = [float(p[key]) for p in per_client if p.get(key) is not None]
-            if not values:
-                return {}
-            mean = sum(values) / len(values)
-            variance = sum((v - mean) ** 2 for v in values) / max(1, len(values) - 1)
-            return {
-                "mean": round(mean, 6),
-                "std": round(variance ** 0.5, 6),
-                "min": round(min(values), 6),
-                "max": round(max(values), 6),
-            }
-
         return {
             "per_client": per_client,
-            "loss": spread("loss"),
-            "perplexity": spread("perplexity"),
-            "rouge_l": spread("rouge_l"),
-            "bleu": spread("bleu"),
+            **{key: _spread(per_client, key) for key in _SCORE_KEYS},
         }
 
     def _build_summary(self, total_wall_clock: float) -> Dict[str, Any]:
@@ -818,6 +933,18 @@ class FederatedOrchestrator:
         if not self.enable_aggregation:
             summary["paradigm"] = "local_only"
             summary["aggregation_enabled"] = False
+            # Make the zero explicit rather than leaving a reader to wonder
+            # whether the instrumentation simply missed something.
+            summary["communication_counted"] = False
+            summary["communication_note"] = (
+                "0 MiB by construction: with aggregation disabled no artefact "
+                "crosses a participant boundary. Adapter sizes are still "
+                "reported per client."
+            )
+            # The headline number is a mean over N independently trained models,
+            # not a single model like every other arm. Carried explicitly so the
+            # comparison table can footnote the asymmetry.
+            summary["reported_metric"] = "local_only_mean"
             local_scores = self._evaluate_local_only()
             if local_scores:
                 summary["per_client_evaluation"] = local_scores

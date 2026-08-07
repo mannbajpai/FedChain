@@ -1,0 +1,73 @@
+# =============================================================================
+# Ablation C :: Client drift versus local epochs
+# -----------------------------------------------------------------------------
+# Two questions, one sweep.
+#
+# H-C1 (learning). More local work between averaging steps means clients drift
+# further apart before FedAvg pulls them back. Under IID that is mostly harmless
+# - every client is descending toward the same optimum - but under label skew it
+# is the classic FedAvg failure mode. If E2 degrades at E=4 under Dirichlet(0.3)
+# while holding or improving under IID, that is a clean demonstration of drift
+# and it strengthens the heterogeneity story in Ablation B.
+#
+# H-C2 (the audit claim, and the more important one). E2/E3/E4 must remain
+# bit-identical at every epoch setting. The baseline proves the audit layer is
+# free at local_epochs=1; showing it across a hyperparameter sweep proves the
+# result is a property of the design rather than an artefact of one
+# configuration. Any hash divergence is a bug, not a measurement.
+#
+# Run the sweep by overriding rather than duplicating this file:
+#
+#   for E in 1 2 4; do
+#     python main.py --config ablation_study/configs/ablationC_local_epochs.yaml \
+#         --model smol --seed 42 --exp-name "ablationC_iid_e${E}" -- --local-epochs $E
+#   done
+#
+# NOTE: main.py has no --local-epochs flag as of this writing. Either add one
+# alongside --num-rounds and --max-train-samples (a two-line change following
+# the existing pattern), or copy this file per epoch value. The former is
+# preferred - the sweep is run twice, once per partition.
+#
+# Cost scales with the setting: E=2 roughly doubles training time, E=4 roughly
+# quadruples it. Budget ~7.2 h per seed for the three IID points.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationC_local_epochs"
+exp_description: "FedAvg client drift as a function of local epochs; audit-layer hash equality across the sweep"
+
+# --- Paradigm switches -------------------------------------------------------
+# Blockchain and IPFS ON: H-C2 needs the anchored hashes to compare against a
+# plain-FedAvg run at the same setting. Pair each run here with an E2-equivalent
+# (enable_blockchain/ipfs false) at the same epoch count.
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: true
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+max_train_samples: 500
+
+# --- The swept parameter -----------------------------------------------------
+# Override per run: 1 (baseline), 2, 4.
+local_epochs: 1
+
+# --- Blockchain / IPFS -------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""
+private_key: ""
+log_global_model: true
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_roundtrip_aggregation: true
+verify_hash_on_download: true
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+gen_num_samples: 50

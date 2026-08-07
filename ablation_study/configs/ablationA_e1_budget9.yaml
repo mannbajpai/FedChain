@@ -1,0 +1,50 @@
+# =============================================================================
+# Ablation A3 :: Centralized upper bound, budget-matched to 9 rounds
+# -----------------------------------------------------------------------------
+# The upper bound must move with the round sweep or the comparison stops being
+# fair. At R=3 the federated arm consumed 3 x 3 x 500 = 4,500 records and E1
+# pooled exactly those 4,500. At R=9 the federated arm consumes 13,500, so the
+# centralized arm must pool 13,500 (4,500 per shard) to stay matched on both
+# axes - updates and unique data.
+#
+# Running the R=9 federated arm against the *R=3* centralized number would
+# silently hand the federated arm 3x the data and report the result as a closing
+# gap. That is the single easiest way to fabricate a positive result here.
+#
+# For the R=5 point, override on the command line rather than duplicating this
+# file:
+#   python main.py --config ablation_study/configs/ablationA_e1_budget9.yaml \
+#       --model smol --seed 42 --max-train-samples 2500 --exp-name ablationA_e1_budget5
+#
+#   R=5 -> 2500 per shard ->  7,500 pooled
+#   R=9 -> 4500 per shard -> 13,500 pooled
+#
+# Two seeds are budgeted rather than three: E1 has the smallest seed variance of
+# any arm (+-0.0006 val loss). Label the intervals preliminary (t = 12.706 at
+# n=2, roughly 3x wider than at n=3).
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationA_e1_budget9"
+exp_description: "Centralized QLoRA SFT on 13,500 pooled records: upper bound matched to a 9-round federated budget"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Data --------------------------------------------------------------------
+# Pool the client shards themselves, never the head of centralized_full.jsonl -
+# the shards are contiguous slices of that file, so slicing it yields client 1's
+# data under a "centralized" label.
+data_path:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+# --- Compute budget ----------------------------------------------------------
+#   updates - 1 round x 13,500 samples        == 9 rounds x 3 clients x 500
+#   data    - 3 shards x 4,500 unique samples == the union of every client window
+# Shard capacity is 4,837, so 4,500 per shard fits.
+num_rounds: 1
+max_train_samples: 4500

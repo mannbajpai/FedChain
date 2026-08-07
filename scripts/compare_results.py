@@ -235,8 +235,16 @@ def build_seed_tables(
     by_experiment: Dict[str, List[Tuple[int, Dict[str, Any]]]],
     order: Sequence[str],
     baseline_key: str,
+    extra_baselines: Sequence[str] = (),
 ) -> List[str]:
-    """Mean +- CI table over seeds, plus paired deltas against the baseline."""
+    """Mean +- CI table over seeds, plus paired deltas against each baseline.
+
+    More than one baseline matters here. Pairing everything against the
+    centralized arm answers "what does federating cost?", but the question a
+    reviewer asks first is "what does federating *buy*?" - and that needs the
+    same experiments paired against the local-only arm instead. Reporting only
+    the first pairing is how a 2.4%-of-the-gap result stays invisible.
+    """
     names = [n for n in order if n in by_experiment]
     names.extend(sorted(n for n in by_experiment if n not in names))
     if not names:
@@ -281,13 +289,18 @@ def build_seed_tables(
     lines.append(markdown_table(["Metric"] + [SHORT_LABELS.get(n, n) for n in names], rows))
     lines.append("")
 
-    if baseline_key in by_experiment:
+    seen_baselines: List[str] = []
+    for base in [baseline_key, *extra_baselines]:
+        if base in seen_baselines or base not in by_experiment:
+            continue
+        seen_baselines.append(base)
+
         delta_rows: List[List[str]] = []
         for name in names:
-            if name == baseline_key:
+            if name == base:
                 continue
             for key, label, places in accuracy_keys[:2]:
-                delta = paired_delta(values_for(name, key), values_for(baseline_key, key))
+                delta = paired_delta(values_for(name, key), values_for(base, key))
                 if delta is None:
                     continue
                 delta_rows.append(
@@ -300,23 +313,98 @@ def build_seed_tables(
                         "yes" if delta["significant_at_95"] else "no",
                     ]
                 )
-        if delta_rows:
-            lines.append(f"## Paired difference vs `{baseline_key}` (per seed)")
-            lines.append("")
-            lines.append(
-                markdown_table(
-                    ["Experiment", "Metric", "Mean diff", "95% CI", "Seeds", "Significant"],
-                    delta_rows,
-                )
-            )
-            lines.append("")
-            lines.append(
-                "_'Significant' means the 95% CI of the paired difference excludes zero. "
-                "A 'no' is a real result - it says the audit layer changed nothing "
-                "measurable, which is the claim these experiments exist to support._"
-            )
-            lines.append("")
+        if not delta_rows:
+            continue
 
+        lines.append(f"## Paired difference vs `{base}` (per seed)")
+        lines.append("")
+        lines.append(
+            markdown_table(
+                ["Experiment", "Metric", "Mean diff", "95% CI", "Seeds", "Significant"],
+                delta_rows,
+            )
+        )
+        lines.append("")
+        lines.append(
+            "_'Significant' means the 95% CI of the paired difference excludes zero. "
+            "A 'no' is a real result - it says the audit layer changed nothing "
+            "measurable, which is the claim these experiments exist to support._"
+        )
+        if base == "exp0_local":
+            lines.append("")
+            lines.append(
+                "_Against the local-only arm a *negative* difference means "
+                "aggregation helped. Read it next to the same arm's distance from "
+                "the centralized bound: a difference that is significant but a "
+                "small fraction of that distance says federation is measurable, "
+                "not that it is worthwhile._"
+            )
+        lines.append("")
+
+    return lines
+
+
+def build_trajectory_table(
+    by_experiment: Dict[str, List[Tuple[int, Dict[str, Any]]]],
+    order: Sequence[str],
+) -> List[str]:
+    """Per-round validation loss, averaged over seeds.
+
+    The end-point alone cannot distinguish "converged" from "ran out of budget",
+    and those license opposite conclusions. A curve still descending at the last
+    round means the round count is a free parameter the result depends on.
+    """
+    names = [n for n in order if n in by_experiment]
+    names.extend(sorted(n for n in by_experiment if n not in names))
+
+    # round -> experiment -> [loss per seed]
+    trajectory: Dict[int, Dict[str, List[float]]] = {}
+    for name in names:
+        for _, report in by_experiment[name]:
+            for entry in report.get("rounds") or []:
+                evaluation = entry.get("evaluation")
+                if not evaluation or evaluation.get("loss") is None:
+                    continue
+                index = int(entry.get("round", 0))
+                trajectory.setdefault(index, {}).setdefault(name, []).append(
+                    float(evaluation["loss"])
+                )
+
+    if not trajectory:
+        return []
+
+    present = [n for n in names if any(n in per_round for per_round in trajectory.values())]
+    rows: List[List[str]] = []
+    for index in sorted(trajectory):
+        row = [str(index)]
+        for name in present:
+            values = trajectory[index].get(name) or []
+            row.append(f"{sum(values) / len(values):.4f}" if values else "-")
+        rows.append(row)
+
+    # Final-round scores live in `metrics`, not `rounds`: the last round is
+    # deferred to the final scoring pass so the forward pass is not paid twice.
+    final_row = ["final"]
+    for name in present:
+        finals = [
+            (report.get("metrics") or {}).get("validation_loss")
+            for _, report in by_experiment[name]
+        ]
+        finals = [float(v) for v in finals if v is not None]
+        final_row.append(f"{sum(finals) / len(finals):.4f}" if finals else "-")
+    rows.append(final_row)
+
+    lines = ["## Validation loss by round (mean over seeds)", ""]
+    lines.append(markdown_table(["Round"] + [SHORT_LABELS.get(n, n) for n in present], rows))
+    lines.append("")
+    lines.append(
+        "_A curve still descending at the final round means the round count was "
+        "budget-limited, not converged - any 'cost of federation' read off that "
+        "end-point is a statement about the budget as much as about federation. "
+        "Arms with no per-round rows evaluate only at the end; set "
+        "`eval_local_clients_every_round: true` to give the local-only arm a curve._"
+    )
+    lines.append("")
     return lines
 
 
@@ -493,6 +581,17 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument("--baseline", default="exp1_sft", help="Experiment used as the overhead baseline.")
     parser.add_argument(
+        "--extra-baselines",
+        default="exp0_local",
+        help=(
+            "Comma-separated experiments to emit ADDITIONAL paired-difference "
+            "tables against (default: exp0_local). Pairing against the "
+            "centralized arm shows what federation costs; pairing against the "
+            "local-only arm shows what it buys, which is the question a reviewer "
+            "asks first. Pass '' to emit only the primary baseline."
+        ),
+    )
+    parser.add_argument(
         "--seeds",
         action="store_true",
         help=(
@@ -531,7 +630,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not by_experiment:
             print(f"ERROR: no seed_*/ results under {results_dir}", file=sys.stderr)
             return 2
-        seed_tables = build_seed_tables(by_experiment, order, args.baseline)
+        extra = [s.strip() for s in (args.extra_baselines or "").split(",") if s.strip()]
+        seed_tables = build_seed_tables(by_experiment, order, args.baseline, extra)
+        seed_tables.extend(build_trajectory_table(by_experiment, order))
         # The per-experiment tables below describe one representative run; the
         # lowest seed is chosen so the choice is deterministic rather than
         # whichever run happened to sort first on disk.

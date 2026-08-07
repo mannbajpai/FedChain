@@ -1,0 +1,59 @@
+# =============================================================================
+# Ablation B1c :: FedAvg on Dirichlet(0.3) shards
+# -----------------------------------------------------------------------------
+# The federated arm of the non-IID baseline triple. Paired with
+# ablationB_e0_noniid.yaml this gives the number the whole study turns on:
+#
+#     E2_noniid - E0_noniid   =   what FedAvg buys under label skew
+#
+# On IID shards that quantity is -0.00085 +- 0.00022, i.e. 2.4% of the distance
+# to the centralized bound - close to nothing. H-B1 predicts it grows as alpha
+# falls, because isolated clients overfit their skewed slice while averaging
+# regularises across them. If it does not grow even at alpha=0.1, then at this
+# model scale FedAvg genuinely does not help, and the paper is reframed around
+# the audit contribution (Branch 3 in 07_ablation_conclusions.md).
+#
+# This is deliberately E2 (plain FedAvg), not E4. The audit layer is proven to
+# be bit-identical to plain FedAvg, so running the cheaper arm loses nothing and
+# saves the chain and IPFS setup. Ablation B2/B3 add E4 at other alphas purely
+# to re-confirm hash equality under skew.
+#
+#   python main.py --config ablation_study/configs/ablationB_e2_noniid.yaml \
+#       --model smol --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB_e2_noniid"
+exp_description: "FedAvg on Dirichlet(0.3) shards: does aggregation beat isolation under label skew?"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet/client1.jsonl"
+  - "data/dirichlet/client2.jsonl"
+  - "data/dirichlet/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Aggregation -------------------------------------------------------------
+# Sample-weighted, matching E5 so the two are directly comparable.
+#
+# What this does and does not buy: max_train_samples caps every client at 500
+# records per round, and every Dirichlet shard is larger than that cap, so all
+# three clients contribute 500 samples and the weights come out uniform anyway.
+# The skew here is *label* skew with balanced quantities - the standard
+# Dirichlet benchmark - not quantity skew. Describe it that way in the paper.
+# Weighting only starts to matter if the cap is raised above the smallest shard.
+fedavg_weighted: true
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+gen_num_samples: 50

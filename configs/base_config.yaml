@@ -114,11 +114,33 @@ eval_loss_on_completion_only: false   # false => full-sequence NLL (matches the 
 eval_every_round: true
 eval_final: true
 
+# Evaluate only on rounds where `round % stride == 0`; the final round is always
+# scored. 1 = every round. Raise it on long round sweeps, where the trajectory
+# matters but paying ~340 s of evaluation nine times does not.
+eval_round_stride: 1
+
+# Local-only arm: score every client adapter each round instead of once at the
+# end. Off by default because it costs N evaluations per round rather than one.
+# Turn it on when the isolation *trajectory* is the measurement - the round-count
+# ablation compares it against FedAvg's curve, which needs both to exist.
+eval_local_clients_every_round: false
+
 # --- Generation quality (ROUGE-L / BLEU) ------------------------------------
 # Greedy decoding over a small prompt subset; uses the HuggingFace `evaluate`
 # library when installed, otherwise the built-in implementations in
 # evaluation/eval_loss.py. Both metrics are reported on the 0-1 scale.
+#
+# Set `require_metric_backend: evaluate` for a paper run: a missing optional
+# dependency then fails at the first evaluation instead of silently scoring the
+# entire sweep with the built-in implementation, whose absolute values are not
+# comparable with published numbers. The backend actually used is always
+# recorded as `generation_metric_backend` in the metrics file.
+require_metric_backend: ""         # "" => allow the built-in fallback
 enable_generation_metrics: true
+# 50 prompts gives 95% CIs spanning 5-17% of the value - enough to detect a
+# collapse, not enough to support a comparison. Use 250+ for any number that
+# goes in a table; scripts/reevaluate.py re-scores finished adapters without
+# retraining, so the final number does not have to cost a training run.
 gen_num_samples: 50                # prompts decoded for ROUGE-L / BLEU
 gen_max_new_tokens: 128            # generation budget per prompt
 gen_max_prompt_tokens: 384         # prompt truncation before generation

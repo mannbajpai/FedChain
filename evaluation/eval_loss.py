@@ -547,12 +547,9 @@ class Evaluator:
         try:
             import evaluate as hf_evaluate
         except Exception as exc:
-            LOGGER.info(
-                "The `evaluate` library is unavailable (%s); using the built-in "
-                "ROUGE-L / BLEU implementation.",
-                exc,
+            self._fallback_to_builtin(
+                f"the `evaluate` library is unavailable ({exc})", level=LOGGER.info
             )
-            self._metric_backend = "builtin"
             return None
 
         try:
@@ -582,12 +579,38 @@ class Evaluator:
                 "backend": "evaluate",
             }
         except Exception as exc:
-            LOGGER.warning(
-                "The `evaluate` library failed to score (%s); using the built-in implementation.",
-                exc,
-            )
-            self._metric_backend = "builtin"
+            self._fallback_to_builtin(f"the `evaluate` library failed to score ({exc})")
             return None
+
+    def _fallback_to_builtin(self, reason: str, level: Any = None) -> None:
+        """Switch to the built-in ROUGE-L / BLEU, or refuse to.
+
+        The fallback keeps a run alive when an optional dependency is missing,
+        which is usually what you want. It is also how a whole benchmark ends up
+        silently scored with a non-standard ROUGE implementation whose absolute
+        values cannot be compared against published numbers - the baseline sweep
+        did exactly that, because `nltk` was absent despite being pinned in
+        requirements.txt.
+
+        Set `require_metric_backend: evaluate` for a paper run and a missing
+        dependency becomes a hard failure at the first evaluation, which costs
+        minutes, instead of a footnote discovered after 24 GPU-hours.
+        """
+        required = str(self._get("require_metric_backend", "") or "").strip().lower()
+        if required in {"evaluate", "hf", "huggingface"}:
+            raise RuntimeError(
+                f"require_metric_backend={required!r} but {reason}. "
+                "Install the metric stack (`pip install evaluate rouge-score nltk`) "
+                "or unset require_metric_backend to allow the built-in implementation."
+            )
+        (level or LOGGER.warning)(
+            "Falling back to the built-in ROUGE-L / BLEU implementation: %s. "
+            "Absolute values are not comparable with published `evaluate` numbers; "
+            "the backend actually used is recorded as `generation_metric_backend` "
+            "in the metrics file.",
+            reason,
+        )
+        self._metric_backend = "builtin"
 
     # =========================================================================
     # Dry run

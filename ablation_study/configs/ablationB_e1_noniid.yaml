@@ -1,0 +1,41 @@
+# =============================================================================
+# Ablation B1b :: Centralized upper bound on the Dirichlet(0.3) union
+# -----------------------------------------------------------------------------
+# The upper bound for the non-IID arm. Note carefully: it pools the DIRICHLET
+# shards, not the IID ones. Pooling the IID shards would give a different corpus
+# and make the non-IID gap meaningless.
+#
+# In principle the pooled union of a Dirichlet partition is close to the pooled
+# union of an IID partition of the same source - both are ~the whole dataset -
+# so E1_noniid should land near E1_iid. That is a useful consistency check, not
+# a redundancy: if the two differ appreciably, the partitioner is dropping or
+# duplicating records and the whole non-IID arm is suspect.
+#
+#   python main.py --config ablation_study/configs/ablationB_e1_noniid.yaml \
+#       --model smol --seed 42
+#
+# Budget: 3 rounds x 3 clients x 500 = 4,500 federated updates, so pool 1,500
+# per shard. Every Dirichlet shard holds at least 2,715 records, so 1,500 fits
+# in all three.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB_e1_noniid"
+exp_description: "Centralized QLoRA SFT on the pooled union of the Dirichlet(0.3) shards"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Data --------------------------------------------------------------------
+data_path:
+  - "data/dirichlet/client1.jsonl"
+  - "data/dirichlet/client2.jsonl"
+  - "data/dirichlet/client3.jsonl"
+
+# --- Compute budget ----------------------------------------------------------
+#   updates - 1 round x 4,500 samples        == 3 rounds x 3 clients x 500
+#   data    - 3 shards x 1,500 unique records == the union of every client window
+num_rounds: 1
+max_train_samples: 1500

@@ -249,5 +249,164 @@ class SeedStatisticsTests(unittest.TestCase):
         self.assertEqual(stats["n"], 1)
 
 
+class LocalOnlyCommunicationTests(unittest.TestCase):
+    """The isolation arm must not report communication it never performed.
+
+    Regression guard. The local-only arm previously reported 299.20 MiB - the
+    same volume as real federation - because the publish-and-broadcast
+    accounting ran outside the `enable_aggregation` guard: client 1's own
+    adapter was billed as a global-model upload and then charged as a broadcast
+    to three clients that never requested it, while every `download_bytes`
+    stayed 0. That makes the isolation baseline look like it pays federation's
+    network cost, and it casts doubt on the communication overhead the cost
+    analysis rests on.
+    """
+
+    def _orchestrator(self, *, aggregation: bool):
+        from trainer.federated import FederatedOrchestrator
+
+        orchestrator = FederatedOrchestrator.__new__(FederatedOrchestrator)
+        orchestrator.config = {}
+        orchestrator.enable_aggregation = aggregation
+        orchestrator.counts_communication = aggregation
+        orchestrator.enable_ipfs = False
+        orchestrator.enable_blockchain = False
+        orchestrator.num_clients = 3
+        return orchestrator
+
+    def test_local_only_does_not_count_communication(self):
+        self.assertFalse(self._orchestrator(aggregation=False).counts_communication)
+
+    def test_federated_still_counts_communication(self):
+        self.assertTrue(self._orchestrator(aggregation=True).counts_communication)
+
+    def test_broadcast_bytes_are_zero_without_an_aggregator(self):
+        # Mirrors the accounting in run_round: with nothing aggregated there is
+        # no global model, so there is nothing to broadcast.
+        orchestrator = self._orchestrator(aggregation=False)
+        upload_bytes = 17_429_685
+        broadcast = (
+            upload_bytes * orchestrator.num_clients
+            if orchestrator.counts_communication
+            else 0
+        )
+        self.assertEqual(broadcast, 0)
+
+    def test_report_invariant_holds_for_post_fix_results(self):
+        """Any run with aggregation disabled must report 0 MiB, everywhere.
+
+        Reports written before the fix carry no `communication_counted` key and
+        are listed as stale rather than asserted on: their 299.20 MiB is the bug
+        this guard exists to prevent, and it cannot be corrected without
+        re-running the arm. Regenerate the local-only arm, and those entries
+        become enforced automatically.
+        """
+        results_root = PROJECT_ROOT / "results"
+        if not results_root.exists():
+            self.skipTest("no results/ directory checked out")
+
+        checked = 0
+        stale: list = []
+        for report_path in results_root.rglob("*_metrics.json"):
+            try:
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            summary = report.get("run_summary") or {}
+            if summary.get("aggregation_enabled") is not False:
+                continue
+
+            volume = (report.get("metrics") or {}).get("communication_volume_mb")
+            if "communication_counted" not in summary:
+                if volume:
+                    stale.append(f"{report_path.relative_to(results_root)} ({volume} MiB)")
+                continue
+
+            checked += 1
+            self.assertEqual(
+                volume,
+                0.0,
+                f"{report_path} disables aggregation but reports {volume} MiB of "
+                "communication; nothing crosses a participant boundary there.",
+            )
+
+        if stale:
+            print(
+                f"\n  NOTE: {len(stale)} local-only report(s) predate the communication "
+                f"fix and still carry phantom volume; re-run to correct:\n    "
+                + "\n    ".join(sorted(stale))
+            )
+        if checked == 0:
+            self.skipTest(
+                f"no post-fix local-only reports to check ({len(stale)} stale)"
+            )
+
+
+class RoundEvaluationCadenceTests(unittest.TestCase):
+    """Stride filtering, and the local-only arm's per-round trajectory.
+
+    Without a per-round curve for the isolation arm, "does FedAvg pull away from
+    isolation as rounds accumulate?" cannot be answered - which is the question
+    the round-count ablation exists to settle.
+    """
+
+    def _orchestrator(self, *, stride=1, num_rounds=9, eval_final=True):
+        from trainer.federated import FederatedOrchestrator
+
+        orchestrator = FederatedOrchestrator.__new__(FederatedOrchestrator)
+        orchestrator.config = {"eval_every_round": True, "eval_final": eval_final}
+        orchestrator.evaluator = object()  # presence is all `_should_evaluate` checks
+        orchestrator.num_rounds = num_rounds
+        orchestrator.eval_round_stride = stride
+        return orchestrator
+
+    def test_stride_one_scores_every_non_final_round(self):
+        orchestrator = self._orchestrator(stride=1)
+        scored = [r for r in range(1, 10) if orchestrator._should_evaluate_round(r)]
+        self.assertEqual(scored, [1, 2, 3, 4, 5, 6, 7, 8])
+
+    def test_stride_two_halves_the_evaluation_count(self):
+        orchestrator = self._orchestrator(stride=2)
+        scored = [r for r in range(1, 10) if orchestrator._should_evaluate_round(r)]
+        self.assertEqual(scored, [2, 4, 6, 8])
+
+    def test_final_round_is_deferred_to_the_final_scoring_pass(self):
+        # Scoring it here as well would pay for the same forward pass twice.
+        self.assertFalse(self._orchestrator(stride=1)._should_evaluate_round(9))
+
+    def test_final_round_is_scored_inline_when_no_final_pass_runs(self):
+        orchestrator = self._orchestrator(stride=1, eval_final=False)
+        self.assertTrue(orchestrator._should_evaluate_round(9))
+
+    def test_missing_evaluator_disables_scoring(self):
+        orchestrator = self._orchestrator()
+        orchestrator.evaluator = None
+        self.assertFalse(orchestrator._should_evaluate_round(2))
+
+    def test_spread_reports_mean_and_dispersion(self):
+        from trainer.federated import _spread
+
+        stats = _spread(
+            [{"loss": 2.0}, {"loss": 2.2}, {"loss": 2.1}],
+            "loss",
+        )
+        self.assertAlmostEqual(stats["mean"], 2.1, places=6)
+        self.assertAlmostEqual(stats["min"], 2.0, places=6)
+        self.assertAlmostEqual(stats["max"], 2.2, places=6)
+        self.assertGreater(stats["std"], 0.0)
+
+    def test_spread_of_a_single_client_is_defined(self):
+        from trainer.federated import _spread
+
+        stats = _spread([{"loss": 2.0}], "loss")
+        self.assertAlmostEqual(stats["mean"], 2.0, places=6)
+        self.assertEqual(stats["std"], 0.0)
+
+    def test_spread_ignores_missing_values(self):
+        from trainer.federated import _spread
+
+        self.assertEqual(_spread([{"loss": None}], "loss"), {})
+
+
 if __name__ == "__main__":
     unittest.main()

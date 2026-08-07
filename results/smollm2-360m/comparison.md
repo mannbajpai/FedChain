@@ -64,6 +64,35 @@ _Seeds per experiment: E0: Local-only=3, E1: Centralized SFT=3, E2: FedAvg=3, E3
 
 _'Significant' means the 95% CI of the paired difference excludes zero. A 'no' is a real result - it says the audit layer changed nothing measurable, which is the claim these experiments exist to support._
 
+## Paired difference vs `exp0_local` (per seed)
+
+| Experiment           | Metric          | Mean diff | 95% CI   | Seeds | Significant |
+|----------------------|-----------------|-----------|----------|-------|-------------|
+| E1: Centralized SFT  | Validation Loss | -0.0352   | +-0.0010 | 3     | yes         |
+| E1: Centralized SFT  | Perplexity      | -0.2615   | +-0.0074 | 3     | yes         |
+| E2: FedAvg           | Validation Loss | -0.0009   | +-0.0002 | 3     | yes         |
+| E2: FedAvg           | Perplexity      | -0.0065   | +-0.0016 | 3     | yes         |
+| E3: FL + Blockchain  | Validation Loss | -0.0009   | +-0.0002 | 3     | yes         |
+| E3: FL + Blockchain  | Perplexity      | -0.0065   | +-0.0016 | 3     | yes         |
+| E4: FedChain         | Validation Loss | -0.0009   | +-0.0002 | 3     | yes         |
+| E4: FedChain         | Perplexity      | -0.0065   | +-0.0016 | 3     | yes         |
+| E5: FedChain non-IID | Validation Loss | +0.0013   | +-0.0005 | 3     | yes         |
+| E5: FedChain non-IID | Perplexity      | +0.0096   | +-0.0037 | 3     | yes         |
+
+_'Significant' means the 95% CI of the paired difference excludes zero. A 'no' is a real result - it says the audit layer changed nothing measurable, which is the claim these experiments exist to support._
+
+_Against the local-only arm a *negative* difference means aggregation helped. Read it next to the same arm's distance from the centralized bound: a difference that is significant but a small fraction of that distance says federation is measurable, not that it is worthwhile._
+
+## Validation loss by round (mean over seeds)
+
+| Round | E2: FedAvg | E3: FL + Blockchain | E4: FedChain | E5: FedChain non-IID |
+|-------|------------|---------------------|--------------|----------------------|
+| 1     | 2.0834     | 2.0834              | 2.0834       | 2.0849               |
+| 2     | 2.0388     | 2.0388              | 2.0388       | 2.0412               |
+| final | 2.0228     | 2.0228              | 2.0228       | 2.0249               |
+
+_A curve still descending at the final round means the round count was budget-limited, not converged - any 'cost of federation' read off that end-point is a statement about the budget as much as about federation. Arms with no per-round rows evaluate only at the end; set `eval_local_clients_every_round: true` to give the local-only arm a curve._
+
 ## Overhead relative to `exp1_sft`
 
 | Experiment           | d Val. Loss     | d Perplexity    | Comm (MiB) | Gas       | Total time (s) |

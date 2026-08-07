@@ -1,0 +1,58 @@
+# =============================================================================
+# Ablation D2 :: FedChain without the IPFS round-trip
+# -----------------------------------------------------------------------------
+# The most important of the D variants. It attributes the +31.5% communication
+# overhead that the baseline reports as a single unexplained number.
+#
+# E4 costs 393.6 MiB against E2's 299.2. A reviewer will reasonably ask which
+# part of that is the price of auditability and which is the price of this
+# particular transport design. Right now the paper cannot answer.
+#
+# With ipfs_roundtrip_aggregation off, artefacts are still pinned and anchored -
+# the audit trail is intact - but the aggregator reads adapters from local disk
+# instead of pulling them back down from IPFS. H-D2 predicts communication
+# returns toward 299.2 MiB, which would establish that the entire overhead is
+# the transport round-trip and NOT the anchoring.
+#
+# That distinction matters a lot for the paper's framing:
+#   - if the overhead is anchoring, it is intrinsic and must be defended
+#   - if the overhead is the round-trip, it is a tunable design choice, and the
+#     honest claim becomes "auditability is ~free; verified transport costs 31%"
+#
+# Keep verify_hash_on_download on: the point is to isolate transport volume, not
+# to weaken verification (that is D3).
+#
+#   python main.py --config ablation_study/configs/ablationD2_no_roundtrip.yaml \
+#       --model smol --seed 42 --skip-eval
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationD2_no_roundtrip"
+exp_description: "FedChain without the IPFS round-trip: attributing the +31.5% communication overhead"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: true
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Blockchain --------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""
+private_key: ""
+log_global_model: true
+
+# --- IPFS --------------------------------------------------------------------
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_roundtrip_aggregation: false   # <-- the ablated switch
+verify_hash_on_download: true

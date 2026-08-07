@@ -1,0 +1,57 @@
+# =============================================================================
+# Ablation A1 :: FedAvg extended to 9 rounds (IID)
+# -----------------------------------------------------------------------------
+# Tests H-A1: does FedAvg's advantage over isolated training grow with rounds?
+#
+# The baseline stopped at 3 rounds with the loss still descending
+# (delta r1->r2 = -0.0447, r2->r3 = -0.0160) against a 0.0343 gap to the
+# centralized upper bound. Three rounds is where the compute budget ended, not
+# where federated training converges. FedAvg's benefit is cumulative - each
+# averaging step propagates information between clients - so the 2.4% advantage
+# measured at R=3 may simply be before the point where it separates.
+#
+# Round budget: IID shards hold 4,837 records, so 9 x 500 = 4,500 fits without
+# the sliding window running off the end. Verify in the log that round 9 reads
+# window=[4000, 4500).
+#
+#   python main.py --config ablation_study/configs/ablationA_e2_rounds9.yaml \
+#       --model smol --seed 42
+#
+# Pair with ablationA_e0_rounds9.yaml (the isolation arm) and
+# ablationA_e1_budget.yaml (the budget-matched upper bound). All three are
+# required - E2 alone cannot answer the question.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationA_e2_rounds9"
+exp_description: "FedAvg over 9 rounds on IID shards: does the advantage over isolation accumulate?"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 9
+local_epochs: 1
+max_train_samples: 500
+
+# --- Aggregation -------------------------------------------------------------
+enable_aggregation: true
+fedavg_weighted: false        # IID shards of equal size: weighting is a no-op
+
+# --- Evaluation --------------------------------------------------------------
+# Every round: the trajectory IS the result here, not a by-product. At ~340 s
+# per evaluation this adds ~51 min per seed, which is the price of the figure.
+eval_every_round: true
+eval_final: true
+
+# Keep per-round generation cheap; the final evaluation is re-scored at 250
+# samples by scripts/reevaluate.py (Ablation E) rather than inline.
+gen_num_samples: 50

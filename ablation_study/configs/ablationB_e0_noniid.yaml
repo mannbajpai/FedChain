@@ -1,0 +1,58 @@
+# =============================================================================
+# Ablation B1a :: Local-only on Dirichlet(0.3) shards
+# -----------------------------------------------------------------------------
+# The missing baseline. E5 is currently the only run on the non-IID shards, so
+# comparison.md reports it against IID E1 - conflating the partition change with
+# the federation change. EXPERIMENTS.md:23 already forbids exactly this:
+#
+#   "Report Exp 5 against an Exp 0/1/2 rerun on the same non-IID shards, not
+#    against the IID numbers."
+#
+# This config, plus ablationB_e1_noniid.yaml and ablationB_e2_noniid.yaml, is
+# that rerun. It is also the cheapest way to test the study's central question:
+# under label skew, does FedAvg beat training alone? On IID data it does not
+# (E2 - E0 = -0.00085, 2.4% of the gap to centralized), and the standard
+# explanation is that an IID shard is already an unbiased sample so averaging
+# has nothing to add. Skew is where that stops being true.
+#
+# Generate the shards first if they are absent:
+#   python data/prepare_data.py --partition dirichlet --alpha 0.3
+#
+#   python main.py --config ablation_study/configs/ablationB_e0_noniid.yaml \
+#       --model smol --seed 42
+#
+# ROUND CAP. Dirichlet(0.3) shard sizes are 4,798 / 2,715 / 6,998. The smallest
+# caps the schedule at floor(2715/500) = 5 rounds before the sliding window runs
+# off the end. Do not raise num_rounds past 5 here without lowering
+# max_train_samples, and re-read data/dirichlet/manifest.json after regenerating
+# at any other alpha - the cap moves with the partition.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB_e0_noniid"
+exp_description: "Local-only QLoRA on Dirichlet(0.3) shards: the isolation baseline the non-IID arm is missing"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_aggregation: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet/client1.jsonl"
+  - "data/dirichlet/client2.jsonl"
+  - "data/dirichlet/client3.jsonl"
+
+num_rounds: 3                 # matches the baseline E5 schedule; 5 is the cap
+local_epochs: 1
+max_train_samples: 500
+
+# --- Evaluation --------------------------------------------------------------
+# The per-client spread matters more here than under IID: isolated clients hold
+# skewed slices, so the variance across them is itself a finding. It lands in
+# run_summary.per_client_evaluation.
+eval_every_round: true
+eval_final: true
+gen_num_samples: 50

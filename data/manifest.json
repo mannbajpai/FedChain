@@ -4,6 +4,53 @@
   "eval_size": 500,
   "num_clients": 3,
   "seed": 42,
+  "partition": "iid",
+  "dirichlet_alpha": null,
+  "label_key": null,
+  "partition_profile": [
+    {
+      "client": "client1",
+      "num_records": 4837,
+      "label_histogram": {
+        "brainstorming": 534,
+        "classification": 708,
+        "closed_qa": 568,
+        "creative_writing": 219,
+        "general_qa": 709,
+        "information_extraction": 476,
+        "open_qa": 1239,
+        "summarization": 384
+      }
+    },
+    {
+      "client": "client2",
+      "num_records": 4837,
+      "label_histogram": {
+        "brainstorming": 580,
+        "classification": 665,
+        "closed_qa": 593,
+        "creative_writing": 238,
+        "general_qa": 727,
+        "information_extraction": 475,
+        "open_qa": 1166,
+        "summarization": 393
+      }
+    },
+    {
+      "client": "client3",
+      "num_records": 4837,
+      "label_histogram": {
+        "brainstorming": 591,
+        "classification": 698,
+        "closed_qa": 559,
+        "creative_writing": 230,
+        "general_qa": 664,
+        "information_extraction": 510,
+        "open_qa": 1209,
+        "summarization": 376
+      }
+    }
+  ],
   "files": {
     "eval_500.jsonl": 500,
     "centralized_full.jsonl": 14511,

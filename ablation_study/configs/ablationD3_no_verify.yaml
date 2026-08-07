@@ -1,0 +1,61 @@
+# =============================================================================
+# Ablation D3 :: FedChain without download-time hash verification
+# -----------------------------------------------------------------------------
+# Measures what integrity checking itself costs. H-D3 predicts: nothing
+# measurable.
+#
+# E6 puts a single verification at ~13 ms. Over 9 client downloads that is
+# ~0.12 s against a ~4,750 s run - roughly 0.002%. This variant exists to
+# demonstrate that, which is a more useful result than it first appears:
+#
+#   the +31.5% communication and the 3.79M gas are the cost of *transport* and
+#   *anchoring*; the verification that makes the whole scheme meaningful is
+#   free.
+#
+# A cost table that decomposes overhead and shows the security-critical step
+# contributing ~0 is a much stronger deployability argument than one aggregate
+# number.
+#
+# SAFETY NOTE. This configuration is for measurement only. With verification
+# off, a substituted artefact from a hostile IPFS gateway would be aggregated
+# silently - exactly the attack E6 shows the system catches. Never present this
+# variant as a deployment option, and do not leave it enabled in any run whose
+# integrity metrics are reported.
+#
+#   python main.py --config ablation_study/configs/ablationD3_no_verify.yaml \
+#       --model smol --seed 42 --skip-eval
+#
+# Expect integrity_checks_total to drop to 0 rather than 9/9 passing - that is
+# the switch working, not a failure.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationD3_no_verify"
+exp_description: "FedChain without download-time verification: measuring the cost of integrity checking (measurement only, not a deployment mode)"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: true
+enable_ipfs: true
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/client1.jsonl"
+  - "data/client2.jsonl"
+  - "data/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Blockchain --------------------------------------------------------------
+rpc_url: "http://127.0.0.1:8545"
+contract_address: ""
+private_key: ""
+log_global_model: true
+
+# --- IPFS --------------------------------------------------------------------
+ipfs_local_api: "http://127.0.0.1:5001"
+ipfs_roundtrip_aggregation: true
+verify_hash_on_download: false      # <-- the ablated switch
