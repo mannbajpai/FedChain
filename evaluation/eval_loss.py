@@ -428,8 +428,16 @@ class Evaluator:
         finally:
             # Drop the PEFT wrapper but keep the (expensive) base model unless
             # the config asks us to release everything.
+            #
+            # `base_model` is a local aliasing `self._base_model`. `unload()`
+            # clears the attribute, but this local kept the model alive across
+            # `free_cuda_memory()`, so one model's worth stayed resident per
+            # call: evaluation peak VRAM climbed 1163 -> 1703 -> 2243 MB over
+            # three rounds of the same 360M run. Same defect as `train_client`.
             if model is not None and model is not self._base_model:
                 del model
+            model = None
+            base_model = None
             if not self.keep_model_loaded:
                 self.unload()
             free_cuda_memory()

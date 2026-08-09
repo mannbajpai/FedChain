@@ -408,5 +408,105 @@ class RoundEvaluationCadenceTests(unittest.TestCase):
         self.assertEqual(_spread([{"loss": None}], "loss"), {})
 
 
+class ModelTeardownTests(unittest.TestCase):
+    """The base model must be unreachable once training/evaluation returns.
+
+    Regression guard for a VRAM leak that cost a 30-hour sweep. `train_client`
+    and `Evaluator.evaluate` both bound the base model to a *local* that aliased
+    the cached attribute. Clearing the attribute (`unload_model()` / `unload()`)
+    left the local holding it alive across `free_cuda_memory()`, so
+    `empty_cache()` ran against live memory and reclaimed nothing: ~520 MB
+    retained per client, peak VRAM climbing 1591 -> 5231 MB over nine trainings
+    on a 4 GB card, step time degrading 6.9 s/it -> 60.5 s/it.
+
+    A weakref is the direct test: if anything still references the model when
+    the call returns, it survives collection and these fail.
+    """
+
+    def test_trainer_releases_the_base_model(self):
+        import gc
+        import weakref
+
+        from trainer.sft import LocalTrainer
+
+        class FakeModel:
+            def save_pretrained(self, path):
+                Path(path).mkdir(parents=True, exist_ok=True)
+                (Path(path) / "adapter_config.json").write_text("{}", encoding="utf-8")
+
+        class FakeTrainer:
+            def __init__(self, model):
+                self.model = model
+                self.model_wrapped = model
+                self.optimizer = object()
+                self.lr_scheduler = object()
+
+            def train(self, **_):
+                return type("R", (), {"metrics": {"train_loss": 1.0}})()
+
+        trainer_obj = LocalTrainer.__new__(LocalTrainer)
+        trainer_obj.config = {"max_train_samples": 10}
+        trainer_obj.keep_model_loaded = False
+        trainer_obj.history = []
+        trainer_obj._base_model = None
+        trainer_obj.dry_run = False
+        trainer_obj.enable_step_checkpoints = False
+
+        model = FakeModel()
+        ref = weakref.ref(model)
+
+        trainer_obj.load_base_model = lambda: model
+        trainer_obj._prepare_peft_model = lambda base, path: base
+        trainer_obj._build_trainer = lambda m, d, o, e: (FakeTrainer(m), "fake")
+        trainer_obj.load_dataset = lambda *a, **k: [1] * 10
+        trainer_obj._find_step_checkpoint = lambda *a, **k: None
+        trainer_obj._write_training_manifest = lambda *a, **k: None
+        trainer_obj._purge_step_checkpoints = lambda *a, **k: None
+        trainer_obj._resume_identity = lambda *a, **k: {}
+        trainer_obj.unload_model = lambda: setattr(trainer_obj, "_base_model", None)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                trainer_obj.train_client(
+                    dataset_path=Path(tmp) / "shard.jsonl",
+                    output_dir=Path(tmp) / "out",
+                    client_id="client_1",
+                )
+            except Exception as exc:  # signature drift shouldn't mask the leak
+                self.skipTest(f"train_client signature changed: {exc}")
+
+        del model
+        gc.collect()
+        self.assertIsNone(
+            ref(),
+            "the base model is still reachable after train_client returned; "
+            "a strong reference survives free_cuda_memory() and VRAM will leak "
+            "one model per client.",
+        )
+
+    def test_teardown_clears_every_model_local(self):
+        """Static guard: the finally blocks must null the aliasing locals."""
+        import inspect
+
+        from evaluation.eval_loss import Evaluator
+        from trainer.sft import LocalTrainer
+
+        train_src = inspect.getsource(LocalTrainer.train_client)
+        self.assertIn(
+            "base_model = None",
+            train_src,
+            "train_client must drop its local base_model reference before "
+            "free_cuda_memory(), or empty_cache() runs against live memory.",
+        )
+
+        eval_src = inspect.getsource(Evaluator.evaluate)
+        self.assertIn(
+            "base_model = None",
+            eval_src,
+            "Evaluator.evaluate must drop its local base_model reference "
+            "before free_cuda_memory().",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

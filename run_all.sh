@@ -613,7 +613,21 @@ if [[ $DO_AUDIT -eq 1 ]]; then
     # A reference run's real adapters make the tamper experiment concrete;
     # fall back to synthetic ones so it never depends on a finished GPU run.
     tamper_args=(--results-dir "$audit_dir" --trials 20)
-    ref_root="$(ls -d "$REPO_ROOT"/outputs/*/exp4_fedchain 2>/dev/null | head -1 || true)"
+    # Search the seeded layout first. A seed sweep writes to
+    # outputs/<tier>/seed_<N>/exp4_fedchain, two levels down, so the flat
+    # outputs/*/exp4_fedchain glob alone silently found nothing and the tamper
+    # experiment fell back to synthetic adapters - which is a materially weaker
+    # result than detection on real trained artefacts. Prefer the tier being run.
+    ref_root=""
+    for candidate in \
+            "$REPO_ROOT/outputs/${MODEL:-}"/seed_*/exp4_fedchain \
+            "$REPO_ROOT"/outputs/*/seed_*/exp4_fedchain \
+            "$REPO_ROOT"/outputs/*/exp4_fedchain; do
+        if [[ -d "$candidate" ]]; then
+            ref_root="$candidate"
+            break
+        fi
+    done
     if [[ -n "$ref_root" ]]; then
         tamper_args+=(--adapter-root "$ref_root")
         info "tamper experiment using real adapters from $ref_root"

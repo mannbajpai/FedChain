@@ -17,6 +17,7 @@ Read in order:
 | 07 | [Ablation conclusions](07_ablation_conclusions.md) | **Empty template.** Decision rules pre-registered. |
 | 08 | [Shortcomings & roadmap](08_shortcomings_and_roadmap.md) | Every known weakness, ranked by how much it threatens the paper |
 | 09 | [Run guide](09_run_guide.md) | **The commands to execute**, in order, on the GPU box |
+| 10 | [Two-model results](10_two_model_results.md) | **Qwen2.5-0.5B vs SmolLM2-360M** — the motivation gap closes with scale |
 
 ## Status
 
@@ -24,13 +25,19 @@ Read in order:
 |---|---|
 | Baseline run (smollm2-360m, 3 seeds, E0–E7) | **complete** — documented in 01–03 |
 | Instrumentation changes C1–C7 | **applied and verified** — see 04 |
-| Ablation runs A–F | **not started** — needs a CUDA box; see 05 |
-| `qwen-0.5b` tier | **not started** — needs a CUDA box |
+| `qwen-0.5b` tier (3 seeds, E0–E4, E6–E7) | **complete** — analysed in 10 |
+| Ablation runs A–F | **not started** — see 05; A has dropped in priority |
 
-The changes are in and tested (33 tests, `python -m pytest tests/`). What remains
-is GPU time: this repo checkout has no CUDA device, no `trl`/`bitsandbytes`/`web3`,
-and no anvil or IPFS daemon, so no training run can execute here. Every command
-below is written to run on the machine that produced the baseline.
+**The motivation gap is closed.** FedAvg recovered 2.4% of the isolation→
+centralized gap at 360M and **34.0% at 0.5B** — so the benefit of federating
+grows with model capacity, and there is something worth auditing after all. The
+audit layer remains bit-identical to plain FedAvg at both scales, and gas is
+byte-identical across tiers.
+
+Ablation A (round sweep) existed to rescue that claim and is no longer on the
+critical path. Outstanding: a VRAM leak that makes 0.5B timing metrics unusable,
+E6 running on synthetic adapters at 0.5B, and no non-IID arm above 360M — all in
+[10](10_two_model_results.md).
 
 Documents 06 and 07 contain **no results**. They are pre-registered templates:
 the tables, the hypotheses, and the decision rules are written down *before* the

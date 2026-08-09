@@ -491,7 +491,24 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
     """
     tiers: List[Tuple[str, str, List[Tuple[str, Dict[str, Any]]]]] = []
     for sub in sorted(p for p in results_root.iterdir() if p.is_dir() and p.name != "logs"):
+        # A seed sweep writes the training runs to <tier>/seed_<N>/ and leaves
+        # only the audit-layer reports at the tier root. Scanning the root alone
+        # therefore finds exp6/exp7 and none of the experiments the table is
+        # about, producing a full page of "n/a". Merge both layouts, preferring
+        # the lowest seed as the representative run (deterministic, and the same
+        # choice the per-tier report makes).
         reports = discover_reports(sub, order)
+        by_seed = discover_seed_reports(sub, order) if any(sub.glob("seed_*")) else {}
+        if by_seed:
+            seeded = {
+                name: sorted(runs, key=lambda pair: pair[0])[0][1]
+                for name, runs in by_seed.items()
+            }
+            merged = {name: report for name, report in reports}
+            seeded.update({k: v for k, v in merged.items() if k not in seeded})
+            ordered = [n for n in order if n in seeded]
+            ordered.extend(sorted(n for n in seeded if n not in ordered))
+            reports = [(n, seeded[n]) for n in ordered]
         if not reports:
             continue
         model_name = ""

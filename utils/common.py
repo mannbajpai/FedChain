@@ -239,7 +239,15 @@ def free_cuda_memory() -> None:
             try:
                 torch.cuda.reset_peak_memory_stats()
             except Exception:
-                pass
+                # Swallowing this silently makes every later `peak VRAM` figure
+                # an all-time maximum rather than a per-client one, which reads
+                # exactly like a memory leak and sends you hunting for a
+                # reference that does not exist. Say so once, loudly.
+                LOGGER.warning(
+                    "torch.cuda.reset_peak_memory_stats() failed; reported peak "
+                    "VRAM is cumulative from process start, not per-client.",
+                    exc_info=True,
+                )
     except ImportError:
         pass
     gc.collect()

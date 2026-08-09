@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest tests/ -q -rs)",
+      "Bash(cp trainer/sft.py /tmp/sft.bak)",
+      "Bash(python -)",
+      "Bash(python -m pytest tests/test_experiment_validity.py -q -k teardown)",
+      "Bash(timeout 600 python main.py --config configs/exp2_fl.yaml --dry-run --force --exp-name _leakchk --results-dir /tmp/lk --output-root /tmp/lko --log-level WARNING)",
+      "Bash(bash -n run_all.sh)",
+      "Bash(mkdir -p /tmp/rt/outputs/qwen-0.5b/seed_42/exp4_fedchain)",
+      "Bash(REPO_ROOT=/tmp/rt MODEL=qwen-0.5b bash -c 'ref_root=\"\"; for candidate in \"$REPO_ROOT/outputs/${MODEL:-}\"/seed_*/exp4_fedchain \"$REPO_ROOT\"/outputs/*/seed_*/exp4_fedchain \"$REPO_ROOT\"/outputs/*/exp4_fedchain; do [[ -d \"$candidate\" ]] && { ref_root=\"$candidate\"; break; }; done; echo \"found: $ref_root\"')",
+      "Bash(rm -rf /tmp/rt)",
+      "Bash(python -c ' *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

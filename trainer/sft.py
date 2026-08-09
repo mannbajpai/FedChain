@@ -36,6 +36,7 @@ import logging
 import math
 import os
 import time
+import weakref
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -51,6 +52,41 @@ from utils.common import (
 )
 
 LOGGER = logging.getLogger(__name__)
+
+
+def _release_optimizer_registries() -> None:
+    """Drop process-global parameter registries left by 8-bit optimisers.
+
+    ``paged_adamw_8bit`` and friends route every registered parameter through
+    ``bitsandbytes.optim.GlobalOptimManager``, a singleton that survives the
+    Trainer, the optimiser and the model. Its bookkeeping dicts hold parameter
+    references, so the base model stays reachable after teardown and
+    ``empty_cache()`` reclaims nothing - one model per client, ~520 MB each on
+    Qwen2.5-0.5B.
+
+    The manager exposes no public reset, and the attribute names have moved
+    between releases, so anything dict- or list-shaped is cleared defensively
+    rather than named.
+    """
+    try:
+        import bitsandbytes as bnb  # noqa: PLC0415 - optional, CUDA-only
+    except Exception:
+        return
+
+    try:
+        manager = bnb.optim.GlobalOptimManager.get_instance()
+    except Exception:  # pragma: no cover - version drift
+        LOGGER.debug("GlobalOptimManager unavailable", exc_info=True)
+        return
+
+    for name, value in list(vars(manager).items()):
+        if isinstance(value, dict) and value:
+            value.clear()
+        elif isinstance(value, list) and value:
+            del value[:]
+        else:
+            continue
+        LOGGER.debug("Cleared GlobalOptimManager.%s", name)
 
 PathLike = Union[str, os.PathLike]
 
@@ -831,14 +867,51 @@ class LocalTrainer:
             return str(out_dir), round(training_time, 4)
 
         finally:
-            # Teardown order matters on 4 GB: drop the trainer's optimiser state
-            # and the PEFT wrapper before touching the CUDA caching allocator.
-            del trainer
-            if peft_model is not None:
-                del peft_model
+            # Teardown order matters on 4 GB: EVERY strong reference to the model
+            # must be gone before the caching allocator is asked to release
+            # blocks, otherwise `empty_cache()` is a no-op on live memory.
+            #
+            # `del trainer` / `del peft_model` alone was not enough. `base_model`
+            # below is a *local* bound by `load_base_model()`, and it aliases
+            # `self._base_model`. Clearing the attribute in `unload_model()` left
+            # this local holding the model alive across `free_cuda_memory()`, so
+            # one model's worth (~520 MB for Qwen2.5-0.5B in 4-bit) stayed
+            # resident per client. Over the nine trainings in a 3x3 run that is
+            # ~4.7 GB on a 4 GB card: peak VRAM climbed 1591 -> 5231 MB, the
+            # allocator spilled to host memory, and step time went from
+            # 6.9 s/it to 60.5 s/it before the run died.
+            #
+            # HF `Trainer` also holds the optimiser state (paged AdamW) and a
+            # second reference to the model via `model_wrapped`; unbinding the
+            # name is not enough if anything else still points at the trainer,
+            # so the heavy attributes are dropped explicitly.
+            if trainer is not None:
+                # `accelerate` keeps a process-global `AcceleratorState`, and the
+                # Trainer's Accelerator registers the prepared model and
+                # optimiser with it. Those references outlive the Trainer object,
+                # so unbinding names alone leaves one model per client resident -
+                # which is the ~520 MB/client staircase. `free_memory()` drops
+                # the registered objects and is the supported way to do it.
+                accelerator = getattr(trainer, "accelerator", None)
+                if accelerator is not None:
+                    try:
+                        accelerator.free_memory()
+                    except Exception:  # pragma: no cover - version drift
+                        LOGGER.debug("accelerator.free_memory() unavailable", exc_info=True)
+                for attr in ("model", "model_wrapped", "optimizer", "lr_scheduler", "accelerator"):
+                    try:
+                        setattr(trainer, attr, None)
+                    except Exception:  # pragma: no cover - defensive
+                        pass
+            trainer = None
+            peft_model = None
+            probe = weakref.ref(base_model) if base_model is not None else None
+            base_model = None
             if not self.keep_model_loaded:
                 self.unload_model()
+            _release_optimizer_registries()
             free_cuda_memory()
+            self._report_retained_model(probe, client_id)
 
     def _train_dry_run(
         self,
@@ -1016,6 +1089,61 @@ class LocalTrainer:
     # =========================================================================
     # Memory management
     # =========================================================================
+    def _report_retained_model(self, probe: Any, client_id: str) -> None:
+        """Warn - and name the culprit - if the base model survived teardown.
+
+        A silent VRAM leak here costs whole sweeps: the previous one degraded
+        step time 6.9 s/it -> 60.5 s/it over nine clients and killed a 30-hour
+        run. Detection is one weakref; without the referrer dump the next
+        occurrence is another round of guessing, so the holder is named on the
+        spot. Referrers are reported by type, never by value, so nothing large
+        is materialised into the log.
+        """
+        # Post-teardown memory census. `peak` alone cannot distinguish the three
+        # explanations for a climbing figure, and they need different fixes:
+        #   allocated climbs  -> something still holds tensors (real retention)
+        #   reserved climbs   -> allocator fragmentation; blocks cached, not freed
+        #   both flat         -> reset_peak_memory_stats() is not taking effect,
+        #                        and the climb is a measurement artefact only
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                LOGGER.info(
+                    "VRAM after %s teardown | allocated=%.1f MB reserved=%.1f MB peak=%.1f MB",
+                    client_id,
+                    torch.cuda.memory_allocated() / (1024 ** 2),
+                    torch.cuda.memory_reserved() / (1024 ** 2),
+                    torch.cuda.max_memory_allocated() / (1024 ** 2),
+                )
+        except Exception:  # pragma: no cover - diagnostics must never raise
+            pass
+
+        if probe is None or probe() is None:
+            return
+
+        model = probe()
+        try:
+            holders: Dict[str, int] = {}
+            for referrer in gc.get_referrers(model):
+                if referrer is None:
+                    continue
+                name = type(referrer).__name__
+                if name == "frame":
+                    name = f"frame:{getattr(referrer, 'f_code', None) and referrer.f_code.co_name}"
+                holders[name] = holders.get(name, 0) + 1
+            summary = ", ".join(f"{k}x{v}" for k, v in sorted(holders.items(), key=lambda p: -p[1])[:8])
+        except Exception:  # pragma: no cover - diagnostics must never raise
+            summary = "unavailable"
+
+        LOGGER.warning(
+            "VRAM LEAK: the base model is still reachable after %s finished. "
+            "Held by: %s. Expect peak VRAM to climb by roughly one model per "
+            "client and step time to degrade as the allocator spills.",
+            client_id,
+            summary,
+        )
+
     def unload_model(self) -> None:
         """Drop the cached base model and reclaim VRAM."""
         if self._base_model is not None:
