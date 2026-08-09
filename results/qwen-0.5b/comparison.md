@@ -1,0 +1,99 @@
+# FedChain - Experiment Comparison
+
+**Model:** `Qwen/Qwen2.5-0.5B-Instruct`
+
+## Run context
+
+| Metric       | E0: Local-only | E1: Centralized SFT | E2: FedAvg | E3: FL + Blockchain | E4: FedChain |
+|--------------|----------------|---------------------|------------|---------------------|--------------|
+| Paradigm     | local_only     | centralized         | federated  | federated           | federated    |
+| Rounds       | 3              | 1                   | 3          | 3                   | 3            |
+| Clients      | 3              | 1                   | 3          | 3                   | 3            |
+| Device       | cuda           | cuda                | cuda       | cuda                | cuda         |
+| Chain mode   | -              | -                   | -          | live                | live         |
+| IPFS backend | -              | -                   | -          | -                   | local        |
+
+## Metrics
+
+_Single representative seed. Accuracy with confidence intervals is in the next section - quote that, not this._
+
+| Metric                    | E0: Local-only | E1: Centralized SFT | E2: FedAvg | E3: FL + Blockchain | E4: FedChain |
+|---------------------------|----------------|---------------------|------------|---------------------|--------------|
+| Validation Loss           | 2.0780         | 2.0492              | 2.0686     | 2.0686              | 2.0686       |
+| Perplexity                | 7.9883         | 7.7614              | 7.9136     | 7.9136              | 7.9136       |
+| ROUGE-L                   | 0.2484         | 0.2481              | 0.2457     | 0.2457              | 0.2457       |
+| BLEU                      | 0.0402         | 0.0468              | 0.0430     | 0.0430              | 0.0430       |
+| Training Time (s)         | 6188.29        | 4052.48             | 10581.86   | 10494.16            | 11019.64     |
+| Communication Volume (MB) | 0.000          | 0.000               | 302.864    | 302.864             | 399.325      |
+| Adapter Size (MB)         | 16.827         | 16.827              | 16.825     | 16.825              | 16.825       |
+| Blockchain Tx Latency (s) | 0.0000         | 0.0000              | 0.0000     | 0.2638              | 0.2333       |
+| Blockchain Gas Used       | 0              | 0                   | 0          | 2,997,464           | 3,785,372    |
+| IPFS Upload Latency (s)   | 0.0000         | 0.0000              | 0.0000     | 0.0000              | 19.1004      |
+| IPFS Download Latency (s) | 0.0000         | 0.0000              | 0.0000     | 0.0000              | 2.8644       |
+| Aggregation Time (s)      | 0.0000         | 0.0000              | 0.1995     | 0.1786              | 0.1861       |
+| Mean Round Duration (s)   | 2067.50        | 4053.60             | 3827.56    | 3790.06             | 3988.53      |
+| Total Round Time (s)      | 6202.50        | 4053.60             | 11482.67   | 11370.19            | 11965.60     |
+
+_Communication and adapter sizes are MiB (2^20 bytes). 'Mean Round Duration' is per federated round, so it is not comparable across paradigms with different round counts - use 'Total Round Time'._
+
+## Accuracy across seeds (mean +- 95% CI)
+
+_Seeds per experiment: E0: Local-only=3, E1: Centralized SFT=3, E2: FedAvg=3, E3: FL + Blockchain=3, E4: FedChain=3._
+
+| Metric          | E0: Local-only   | E1: Centralized SFT | E2: FedAvg       | E3: FL + Blockchain | E4: FedChain     |
+|-----------------|------------------|---------------------|------------------|---------------------|------------------|
+| Validation Loss | 2.0783 +- 0.0007 | 2.0499 +- 0.0016    | 2.0686 +- 0.0009 | 2.0686 +- 0.0009    | 2.0686 +- 0.0009 |
+| Perplexity      | 7.9908 +- 0.0053 | 7.7673 +- 0.0127    | 7.9141 +- 0.0070 | 7.9141 +- 0.0070    | 7.9141 +- 0.0070 |
+| ROUGE-L         | 0.2455 +- 0.0149 | 0.2466 +- 0.0230    | 0.2407 +- 0.0111 | 0.2407 +- 0.0111    | 0.2407 +- 0.0111 |
+| BLEU            | 0.0437 +- 0.0080 | 0.0497 +- 0.0079    | 0.0418 +- 0.0040 | 0.0418 +- 0.0040    | 0.0418 +- 0.0040 |
+
+## Paired difference vs `exp1_sft` (per seed)
+
+| Experiment          | Metric          | Mean diff | 95% CI   | Seeds | Significant |
+|---------------------|-----------------|-----------|----------|-------|-------------|
+| E0: Local-only      | Validation Loss | +0.0284   | +-0.0010 | 3     | yes         |
+| E0: Local-only      | Perplexity      | +0.2235   | +-0.0078 | 3     | yes         |
+| E2: FedAvg          | Validation Loss | +0.0187   | +-0.0018 | 3     | yes         |
+| E2: FedAvg          | Perplexity      | +0.1468   | +-0.0143 | 3     | yes         |
+| E3: FL + Blockchain | Validation Loss | +0.0187   | +-0.0018 | 3     | yes         |
+| E3: FL + Blockchain | Perplexity      | +0.1468   | +-0.0143 | 3     | yes         |
+| E4: FedChain        | Validation Loss | +0.0187   | +-0.0018 | 3     | yes         |
+| E4: FedChain        | Perplexity      | +0.1468   | +-0.0143 | 3     | yes         |
+
+_'Significant' means the 95% CI of the paired difference excludes zero. A 'no' is a real result - it says the audit layer changed nothing measurable, which is the claim these experiments exist to support._
+
+## Paired difference vs `exp0_local` (per seed)
+
+| Experiment          | Metric          | Mean diff | 95% CI   | Seeds | Significant |
+|---------------------|-----------------|-----------|----------|-------|-------------|
+| E1: Centralized SFT | Validation Loss | -0.0284   | +-0.0010 | 3     | yes         |
+| E1: Centralized SFT | Perplexity      | -0.2235   | +-0.0078 | 3     | yes         |
+| E2: FedAvg          | Validation Loss | -0.0096   | +-0.0009 | 3     | yes         |
+| E2: FedAvg          | Perplexity      | -0.0767   | +-0.0074 | 3     | yes         |
+| E3: FL + Blockchain | Validation Loss | -0.0096   | +-0.0009 | 3     | yes         |
+| E3: FL + Blockchain | Perplexity      | -0.0767   | +-0.0074 | 3     | yes         |
+| E4: FedChain        | Validation Loss | -0.0096   | +-0.0009 | 3     | yes         |
+| E4: FedChain        | Perplexity      | -0.0767   | +-0.0074 | 3     | yes         |
+
+_'Significant' means the 95% CI of the paired difference excludes zero. A 'no' is a real result - it says the audit layer changed nothing measurable, which is the claim these experiments exist to support._
+
+_Against the local-only arm a *negative* difference means aggregation helped. Read it next to the same arm's distance from the centralized bound: a difference that is significant but a small fraction of that distance says federation is measurable, not that it is worthwhile._
+
+## Validation loss by round (mean over seeds)
+
+| Round | E2: FedAvg | E3: FL + Blockchain | E4: FedChain |
+|-------|------------|---------------------|--------------|
+| 1     | 2.1145     | 2.1145              | 2.1145       |
+| 2     | 2.0792     | 2.0792              | 2.0792       |
+| final | 2.0686     | 2.0686              | 2.0686       |
+
+_A curve still descending at the final round means the round count was budget-limited, not converged - any 'cost of federation' read off that end-point is a statement about the budget as much as about federation. Arms with no per-round rows evaluate only at the end; set `eval_local_clients_every_round: true` to give the local-only arm a curve._
+
+## Overhead relative to `exp1_sft`
+
+| Experiment          | d Val. Loss     | d Perplexity    | Comm (MiB) | Gas       | Total time (s) |
+|---------------------|-----------------|-----------------|------------|-----------|----------------|
+| E0: Local-only      | +0.0288 (+1.4%) | +0.2269 (+2.9%) | 0.000      | 0         | 6202.50        |
+| E2: FedAvg          | +0.0194 (+0.9%) | +0.1522 (+2.0%) | 302.864    | 0         | 11482.67       |
+| E3: FL + Blockchain | +0.0194 (+0.9%) | +0.1522 (+2.0%) | 302.864    | 2,997,464 | 11370.19       |
+| E4: FedChain        | +0.0194 (+0.9%) | +0.1522 (+2.0%) | 399.325    | 3,785,372 | 11965.60       |
