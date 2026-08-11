@@ -1,15 +1,15 @@
 
 ## FedChain - Integrity under attack (Exp 6)
 
-_Chain mode: live | adapters: 3 | seed: 42_
+_Chain mode: live | adapters: 12 | seed: 42_
 
 | Attack      | Type           | Trials | Detected | Detection rate | Verify (ms) |
 |-------------|----------------|--------|----------|----------------|-------------|
-| bitflip     | malicious      | 20     | 20       | 100.0%         | 1.11        |
-| scale       | malicious      | 20     | 20       | 100.0%         | 1.10        |
-| substitute  | malicious      | 20     | 20       | 100.0%         | 1.42        |
-| replay      | malicious      | 20     | 20       | 100.0%         | 1.95        |
-| reserialize | benign control | 20     | 0        | 0.0%           | 2.07        |
+| bitflip     | malicious      | 20     | 20       | 100.0%         | 13.13       |
+| scale       | malicious      | 20     | 20       | 100.0%         | 12.72       |
+| substitute  | malicious      | 20     | 20       | 100.0%         | 13.49       |
+| replay      | malicious      | 20     | 20       | 100.0%         | 12.98       |
+| reserialize | benign control | 20     | 0        | 0.0%           | 14.27       |
 
 **Detection:** 80/80 malicious artefacts rejected (100.0%).
 **False positives:** 0/20 benign re-serialisations rejected (0.0%).

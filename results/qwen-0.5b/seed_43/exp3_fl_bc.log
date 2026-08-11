@@ -222,3 +222,237 @@
 16:12:26 | INFO     | fedchain                     | ------------------------------------------------------------------------------
 16:12:26 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/qwen-0.5b/seed_43/exp3_fl_bc_metrics.json
 16:12:26 | INFO     | blockchain.logger            | Audit trail exported to /home/mann/FedChain/results/qwen-0.5b/seed_43/exp3_fl_bc_audit_trail.json
+08:50:02 | INFO     | fedchain                     | ==============================================================================
+08:50:02 | INFO     | fedchain                     | FedChain :: exp3_fl_bc
+08:50:02 | INFO     | fedchain                     | FedAvg over QLoRA adapters with an on-chain SHA-256 audit trail
+08:50:02 | INFO     | fedchain                     | Config: /home/mann/FedChain/configs/exp3_fl_bc.yaml
+08:50:02 | INFO     | fedchain                     | Model:  Qwen/Qwen2.5-0.5B-Instruct  [tier=qwen-0.5b]
+08:50:02 | INFO     | fedchain                     | Hugging Face Hub: authenticated via HF_TOKEN
+08:50:02 | INFO     | fedchain                     | ==============================================================================
+08:50:08 | INFO     | utils.common                 | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+08:50:08 | INFO     | fedchain                     | Seed=43 | device=cuda
+08:50:08 | INFO     | fedchain                     | Initialising the blockchain audit layer ...
+08:50:08 | INFO     | blockchain.logger            | Using unlocked node account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+08:50:08 | INFO     | blockchain.logger            | Loaded contract bytecode from /home/mann/FedChain/blockchain/artifacts/FedChainAudit.json
+08:50:08 | INFO     | blockchain.logger            | Deployed FedChainAudit at 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575 (gas=1431133, 0.140s)
+08:50:08 | INFO     | blockchain.logger            | BlockchainLogger connected: rpc=http://127.0.0.1:8545 chain_id=31337 account=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 contract=0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575
+08:50:08 | INFO     | evaluation.eval_loss         | Evaluator ready | 500 loss samples | 50 generation samples | seq_len=512 | device=cuda
+08:50:08 | INFO     | fedchain                     | --force: archiving existing recovery state and starting a new run.
+08:50:08 | INFO     | utils.checkpoint             | Previous checkpoint archived as checkpoint.stale-forced-rerun-1786351808.json
+08:50:08 | INFO     | fedchain                     | ==============================================================================
+08:50:08 | INFO     | fedchain                     | PIPELINE: federated learning | blockchain=True | ipfs=False
+08:50:08 | INFO     | fedchain                     | ==============================================================================
+08:50:08 | INFO     | trainer.sft                  | LocalTrainer ready | model=Qwen/Qwen2.5-0.5B-Instruct device=cuda 4bit=True seq_len=512 dry_run=False
+08:50:08 | INFO     | trainer.federated            | FederatedOrchestrator ready | rounds=3 clients=3 blockchain=True ipfs=False checkpoint=True
+08:50:08 | INFO     | trainer.federated            | 
+08:50:08 | INFO     | trainer.federated            | ##############################################################################
+08:50:08 | INFO     | trainer.federated            | # ROUND 1 / 3
+08:50:08 | INFO     | trainer.federated            | ##############################################################################
+08:50:08 | INFO     | trainer.sft                  | ==============================================================================
+08:50:08 | INFO     | trainer.sft                  | Training client_1@r1 | shard=client1.jsonl | epochs=1.00 | window=[0, 500)
+08:50:08 | INFO     | trainer.sft                  | ==============================================================================
+08:50:10 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+08:50:10 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+08:50:11 | INFO     | trainer.sft                  | Base model load took 1.49s
+08:50:11 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+08:50:13 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+08:50:15 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+08:57:37 | INFO     | trainer.sft                  | client_1@r1 finished in 7m 28.1s | train_loss=2.1841 | peak VRAM=1591.94 MB
+08:57:38 | INFO     | trainer.sft                  | VRAM after client_1@r1 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+08:57:38 | INFO     | blockchain.logger            | [chain:live] round=1 client=client_1 hash=ebebb76b79c20a51... cid=- gas=260032 latency=0.023s
+08:57:38 | INFO     | trainer.sft                  | ==============================================================================
+08:57:38 | INFO     | trainer.sft                  | Training client_2@r1 | shard=client2.jsonl | epochs=1.00 | window=[0, 500)
+08:57:38 | INFO     | trainer.sft                  | ==============================================================================
+08:57:40 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+08:57:40 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+08:57:42 | INFO     | trainer.sft                  | Base model load took 1.44s
+08:57:42 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+08:57:42 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+08:57:44 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+09:05:14 | INFO     | trainer.sft                  | client_2@r1 finished in 7m 35.0s | train_loss=2.1655 | peak VRAM=1591.72 MB
+09:05:15 | INFO     | trainer.sft                  | VRAM after client_2@r1 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+09:05:15 | INFO     | blockchain.logger            | [chain:live] round=1 client=client_2 hash=ab4e63c19ee809b1... cid=- gas=245732 latency=0.021s
+09:05:15 | INFO     | trainer.sft                  | ==============================================================================
+09:05:15 | INFO     | trainer.sft                  | Training client_3@r1 | shard=client3.jsonl | epochs=1.00 | window=[0, 500)
+09:05:15 | INFO     | trainer.sft                  | ==============================================================================
+09:05:17 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+09:05:17 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+09:05:19 | INFO     | trainer.sft                  | Base model load took 1.50s
+09:05:19 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+09:05:19 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+09:05:21 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+09:12:55 | INFO     | trainer.sft                  | client_3@r1 finished in 7m 39.3s | train_loss=2.1632 | peak VRAM=1591.72 MB
+09:12:56 | INFO     | trainer.sft                  | VRAM after client_3@r1 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+09:12:57 | INFO     | blockchain.logger            | [chain:live] round=1 client=client_3 hash=0a37b0024d5e53f6... cid=- gas=245732 latency=0.019s
+09:12:57 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+09:12:57 | INFO     | trainer.aggregation          | FedAvg complete: 336 LoRA tensors (8,798,208 params) merged in 0.098s -> /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_1/global (16.825 MB)
+09:12:57 | INFO     | blockchain.logger            | [chain:live] round=1 client=server_global hash=7c4606f149798414... cid=- gas=245792 latency=0.018s
+09:12:58 | INFO     | evaluation.eval_loss         | Evaluation split: 500 samples from eval_500.jsonl
+09:13:01 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.42s
+09:13:01 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_1/global
+09:13:01 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+09:13:25 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0847 ppl=8.0419
+09:13:47 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.1066 ppl=8.2205
+09:14:10 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=2.0807 ppl=8.0103
+09:14:34 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0902 ppl=8.0862
+09:14:57 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.1139 ppl=8.2808
+09:14:57 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+09:15:32 | INFO     | evaluation.eval_loss         |   generated 10/50
+09:16:29 | INFO     | evaluation.eval_loss         |   generated 20/50
+09:17:09 | INFO     | evaluation.eval_loss         |   generated 30/50
+09:18:08 | INFO     | evaluation.eval_loss         |   generated 40/50
+09:19:00 | INFO     | evaluation.eval_loss         |   generated 50/50
+09:19:07 | WARNING  | evaluation.eval_loss         | Falling back to the built-in ROUGE-L / BLEU implementation: the `evaluate` library failed to score (To be able to use evaluate-metric/rouge, you need to install the following dependencies['nltk'] using 'pip install nltk' for instance'). Absolute values are not comparable with published `evaluate` numbers; the backend actually used is recorded as `generation_metric_backend` in the metrics file.
+09:19:07 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2437 BLEU=0.0479 (backend=builtin, 4m 02.7s)
+09:19:07 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.1139 ppl=8.2808 rougeL=0.2437 bleu=0.0479 over 85,843 tokens in 6m 09.8s
+09:19:08 | INFO     | trainer.federated            | Round 1 done in 28m 59.5s | comm=100.954 MB | val_loss=2.1139 ppl=8.2808
+09:19:08 | INFO     | trainer.federated            | 
+09:19:08 | INFO     | trainer.federated            | ##############################################################################
+09:19:08 | INFO     | trainer.federated            | # ROUND 2 / 3
+09:19:08 | INFO     | trainer.federated            | ##############################################################################
+09:19:08 | INFO     | trainer.sft                  | ==============================================================================
+09:19:08 | INFO     | trainer.sft                  | Training client_1@r2 | shard=client1.jsonl | epochs=1.00 | window=[500, 1000)
+09:19:08 | INFO     | trainer.sft                  | ==============================================================================
+09:19:15 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+09:19:15 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+09:19:21 | INFO     | trainer.sft                  | Base model load took 6.49s
+09:19:21 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_1/global
+09:19:22 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+09:19:22 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+09:19:23 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+09:26:30 | INFO     | trainer.sft                  | client_1@r2 finished in 7m 21.5s | train_loss=2.0368 | peak VRAM=1591.72 MB
+09:26:31 | INFO     | trainer.sft                  | VRAM after client_1@r2 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+09:26:31 | INFO     | blockchain.logger            | [chain:live] round=2 client=client_1 hash=b10cbd3b981c8d04... cid=- gas=262832 latency=0.019s
+09:26:31 | INFO     | trainer.sft                  | ==============================================================================
+09:26:31 | INFO     | trainer.sft                  | Training client_2@r2 | shard=client2.jsonl | epochs=1.00 | window=[500, 1000)
+09:26:31 | INFO     | trainer.sft                  | ==============================================================================
+09:26:33 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+09:26:33 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+09:26:35 | INFO     | trainer.sft                  | Base model load took 1.44s
+09:26:35 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_1/global
+09:26:35 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+09:26:35 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+09:26:37 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+09:34:23 | INFO     | trainer.sft                  | client_2@r2 finished in 7m 50.7s | train_loss=2.0717 | peak VRAM=1591.71 MB
+09:34:24 | INFO     | trainer.sft                  | VRAM after client_2@r2 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+09:34:24 | INFO     | blockchain.logger            | [chain:live] round=2 client=client_2 hash=5d82bbedf6de189c... cid=- gas=245732 latency=0.020s
+09:34:24 | INFO     | trainer.sft                  | ==============================================================================
+09:34:24 | INFO     | trainer.sft                  | Training client_3@r2 | shard=client3.jsonl | epochs=1.00 | window=[500, 1000)
+09:34:24 | INFO     | trainer.sft                  | ==============================================================================
+09:34:26 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+09:34:26 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+09:34:28 | INFO     | trainer.sft                  | Base model load took 1.54s
+09:34:28 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_1/global
+09:34:28 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+09:34:28 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+09:34:30 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+09:42:02 | INFO     | trainer.sft                  | client_3@r2 finished in 7m 37.0s | train_loss=2.0713 | peak VRAM=1591.72 MB
+09:42:03 | INFO     | trainer.sft                  | VRAM after client_3@r2 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+09:42:03 | INFO     | blockchain.logger            | [chain:live] round=2 client=client_3 hash=1b9c6094430b8aac... cid=- gas=245732 latency=0.021s
+09:42:03 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+09:42:03 | INFO     | trainer.aggregation          | FedAvg complete: 336 LoRA tensors (8,798,208 params) merged in 0.134s -> /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_2/global (16.825 MB)
+09:42:03 | INFO     | blockchain.logger            | [chain:live] round=2 client=server_global hash=579379d6b47f6fa2... cid=- gas=245792 latency=0.019s
+09:42:05 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.45s
+09:42:05 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_2/global
+09:42:05 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+09:42:29 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0505 ppl=7.7719
+09:42:52 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0699 ppl=7.9242
+09:43:14 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=2.0461 ppl=7.7377
+09:43:38 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0548 ppl=7.8051
+09:44:02 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0794 ppl=7.9994
+09:44:02 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+09:44:32 | INFO     | evaluation.eval_loss         |   generated 10/50
+09:45:20 | INFO     | evaluation.eval_loss         |   generated 20/50
+09:45:51 | INFO     | evaluation.eval_loss         |   generated 30/50
+09:46:39 | INFO     | evaluation.eval_loss         |   generated 40/50
+09:47:25 | INFO     | evaluation.eval_loss         |   generated 50/50
+09:47:25 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2334 BLEU=0.0446 (backend=builtin, 3m 23.5s)
+09:47:25 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0794 ppl=7.9994 rougeL=0.2334 bleu=0.0446 over 85,843 tokens in 5m 21.4s
+09:47:26 | INFO     | trainer.federated            | Round 2 done in 28m 17.9s | comm=100.955 MB | val_loss=2.0794 ppl=7.9994
+09:47:26 | INFO     | trainer.federated            | 
+09:47:26 | INFO     | trainer.federated            | ##############################################################################
+09:47:26 | INFO     | trainer.federated            | # ROUND 3 / 3
+09:47:26 | INFO     | trainer.federated            | ##############################################################################
+09:47:26 | INFO     | trainer.sft                  | ==============================================================================
+09:47:26 | INFO     | trainer.sft                  | Training client_1@r3 | shard=client1.jsonl | epochs=1.00 | window=[1000, 1500)
+09:47:26 | INFO     | trainer.sft                  | ==============================================================================
+09:47:28 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+09:47:28 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+09:47:30 | INFO     | trainer.sft                  | Base model load took 1.60s
+09:47:30 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_2/global
+09:47:30 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+09:47:30 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+09:47:31 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+09:54:33 | INFO     | trainer.sft                  | client_1@r3 finished in 7m 06.8s | train_loss=2.0401 | peak VRAM=1591.72 MB
+09:54:34 | INFO     | trainer.sft                  | VRAM after client_1@r3 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+09:54:35 | INFO     | blockchain.logger            | [chain:live] round=3 client=client_1 hash=6703b68238d7faea... cid=- gas=262832 latency=0.018s
+09:54:35 | INFO     | trainer.sft                  | ==============================================================================
+09:54:35 | INFO     | trainer.sft                  | Training client_2@r3 | shard=client2.jsonl | epochs=1.00 | window=[1000, 1500)
+09:54:35 | INFO     | trainer.sft                  | ==============================================================================
+09:54:37 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+09:54:37 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+09:54:38 | INFO     | trainer.sft                  | Base model load took 1.30s
+09:54:38 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_2/global
+09:54:38 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+09:54:38 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+09:54:40 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:02:01 | INFO     | trainer.sft                  | client_2@r3 finished in 7m 25.7s | train_loss=2.0694 | peak VRAM=1591.72 MB
+10:02:02 | INFO     | trainer.sft                  | VRAM after client_2@r3 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+10:02:02 | INFO     | blockchain.logger            | [chain:live] round=3 client=client_2 hash=7ae05867c6fd4b94... cid=- gas=245732 latency=0.019s
+10:02:03 | INFO     | trainer.sft                  | ==============================================================================
+10:02:03 | INFO     | trainer.sft                  | Training client_3@r3 | shard=client3.jsonl | epochs=1.00 | window=[1000, 1500)
+10:02:03 | INFO     | trainer.sft                  | ==============================================================================
+10:02:05 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+10:02:05 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:02:06 | INFO     | trainer.sft                  | Base model load took 1.44s
+10:02:06 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_2/global
+10:02:06 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+10:02:06 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:02:08 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:09:43 | INFO     | trainer.sft                  | client_3@r3 finished in 7m 39.5s | train_loss=2.0800 | peak VRAM=1591.72 MB
+10:09:44 | INFO     | trainer.sft                  | VRAM after client_3@r3 teardown | allocated=16.3 MB reserved=582.0 MB peak=16.3 MB
+10:09:44 | INFO     | blockchain.logger            | [chain:live] round=3 client=client_3 hash=199d51d6f0fcb19a... cid=- gas=245732 latency=0.020s
+10:09:44 | INFO     | trainer.aggregation          | FedAvg over 3 client adapter(s) with weights [0.3333, 0.3333, 0.3333]
+10:09:44 | INFO     | trainer.aggregation          | FedAvg complete: 336 LoRA tensors (8,798,208 params) merged in 0.110s -> /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_3/global (16.825 MB)
+10:09:44 | INFO     | blockchain.logger            | [chain:live] round=3 client=server_global hash=15cd0655bc64f251... cid=- gas=245792 latency=0.019s
+10:09:44 | INFO     | trainer.federated            | Round 3 done in 22m 18.2s | comm=100.955 MB | evaluation skipped
+10:09:45 | INFO     | trainer.federated            | ==============================================================================
+10:09:45 | INFO     | trainer.federated            | Federated run complete: 3 round(s) in 1h 19m 36.4s | comm=302.864 MB | train=1h 07m 43.5s
+10:09:45 | INFO     | trainer.federated            | ==============================================================================
+10:09:46 | INFO     | fedchain                     | Final evaluation of /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_3/global ...
+10:09:48 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.33s
+10:09:48 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_3/global
+10:09:48 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+10:10:12 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0385 ppl=7.6787
+10:10:34 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0573 ppl=7.8247
+10:10:56 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=2.0338 ppl=7.6427
+10:11:20 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0429 ppl=7.7129
+10:11:44 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0683 ppl=7.9116
+10:11:44 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+10:12:15 | INFO     | evaluation.eval_loss         |   generated 10/50
+10:13:00 | INFO     | evaluation.eval_loss         |   generated 20/50
+10:13:29 | INFO     | evaluation.eval_loss         |   generated 30/50
+10:14:03 | INFO     | evaluation.eval_loss         |   generated 40/50
+10:14:44 | INFO     | evaluation.eval_loss         |   generated 50/50
+10:14:44 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2372 BLEU=0.0400 (backend=builtin, 2m 59.6s)
+10:14:44 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0683 ppl=7.9116 rougeL=0.2372 bleu=0.0400 over 85,843 tokens in 4m 57.5s
+10:14:45 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+10:14:45 | INFO     | fedchain                     | COLLECTED METRICS
+10:14:45 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+10:14:45 | INFO     | fedchain                     |   validation_loss               : 2.0683
+10:14:45 | INFO     | fedchain                     |   perplexity                    : 7.9116
+10:14:45 | INFO     | fedchain                     |   rouge_l                       : 0.2372
+10:14:45 | INFO     | fedchain                     |   bleu                          : 0.0400
+10:14:45 | INFO     | fedchain                     |   training_time_sec             : 4063.50
+10:14:45 | INFO     | fedchain                     |   communication_volume_mb       : 302.864
+10:14:45 | INFO     | fedchain                     |   adapter_size_mb               : 16.825
+10:14:45 | INFO     | fedchain                     |   blockchain_tx_latency_sec     : 0.2364
+10:14:45 | INFO     | fedchain                     |   blockchain_gas_used           : 2,997,464
+10:14:45 | INFO     | fedchain                     |   ipfs_upload_latency_sec       : 0.0000
+10:14:45 | INFO     | fedchain                     |   ipfs_download_latency_sec     : 0.0000
+10:14:45 | INFO     | fedchain                     |   aggregation_time_sec          : 0.3426
+10:14:45 | INFO     | fedchain                     |   end_to_end_round_duration_sec : 1591.88
+10:14:45 | INFO     | fedchain                     |   total_round_time_sec          : 4775.65
+10:14:45 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+10:14:45 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/qwen-0.5b/seed_43/exp3_fl_bc_metrics.json
+10:14:45 | INFO     | blockchain.logger            | Audit trail exported to /home/mann/FedChain/results/qwen-0.5b/seed_43/exp3_fl_bc_audit_trail.json

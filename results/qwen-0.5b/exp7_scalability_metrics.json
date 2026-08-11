@@ -2,7 +2,7 @@
   "experiment": {
     "name": "exp7_scalability",
     "description": "Audit-layer cost versus federation size and artefact size",
-    "timestamp_unix": 1786294497
+    "timestamp_unix": 1786396916
   },
   "context": {
     "chain_mode": "live",
@@ -16,48 +16,48 @@
       "transactions_per_round": 2,
       "gas_per_round": 616560,
       "gas_per_client": 616560.0,
-      "chain_latency_sec": 0.246064,
-      "wall_clock_sec": 0.2597
+      "chain_latency_sec": 0.253972,
+      "wall_clock_sec": 0.2696
     },
     {
       "num_clients": 3,
       "transactions_per_round": 4,
       "gas_per_round": 1163296,
       "gas_per_client": 387765.3,
-      "chain_latency_sec": 0.48372,
-      "wall_clock_sec": 0.5162
+      "chain_latency_sec": 0.494665,
+      "wall_clock_sec": 0.5218
     },
     {
       "num_clients": 5,
       "transactions_per_round": 6,
       "gas_per_round": 1744914,
       "gas_per_client": 348982.8,
-      "chain_latency_sec": 0.644407,
-      "wall_clock_sec": 0.6837
+      "chain_latency_sec": 0.627128,
+      "wall_clock_sec": 0.666
     },
     {
       "num_clients": 10,
       "transactions_per_round": 11,
       "gas_per_round": 3198971,
       "gas_per_client": 319897.1,
-      "chain_latency_sec": 1.335514,
-      "wall_clock_sec": 1.4213
+      "chain_latency_sec": 1.342525,
+      "wall_clock_sec": 1.419
     },
     {
       "num_clients": 25,
       "transactions_per_round": 26,
       "gas_per_round": 7561286,
       "gas_per_client": 302451.4,
-      "chain_latency_sec": 3.154591,
-      "wall_clock_sec": 3.3063
+      "chain_latency_sec": 3.184183,
+      "wall_clock_sec": 3.3903
     },
     {
       "num_clients": 50,
       "transactions_per_round": 51,
       "gas_per_round": 14831811,
       "gas_per_client": 296636.2,
-      "chain_latency_sec": 6.126177,
-      "wall_clock_sec": 6.467
+      "chain_latency_sec": 6.286575,
+      "wall_clock_sec": 6.6728
     }
   ],
   "payload_sweep": [
@@ -65,9 +65,9 @@
       "label": "tiny",
       "adapter_mb": 0.2228,
       "gas_used": 311439,
-      "chain_latency_sec": 0.127066,
-      "hash_latency_sec": 0.000449,
-      "hash_throughput_mb_s": 496.71,
+      "chain_latency_sec": 0.122149,
+      "hash_latency_sec": 0.001555,
+      "hash_throughput_mb_s": 143.27,
       "anchored_bytes": 32,
       "digest": "d9aee0f3ae0001ac"
     },
@@ -75,9 +75,9 @@
       "label": "small",
       "adapter_mb": 3.5145,
       "gas_used": 311451,
-      "chain_latency_sec": 0.122821,
-      "hash_latency_sec": 0.003521,
-      "hash_throughput_mb_s": 998.06,
+      "chain_latency_sec": 0.121437,
+      "hash_latency_sec": 0.00324,
+      "hash_throughput_mb_s": 1084.63,
       "anchored_bytes": 32,
       "digest": "fb1fcc5ab7f42dea"
     },
@@ -85,9 +85,9 @@
       "label": "medium",
       "adapter_mb": 14.0288,
       "gas_used": 311463,
-      "chain_latency_sec": 0.124194,
-      "hash_latency_sec": 0.011353,
-      "hash_throughput_mb_s": 1235.66,
+      "chain_latency_sec": 0.121713,
+      "hash_latency_sec": 0.010454,
+      "hash_throughput_mb_s": 1341.97,
       "anchored_bytes": 32,
       "digest": "614098bd5638c879"
     },
@@ -95,9 +95,9 @@
       "label": "large",
       "adapter_mb": 49.0503,
       "gas_used": 311451,
-      "chain_latency_sec": 0.132837,
-      "hash_latency_sec": 0.037532,
-      "hash_throughput_mb_s": 1306.91,
+      "chain_latency_sec": 0.122575,
+      "hash_latency_sec": 0.034911,
+      "hash_throughput_mb_s": 1404.99,
       "anchored_bytes": 32,
       "digest": "0cf1ab6181cddd65"
     }
@@ -106,16 +106,16 @@
     "mode": "live",
     "rpc_url": "http://127.0.0.1:8545",
     "chain_id": 31337,
-    "contract_address": "0x51C65cd0Cdb1A8A8b79dfc2eE965B1bA0bb8fc89",
+    "contract_address": "0x114e375B6FCC6d6fCb68c7A1d407E652C54F25FB",
     "account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     "connection_note": null,
     "num_transactions": 104,
     "num_successful": 104,
     "num_failed": 0,
-    "total_latency_sec": 12.497391,
-    "avg_latency_sec": 0.120167,
-    "max_latency_sec": 0.13291,
-    "min_latency_sec": 0.017098,
+    "total_latency_sec": 12.676922,
+    "avg_latency_sec": 0.121893,
+    "max_latency_sec": 0.131153,
+    "min_latency_sec": 0.015194,
     "total_gas_used": 30362642,
     "avg_gas_used": 291948,
     "total_cost_eth": 0.030362642209,

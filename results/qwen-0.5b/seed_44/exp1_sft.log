@@ -62,3 +62,69 @@
 02:14:03 | INFO     | fedchain                     |   total_round_time_sec          : 4001.23
 02:14:03 | INFO     | fedchain                     | ------------------------------------------------------------------------------
 02:14:03 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/qwen-0.5b/seed_44/exp1_sft_metrics.json
+14:28:29 | INFO     | fedchain                     | ==============================================================================
+14:28:29 | INFO     | fedchain                     | FedChain :: exp1_sft
+14:28:29 | INFO     | fedchain                     | Centralized QLoRA SFT on the pooled union of the client shards
+14:28:29 | INFO     | fedchain                     | Config: /home/mann/FedChain/configs/exp1_sft.yaml
+14:28:29 | INFO     | fedchain                     | Model:  Qwen/Qwen2.5-0.5B-Instruct  [tier=qwen-0.5b]
+14:28:29 | INFO     | fedchain                     | Hugging Face Hub: authenticated via HF_TOKEN
+14:28:29 | INFO     | fedchain                     | ==============================================================================
+14:28:35 | INFO     | utils.common                 | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+14:28:35 | INFO     | fedchain                     | Seed=44 | device=cuda
+14:28:35 | INFO     | evaluation.eval_loss         | Evaluator ready | 500 loss samples | 50 generation samples | seq_len=512 | device=cuda
+14:28:35 | INFO     | fedchain                     | --force: archiving existing recovery state and starting a new run.
+14:28:35 | INFO     | utils.checkpoint             | Previous checkpoint archived as checkpoint.stale-forced-rerun-1786372115.json
+14:28:35 | INFO     | fedchain                     | ==============================================================================
+14:28:35 | INFO     | fedchain                     | PIPELINE: centralized supervised fine-tuning (no federation)
+14:28:35 | INFO     | fedchain                     | ==============================================================================
+14:28:35 | INFO     | fedchain                     | Pooled centralized corpus: 3 shard(s), 1500 samples each
+14:28:35 | INFO     | trainer.sft                  | LocalTrainer ready | model=Qwen/Qwen2.5-0.5B-Instruct device=cuda 4bit=True seq_len=512 dry_run=False
+14:28:35 | INFO     | trainer.sft                  | ==============================================================================
+14:28:35 | INFO     | trainer.sft                  | Training centralized@r1 | shard=client1.jsonl, client2.jsonl, client3.jsonl | epochs=1.00 | window=[0, 1500)
+14:28:35 | INFO     | trainer.sft                  | ==============================================================================
+14:28:37 | INFO     | trainer.sft                  | Loaded client1.jsonl, client2.jsonl, client3.jsonl: 4500 samples (offset=0, 14511 available) from 3 shard(s)
+14:28:37 | INFO     | trainer.sft                  | Loading base model Qwen/Qwen2.5-0.5B-Instruct (4bit=True, dtype=torch.bfloat16) ...
+14:28:38 | INFO     | trainer.sft                  | Base model load took 1.43s
+14:28:39 | INFO     | trainer.sft                  | LoRA attached: 8,798,208 trainable / 323,917,696 total parameters (2.7162%)
+14:28:40 | INFO     | trainer.sft                  | Optimisation plan: 4500 samples, effective batch 8, ~563 step(s) over 1.00 epoch(s)
+14:28:42 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+15:35:52 | INFO     | trainer.sft                  | centralized@r1 finished in 1h 07m 17.2s | train_loss=2.0581 | peak VRAM=1591.81 MB
+15:35:53 | INFO     | trainer.sft                  | VRAM after centralized@r1 teardown | allocated=16.4 MB reserved=432.0 MB peak=16.4 MB
+15:35:55 | INFO     | fedchain                     | Final evaluation of /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp1_sft/global ...
+15:35:56 | INFO     | evaluation.eval_loss         | Evaluation split: 500 samples from eval_500.jsonl
+15:35:59 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.46s
+15:35:59 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp1_sft/global
+15:35:59 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+15:36:24 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0224 ppl=7.5561
+15:36:46 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0382 ppl=7.6770
+15:37:09 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=2.0150 ppl=7.5009
+15:37:33 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0241 ppl=7.5694
+15:37:57 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0502 ppl=7.7697
+15:37:57 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+15:38:37 | INFO     | evaluation.eval_loss         |   generated 10/50
+15:39:24 | INFO     | evaluation.eval_loss         |   generated 20/50
+15:39:55 | INFO     | evaluation.eval_loss         |   generated 30/50
+15:40:57 | INFO     | evaluation.eval_loss         |   generated 40/50
+15:41:45 | INFO     | evaluation.eval_loss         |   generated 50/50
+15:41:47 | WARNING  | evaluation.eval_loss         | Falling back to the built-in ROUGE-L / BLEU implementation: the `evaluate` library failed to score (To be able to use evaluate-metric/rouge, you need to install the following dependencies['nltk'] using 'pip install nltk' for instance'). Absolute values are not comparable with published `evaluate` numbers; the backend actually used is recorded as `generation_metric_backend` in the metrics file.
+15:41:47 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2366 BLEU=0.0531 (backend=builtin, 3m 48.2s)
+15:41:47 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0502 ppl=7.7697 rougeL=0.2366 bleu=0.0531 over 85,843 tokens in 5m 51.4s
+15:41:48 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+15:41:48 | INFO     | fedchain                     | COLLECTED METRICS
+15:41:48 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+15:41:48 | INFO     | fedchain                     |   validation_loss               : 2.0502
+15:41:48 | INFO     | fedchain                     |   perplexity                    : 7.7697
+15:41:48 | INFO     | fedchain                     |   rouge_l                       : 0.2366
+15:41:48 | INFO     | fedchain                     |   bleu                          : 0.0531
+15:41:48 | INFO     | fedchain                     |   training_time_sec             : 4037.16
+15:41:48 | INFO     | fedchain                     |   communication_volume_mb       : 0.000
+15:41:48 | INFO     | fedchain                     |   adapter_size_mb               : 16.827
+15:41:48 | INFO     | fedchain                     |   blockchain_tx_latency_sec     : 0.0000
+15:41:48 | INFO     | fedchain                     |   blockchain_gas_used           : 0
+15:41:48 | INFO     | fedchain                     |   ipfs_upload_latency_sec       : 0.0000
+15:41:48 | INFO     | fedchain                     |   ipfs_download_latency_sec     : 0.0000
+15:41:48 | INFO     | fedchain                     |   aggregation_time_sec          : 0.0000
+15:41:48 | INFO     | fedchain                     |   end_to_end_round_duration_sec : 4038.60
+15:41:48 | INFO     | fedchain                     |   total_round_time_sec          : 4038.60
+15:41:48 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+15:41:48 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/qwen-0.5b/seed_44/exp1_sft_metrics.json

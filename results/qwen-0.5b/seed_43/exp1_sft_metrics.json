@@ -10,14 +10,14 @@
     "enable_blockchain": false,
     "enable_ipfs": false,
     "dry_run": false,
-    "timestamp_unix": 1786172039
+    "timestamp_unix": 1786346727
   },
   "metrics": {
     "validation_loss": 2.050376,
     "perplexity": 7.770826,
     "rouge_l": 0.254901,
     "bleu": 0.049036,
-    "training_time_sec": 4050.3513,
+    "training_time_sec": 4010.885,
     "communication_volume_mb": 0.0,
     "adapter_size_mb": 16.827,
     "blockchain_tx_latency_sec": 0.0,
@@ -25,8 +25,8 @@
     "ipfs_upload_latency_sec": 0.0,
     "ipfs_download_latency_sec": 0.0,
     "aggregation_time_sec": 0.0,
-    "end_to_end_round_duration_sec": 4051.4141,
-    "total_round_time_sec": 4051.41,
+    "end_to_end_round_duration_sec": 4012.1905,
+    "total_round_time_sec": 4012.19,
     "seed": 43
   },
   "context": {
@@ -37,7 +37,7 @@
     "device": "cuda",
     "blockchain_mode": null,
     "ipfs_backend": null,
-    "total_wall_clock_sec": 4369.248
+    "total_wall_clock_sec": 4331.4719
   },
   "evaluation_detail": {
     "label": "final",
@@ -46,16 +46,16 @@
     "perplexity": 7.770826,
     "rouge_l": 0.254901,
     "bleu": 0.049036,
-    "eval_latency_sec": 315.1019,
-    "loss_latency_sec": 116.5374,
-    "generation_latency_sec": 192.8964,
+    "eval_latency_sec": 316.7463,
+    "loss_latency_sec": 116.1479,
+    "generation_latency_sec": 194.8395,
     "num_samples": 500,
     "num_samples_skipped": 0,
     "num_tokens": 85843,
     "num_generation_samples": 50,
     "generation_metric_backend": "builtin",
     "completion_only": false,
-    "peak_vram_mb": 1909.55
+    "peak_vram_mb": 1389.55
   },
   "checkpoint": {
     "enabled": true,
@@ -64,18 +64,18 @@
     "sessions": 1,
     "completed_rounds": 1,
     "fingerprint": "141c9e41828e7b36",
-    "stale_checkpoint_archived": null
+    "stale_checkpoint_archived": "/home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp1_sft/checkpoint.stale-forced-rerun-1786342396.json"
   },
   "run_summary": {
     "paradigm": "centralized",
     "num_rounds": 1,
     "num_clients": 1,
-    "total_wall_clock_sec": 4052.5962,
-    "session_wall_clock_sec": 4052.5962,
-    "total_training_time_sec": 4050.3513,
+    "total_wall_clock_sec": 4013.3567,
+    "session_wall_clock_sec": 4013.3567,
+    "total_training_time_sec": 4010.885,
     "total_aggregation_time_sec": 0.0,
     "total_communication_mb": 0.0,
-    "avg_round_latency_sec": 4051.4141,
+    "avg_round_latency_sec": 4012.1905,
     "global_adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp1_sft/global",
     "global_adapter_mb": 16.827,
     "last_round_evaluation": null,
@@ -86,14 +86,14 @@
       "sessions": 1,
       "completed_rounds": 1,
       "fingerprint": "141c9e41828e7b36",
-      "stale_checkpoint_archived": null
+      "stale_checkpoint_archived": "/home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp1_sft/checkpoint.stale-forced-rerun-1786342396.json"
     }
   },
   "rounds": [
     {
       "round": 1,
-      "round_latency_sec": 4051.4141,
-      "training_time_sec": 4050.3513,
+      "round_latency_sec": 4012.1905,
+      "training_time_sec": 4010.885,
       "aggregation_time_sec": 0.0,
       "communication_mb": 0.0,
       "global_adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp1_sft/global",

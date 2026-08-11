@@ -9,12 +9,12 @@ _Chain mode: live | anchored payload per tx: 32 B digest + CID_
 
 | Clients | Tx / round | Gas / round | Gas / client | Chain latency (s) |
 |---------|------------|-------------|--------------|-------------------|
-| 1       | 2          | 616,560     | 616,560      | 0.2461            |
-| 3       | 4          | 1,163,296   | 387,765      | 0.4837            |
-| 5       | 6          | 1,744,914   | 348,983      | 0.6444            |
-| 10      | 11         | 3,198,971   | 319,897      | 1.3355            |
-| 25      | 26         | 7,561,286   | 302,451      | 3.1546            |
-| 50      | 51         | 14,831,811  | 296,636      | 6.1262            |
+| 1       | 2          | 616,560     | 616,560      | 0.2540            |
+| 3       | 4          | 1,163,296   | 387,765      | 0.4947            |
+| 5       | 6          | 1,744,914   | 348,983      | 0.6271            |
+| 10      | 11         | 3,198,971   | 319,897      | 1.3425            |
+| 25      | 26         | 7,561,286   | 302,451      | 3.1842            |
+| 50      | 51         | 14,831,811  | 296,636      | 6.2866            |
 
 _Gas grows 24.1x for a 50x increase in clients (1 -> 50): linear in N, as designed._
 
@@ -22,10 +22,10 @@ _Gas grows 24.1x for a 50x increase in clients (1 -> 50): linear in N, as design
 
 | Payload | Adapter (MiB) | Gas     | Hash (s) | Hash (MiB/s) | On-chain bytes |
 |---------|---------------|---------|----------|--------------|----------------|
-| tiny    | 0.223         | 311,439 | 0.0004   | 496.7        | 32             |
-| small   | 3.514         | 311,451 | 0.0035   | 998.1        | 32             |
-| medium  | 14.029        | 311,463 | 0.0114   | 1235.7       | 32             |
-| large   | 49.050        | 311,451 | 0.0375   | 1306.9       | 32             |
+| tiny    | 0.223         | 311,439 | 0.0016   | 143.3        | 32             |
+| small   | 3.514         | 311,451 | 0.0032   | 1084.6       | 32             |
+| medium  | 14.029        | 311,463 | 0.0105   | 1342.0       | 32             |
+| large   | 49.050        | 311,451 | 0.0349   | 1405.0       | 32             |
 
 _Adapter size grows 220x while gas changes 1.00x: anchoring cost is independent of model size, because only the digest reaches the chain. Client-side hashing is the only size-dependent term._
 

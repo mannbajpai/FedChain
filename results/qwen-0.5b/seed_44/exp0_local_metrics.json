@@ -10,14 +10,14 @@
     "enable_blockchain": false,
     "enable_ipfs": false,
     "dry_run": false,
-    "timestamp_unix": 1786237296
+    "timestamp_unix": 1786372105
   },
   "metrics": {
     "validation_loss": 2.07848,
     "perplexity": 7.992318,
     "rouge_l": 0.238574,
     "bleu": 0.046551,
-    "training_time_sec": 13329.5798,
+    "training_time_sec": 4079.3096,
     "communication_volume_mb": 0.0,
     "adapter_size_mb": 16.827,
     "blockchain_tx_latency_sec": 0.0,
@@ -25,8 +25,8 @@
     "ipfs_upload_latency_sec": 0.0,
     "ipfs_download_latency_sec": 0.0,
     "aggregation_time_sec": 0.0,
-    "end_to_end_round_duration_sec": 4447.8817,
-    "total_round_time_sec": 13343.65,
+    "end_to_end_round_duration_sec": 1365.4245,
+    "total_round_time_sec": 4096.27,
     "seed": 44
   },
   "context": {
@@ -37,7 +37,7 @@
     "device": "cuda",
     "blockchain_mode": null,
     "ipfs_backend": null,
-    "total_wall_clock_sec": 14778.6589
+    "total_wall_clock_sec": 5088.336
   },
   "evaluation_detail": {
     "label": "local_only_mean",
@@ -54,17 +54,17 @@
     "sessions": 1,
     "completed_rounds": 3,
     "fingerprint": "f1fc83ca39d4a623",
-    "stale_checkpoint_archived": null
+    "stale_checkpoint_archived": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/checkpoint.stale-forced-rerun-1786367017.json"
   },
   "run_summary": {
     "paradigm": "local_only",
     "num_rounds": 3,
     "num_clients": 3,
-    "total_wall_clock_sec": 13344.0297,
-    "total_training_time_sec": 13329.5798,
+    "total_wall_clock_sec": 4096.5476,
+    "total_training_time_sec": 4079.3096,
     "total_aggregation_time_sec": 0.0,
     "total_communication_mb": 0.0,
-    "avg_round_latency_sec": 4447.8817,
+    "avg_round_latency_sec": 1365.4245,
     "global_adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_1",
     "global_adapter_mb": 16.827,
     "last_round_evaluation": {
@@ -82,7 +82,7 @@
       "sessions": 1,
       "completed_rounds": 3,
       "fingerprint": "f1fc83ca39d4a623",
-      "stale_checkpoint_archived": null
+      "stale_checkpoint_archived": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/checkpoint.stale-forced-rerun-1786367017.json"
     },
     "aggregation_enabled": false,
     "communication_counted": false,
@@ -98,16 +98,16 @@
           "perplexity": 7.999615,
           "rouge_l": 0.244984,
           "bleu": 0.049932,
-          "eval_latency_sec": 490.3234,
-          "loss_latency_sec": 287.6257,
-          "generation_latency_sec": 197.1805,
+          "eval_latency_sec": 334.0048,
+          "loss_latency_sec": 117.3277,
+          "generation_latency_sec": 211.0347,
           "num_samples": 500,
           "num_samples_skipped": 0,
           "num_tokens": 85843,
           "num_generation_samples": 50,
           "generation_metric_backend": "builtin",
           "completion_only": false,
-          "peak_vram_mb": 6070.2
+          "peak_vram_mb": 1390.2
         },
         {
           "client_id": "client_2",
@@ -117,16 +117,16 @@
           "perplexity": 7.995781,
           "rouge_l": 0.23096,
           "bleu": 0.043717,
-          "eval_latency_sec": 475.0716,
-          "loss_latency_sec": 276.3356,
-          "generation_latency_sec": 197.0571,
+          "eval_latency_sec": 328.709,
+          "loss_latency_sec": 116.7251,
+          "generation_latency_sec": 210.1486,
           "num_samples": 500,
           "num_samples_skipped": 0,
           "num_tokens": 85843,
           "num_generation_samples": 50,
           "generation_metric_backend": "builtin",
           "completion_only": false,
-          "peak_vram_mb": 6070.2
+          "peak_vram_mb": 1390.2
         },
         {
           "client_id": "client_3",
@@ -136,16 +136,16 @@
           "perplexity": 7.981559,
           "rouge_l": 0.239779,
           "bleu": 0.046003,
-          "eval_latency_sec": 464.0948,
-          "loss_latency_sec": 276.2747,
-          "generation_latency_sec": 186.1272,
+          "eval_latency_sec": 324.4685,
+          "loss_latency_sec": 116.6474,
+          "generation_latency_sec": 206.1074,
           "num_samples": 500,
           "num_samples_skipped": 0,
           "num_tokens": 85843,
           "num_generation_samples": 50,
           "generation_metric_backend": "builtin",
           "completion_only": false,
-          "peak_vram_mb": 6070.2
+          "peak_vram_mb": 1390.2
         }
       ],
       "loss": {
@@ -173,13 +173,13 @@
         "max": 0.049932
       }
     },
-    "session_wall_clock_sec": 13344.0297
+    "session_wall_clock_sec": 4096.5476
   },
   "rounds": [
     {
       "round": 1,
-      "round_latency_sec": 1353.0398,
-      "training_time_sec": 1348.438,
+      "round_latency_sec": 1373.3978,
+      "training_time_sec": 1367.745,
       "aggregation_time_sec": 0.0,
       "communication_mb": 0.0,
       "num_clients_included": 3,
@@ -190,7 +190,7 @@
           "shard": "/home/mann/FedChain/data/client1.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_1/client_1",
           "adapter_mb": 16.8268,
-          "training_time_sec": 445.3757,
+          "training_time_sec": 450.5,
           "num_samples": 500,
           "model_hash": "d6aa3e63ab1978e7568673769b007c81b2ea0d92cbda4f6683d956b35a790bd8",
           "ipfs_cid": null,
@@ -211,7 +211,7 @@
           "shard": "/home/mann/FedChain/data/client2.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_1/client_2",
           "adapter_mb": 16.8268,
-          "training_time_sec": 449.9445,
+          "training_time_sec": 455.6384,
           "num_samples": 500,
           "model_hash": "4e0c30e05726a57b13f235055bb395a605dbd20228bdf055c3461edd87797498",
           "ipfs_cid": null,
@@ -232,7 +232,7 @@
           "shard": "/home/mann/FedChain/data/client3.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_1/client_3",
           "adapter_mb": 16.8268,
-          "training_time_sec": 453.1178,
+          "training_time_sec": 461.6066,
           "num_samples": 500,
           "model_hash": "a93f5d55052de3074c8457188f49d1509dedd0e045738e6c57c0fd7c13129c88",
           "ipfs_cid": null,
@@ -264,7 +264,7 @@
         "ipfs_cid": null,
         "ipfs_upload_latency_sec": 0.0,
         "blockchain": null,
-        "upload_bytes": 17644200,
+        "upload_bytes": 17644197,
         "broadcast_bytes": 0
       },
       "global_adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_1/client_1",
@@ -273,8 +273,8 @@
     },
     {
       "round": 2,
-      "round_latency_sec": 4671.1097,
-      "training_time_sec": 4666.3981,
+      "round_latency_sec": 1373.3477,
+      "training_time_sec": 1367.5447,
       "aggregation_time_sec": 0.0,
       "communication_mb": 0.0,
       "num_clients_included": 3,
@@ -285,7 +285,7 @@
           "shard": "/home/mann/FedChain/data/client1.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_2/client_1",
           "adapter_mb": 16.8269,
-          "training_time_sec": 428.1363,
+          "training_time_sec": 433.7731,
           "num_samples": 500,
           "model_hash": "5e7c15cbd955ade1d813ef6da6510973320ea7080262d5ea19336a038f530ed6",
           "ipfs_cid": null,
@@ -306,7 +306,7 @@
           "shard": "/home/mann/FedChain/data/client2.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_2/client_2",
           "adapter_mb": 16.8269,
-          "training_time_sec": 466.7021,
+          "training_time_sec": 474.8479,
           "num_samples": 500,
           "model_hash": "cf223119a2d849edfc350aaa18a8158c497bc8666f6226208c6b09bcbfa953b9",
           "ipfs_cid": null,
@@ -326,8 +326,8 @@
           "round": 2,
           "shard": "/home/mann/FedChain/data/client3.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_2/client_3",
-          "adapter_mb": 16.827,
-          "training_time_sec": 3771.5597,
+          "adapter_mb": 16.8269,
+          "training_time_sec": 458.9237,
           "num_samples": 500,
           "model_hash": "03ac6a17bfa8b8d15cd74fc23df01a4e309ce8ec4f9eb08b022c3c5b19fb898c",
           "ipfs_cid": null,
@@ -368,8 +368,8 @@
     },
     {
       "round": 3,
-      "round_latency_sec": 7319.4956,
-      "training_time_sec": 7314.7437,
+      "round_latency_sec": 1349.528,
+      "training_time_sec": 1344.0199,
       "aggregation_time_sec": 0.0,
       "communication_mb": 0.0,
       "num_clients_included": 3,
@@ -380,7 +380,7 @@
           "shard": "/home/mann/FedChain/data/client1.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_1",
           "adapter_mb": 16.827,
-          "training_time_sec": 1953.4348,
+          "training_time_sec": 431.2277,
           "num_samples": 500,
           "model_hash": "9c6c6351675e15990b11b880467fd2821de5a89f03389af28760b53fe99940ee",
           "ipfs_cid": null,
@@ -400,8 +400,8 @@
           "round": 3,
           "shard": "/home/mann/FedChain/data/client2.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_2",
-          "adapter_mb": 16.827,
-          "training_time_sec": 3631.1081,
+          "adapter_mb": 16.8269,
+          "training_time_sec": 449.943,
           "num_samples": 500,
           "model_hash": "bb51e1f637dd3c84ad84ad42fef85c5dd4211710dc25121b6da34cd3d59acfda",
           "ipfs_cid": null,
@@ -422,7 +422,7 @@
           "shard": "/home/mann/FedChain/data/client3.jsonl",
           "adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_3",
           "adapter_mb": 16.827,
-          "training_time_sec": 1730.2008,
+          "training_time_sec": 462.8492,
           "num_samples": 500,
           "model_hash": "91c2b4a7f67d528fdbe6f7a4dc2e15345b09166de2c8b27f8205e757d5417d0e",
           "ipfs_cid": null,
@@ -454,7 +454,7 @@
         "ipfs_cid": null,
         "ipfs_upload_latency_sec": 0.0,
         "blockchain": null,
-        "upload_bytes": 17644337,
+        "upload_bytes": 17644336,
         "broadcast_bytes": 0
       },
       "global_adapter_path": "/home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_1",

@@ -1,4 +1,4 @@
-11:54:18 | WARNING  | fedchain                     | DRY RUN: synthetic adapters are used and no base model is loaded. Accuracy metrics are placeholders; systems metrics are real.
+20:35:58 | WARNING  | fedchain                     | DRY RUN: synthetic adapters are used and no base model is loaded. Accuracy metrics are placeholders; systems metrics are real.
 
 ## FedChain Results - `_smoke`
 
@@ -13,7 +13,7 @@ _FedChain: auditable federated QLoRA with blockchain anchoring and IPFS transpor
 | Device           | cuda                       |
 | Blockchain       | live                       |
 | IPFS             | local                      |
-| Total wall clock | 11.53s                     |
+| Total wall clock | 12.54s                     |
 
 | Metric                    | Value     |
 |---------------------------|-----------|
@@ -21,14 +21,14 @@ _FedChain: auditable federated QLoRA with blockchain anchoring and IPFS transpor
 | Perplexity                | 7.3891    |
 | ROUGE-L                   | 0.0000    |
 | BLEU                      | 0.0000    |
-| Training Time (s)         | 0.08      |
+| Training Time (s)         | 0.10      |
 | Communication Volume (MB) | 20.348    |
 | Adapter Size (MB)         | 0.882     |
-| Blockchain Tx Latency (s) | 0.2116    |
+| Blockchain Tx Latency (s) | 0.3355    |
 | Blockchain Gas Used       | 3,785,372 |
-| IPFS Upload Latency (s)   | 3.6627    |
-| IPFS Download Latency (s) | 0.2110    |
-| Aggregation Time (s)      | 0.0450    |
-| Mean Round Duration (s)   | 3.28      |
-| Total Round Time (s)      | 9.83      |
+| IPFS Upload Latency (s)   | 4.1548    |
+| IPFS Download Latency (s) | 0.2399    |
+| Aggregation Time (s)      | 0.0194    |
+| Mean Round Duration (s)   | 3.52      |
+| Total Round Time (s)      | 10.56     |
 
