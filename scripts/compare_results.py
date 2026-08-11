@@ -48,7 +48,32 @@ SHORT_LABELS: Dict[str, str] = {
     "exp3_fl_bc": "E3: FL + Blockchain",
     "exp4_fedchain": "E4: FedChain",
     "exp5_noniid": "E5: FedChain non-IID",
+    # Ablation arms. B1 supplies the matched non-IID baselines that E5 lacks, so
+    # its labels mirror E0/E1/E2 to make the paired tables read the same way.
+    "ablationB_e0_noniid": "B1-E0: Local-only (non-IID)",
+    "ablationB_e1_noniid": "B1-E1: Centralized (non-IID)",
+    "ablationB_e2_noniid": "B1-E2: FedAvg (non-IID)",
+    "ablationA_e0_rounds9": "A2: Local-only @ R=9",
+    "ablationA_e2_rounds9": "A1: FedAvg @ R=9",
+    "ablationA_e1_budget9": "A3: Centralized @ R=9 budget",
+    "ablationA_e1_budget5": "A3: Centralized @ R=5 budget",
+    "ablationD1_no_global_anchor": "D1: no global anchor",
+    "ablationD2_no_roundtrip": "D2: no IPFS round-trip",
+    "ablationD3_no_verify": "D3: no download verify",
 }
+
+#: Reports produced by the audit-layer scripts rather than a training run. They
+#: carry none of METRIC_SCHEMA's keys, so listing them as table rows prints a
+#: full line of "n/a" that reads as a failed run. They get their own section.
+AUDIT_ONLY_EXPERIMENTS: Tuple[str, ...] = ("exp6_tamper", "exp7_scalability")
+
+#: Tier directories kept for provenance but excluded from the ladder table.
+#: `qwen-0.5b.leaky_backup` holds the VRAM-contaminated sweep whose timing
+#: metrics are unusable (see ablation_study/10_two_model_results.md); rendering
+#: it beside the clean tier invites a reader to average the two or quote the
+#: wrong one. Keeping the directory but excluding it from the table is what
+#: makes "do not quote this" enforceable rather than a note someone must recall.
+EXCLUDED_TIER_MARKERS: Tuple[str, ...] = ("backup", "archive", "_old", "scratch")
 
 
 def _load_schema() -> Tuple[Tuple[str, str, str], ...]:
@@ -93,6 +118,25 @@ def format_value(value: Any, kind: str) -> str:
         return f"{float(value):.4f}"
     except (TypeError, ValueError):
         return str(value)
+
+
+def format_aggregate(values: Sequence[Any], kind: str) -> str:
+    """Format a metric across seeds as ``mean +- CI``, or plainly when it cannot vary.
+
+    A single seed, or a metric that is byte-identical across seeds (gas and
+    adapter size are deterministic given the config), renders as a bare value:
+    printing "3,785,372 +- 0" adds noise and invites the reader to think there
+    is sampling error where there is none.
+    """
+    numeric = [float(v) for v in values if v is not None]
+    if not numeric:
+        return "n/a"
+    if len(numeric) == 1 or max(numeric) == min(numeric):
+        return format_value(numeric[0], kind)
+    stats = summarise_values(numeric)
+    if stats is None:
+        return "n/a"
+    return f"{format_value(stats['mean'], kind)} +- {format_value(stats['ci95'], kind)}"
 
 
 def markdown_table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> str:
@@ -489,8 +533,20 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
     rung. This renders them as one table so the effect of model size on both
     accuracy and systems overhead is visible at a glance.
     """
-    tiers: List[Tuple[str, str, List[Tuple[str, Dict[str, Any]]]]] = []
+    tiers: List[
+        Tuple[
+            str,
+            str,
+            List[Tuple[str, Dict[str, Any]]],
+            Dict[str, List[Tuple[int, Dict[str, Any]]]],
+            List[Tuple[str, Dict[str, Any]]],
+        ]
+    ] = []
+    excluded: List[str] = []
     for sub in sorted(p for p in results_root.iterdir() if p.is_dir() and p.name != "logs"):
+        if any(marker in sub.name.lower() for marker in EXCLUDED_TIER_MARKERS):
+            excluded.append(sub.name)
+            continue
         # A seed sweep writes the training runs to <tier>/seed_<N>/ and leaves
         # only the audit-layer reports at the tier root. Scanning the root alone
         # therefore finds exp6/exp7 and none of the experiments the table is
@@ -498,7 +554,10 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
         # the lowest seed as the representative run (deterministic, and the same
         # choice the per-tier report makes).
         reports = discover_reports(sub, order)
+        audit = [(n, r) for n, r in reports if n in AUDIT_ONLY_EXPERIMENTS]
+        reports = [(n, r) for n, r in reports if n not in AUDIT_ONLY_EXPERIMENTS]
         by_seed = discover_seed_reports(sub, order) if any(sub.glob("seed_*")) else {}
+        by_seed = {n: runs for n, runs in by_seed.items() if n not in AUDIT_ONLY_EXPERIMENTS}
         if by_seed:
             seeded = {
                 name: sorted(runs, key=lambda pair: pair[0])[0][1]
@@ -509,16 +568,16 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
             ordered = [n for n in order if n in seeded]
             ordered.extend(sorted(n for n in seeded if n not in ordered))
             reports = [(n, seeded[n]) for n in ordered]
-        if not reports:
+        if not reports and not audit:
             continue
         model_name = ""
-        for _, report in reports:
+        for _, report in reports + audit:
             model_name = (report.get("experiment") or {}).get("model_name") or (
                 report.get("config") or {}
             ).get("model_name", "")
             if model_name:
                 break
-        tiers.append((sub.name, model_name, reports))
+        tiers.append((sub.name, model_name, reports, by_seed, audit))
 
     if not tiers:
         return None
@@ -535,8 +594,16 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
     lines.append("")
     lines.append(
         markdown_table(
-            ["Tier", "Model", "Experiments with results"],
-            [[key, name or "-", ", ".join(n for n, _ in reports)] for key, name, reports in tiers],
+            ["Tier", "Model", "Seeds", "Experiments with results"],
+            [
+                [
+                    key,
+                    name or "-",
+                    str(max((len(r) for r in by_seed.values()), default=1)),
+                    ", ".join(n for n, _ in reports + audit),
+                ]
+                for key, name, reports, by_seed, audit in tiers
+            ],
         )
     )
     lines.append("")
@@ -555,29 +622,154 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
 
     rows: List[List[str]] = []
     warnings: List[str] = []
-    for tier_key, _, reports in tiers:
+    for tier_key, _, reports, by_seed, _ in tiers:
         for exp_name, report in reports:
-            metrics = report.get("metrics") or {}
+            runs = by_seed.get(exp_name)
+            if runs:
+                # Aggregate over every seed rather than quoting the lowest one.
+                # A point value from one seed cannot be told apart from noise,
+                # and this table is the one most likely to be read in isolation.
+                metric_sets = [(r.get("metrics") or {}) for _, r in runs]
+            else:
+                metric_sets = [report.get("metrics") or {}]
             rows.append(
-                [tier_key, SHORT_LABELS.get(exp_name, exp_name)]
-                + [format_value(metrics.get(key), kind) for key, _, kind in columns]
+                [tier_key, SHORT_LABELS.get(exp_name, exp_name), str(len(metric_sets))]
+                + [
+                    format_aggregate([m.get(key) for m in metric_sets], kind)
+                    for key, _, kind in columns
+                ]
             )
-            warnings.extend(f"{tier_key}/{w}" for w in integrity_warnings(exp_name, report))
+            for _, run_report in (runs or [(0, report)]):
+                warnings.extend(
+                    f"{tier_key}/{w}" for w in integrity_warnings(exp_name, run_report)
+                )
 
     lines.append("## Metrics")
     lines.append("")
     lines.append(
-        markdown_table(["Tier", "Experiment"] + [label for _, label, _ in columns], rows)
+        markdown_table(
+            ["Tier", "Experiment", "n"] + [label for _, label, _ in columns], rows
+        )
     )
     lines.append("")
+    lines.append(
+        "_`n` is the number of seeds. Values are mean +- 95% CI (Student's t) "
+        "where they vary across seeds, and a bare figure where they are "
+        "deterministic given the config. Quote the interval, not the mean alone._"
+    )
+    lines.append("")
+
+    if excluded:
+        lines.append(
+            "_Excluded from this table (kept on disk for provenance, not evidence): "
+            + ", ".join(f"`{name}`" for name in excluded)
+            + "._"
+        )
+        lines.append("")
+
+    audit_section = build_audit_section(tiers)
+    if audit_section:
+        lines.extend(audit_section)
 
     if warnings:
         lines.append("## Warnings")
         lines.append("")
-        lines.extend(f"- {w}" for w in warnings)
+        lines.extend(f"- {w}" for w in dict.fromkeys(warnings))
         lines.append("")
 
     return "\n".join(lines)
+
+
+def build_audit_section(tiers: Sequence[Tuple[Any, ...]]) -> List[str]:
+    """Render exp6/exp7 as their own tables instead of rows of ``n/a``.
+
+    These are audit-layer experiments, not training runs: they carry detection
+    rates and gas sweeps, none of METRIC_SCHEMA's keys. Rendered in the metrics
+    table they print a full line of "n/a", which reads as a failed run when in
+    fact they are the strongest systems evidence in the study.
+    """
+    tamper_rows: List[List[str]] = []
+    scale_rows: List[List[str]] = []
+    payload_rows: List[List[str]] = []
+
+    for tier_key, _, _, _, audit in tiers:
+        for exp_name, report in audit:
+            if exp_name == "exp6_tamper":
+                context = report.get("context") or {}
+                for entry in report.get("summary") or []:
+                    trials = entry.get("trials")
+                    detected = entry.get("detected")
+                    benign = entry.get("benign_control")
+                    rate = entry.get("false_positive_rate" if benign else "detection_rate")
+                    tamper_rows.append(
+                        [
+                            tier_key,
+                            str(entry.get("attack", "-")),
+                            "benign control" if benign else "attack",
+                            f"{detected}/{trials}",
+                            "-" if rate is None else f"{float(rate) * 100:.1f}%",
+                            str(context.get("num_adapters", "-")),
+                        ]
+                    )
+            elif exp_name == "exp7_scalability":
+                for entry in report.get("clients_sweep") or []:
+                    scale_rows.append(
+                        [
+                            tier_key,
+                            str(entry.get("num_clients", "-")),
+                            str(entry.get("transactions_per_round", "-")),
+                            f"{int(entry.get('gas_per_round', 0)):,}",
+                            f"{float(entry.get('gas_per_client', 0)):,.0f}",
+                        ]
+                    )
+                for entry in report.get("payload_sweep") or []:
+                    payload_rows.append(
+                        [
+                            tier_key,
+                            str(entry.get("label", "-")),
+                            f"{float(entry.get('adapter_mb', 0)):.4f}",
+                            f"{int(entry.get('gas_used', 0)):,}",
+                            str(entry.get("anchored_bytes", "-")),
+                        ]
+                    )
+
+    if not (tamper_rows or scale_rows or payload_rows):
+        return []
+
+    lines = ["## Audit-layer experiments", ""]
+    lines.append(
+        "_Not training runs — they carry no loss or perplexity, so they are "
+        "reported here rather than as blank rows above._"
+    )
+    lines.append("")
+    if tamper_rows:
+        lines.append("### E6 — tamper detection")
+        lines.append("")
+        lines.append(
+            markdown_table(
+                ["Tier", "Attack", "Kind", "Detected", "Rate", "Adapters"], tamper_rows
+            )
+        )
+        lines.append("")
+    if scale_rows:
+        lines.append("### E7 — gas versus federation size")
+        lines.append("")
+        lines.append(
+            markdown_table(
+                ["Tier", "Clients", "Tx/round", "Gas/round", "Gas/client"], scale_rows
+            )
+        )
+        lines.append("")
+    if payload_rows:
+        lines.append("### E7 — gas versus artefact size")
+        lines.append("")
+        lines.append(
+            markdown_table(
+                ["Tier", "Payload", "Adapter (MiB)", "Gas", "Anchored bytes"], payload_rows
+            )
+        )
+        lines.append("")
+    return lines
 
 
 def main(argv: Optional[List[str]] = None) -> int:

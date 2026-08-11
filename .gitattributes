@@ -1,0 +1,6 @@
+# The repo is edited on Windows and executed on Linux (WSL2 GPU box). With
+# core.autocrlf=true, shell scripts get CRLF in the Windows working tree; if one
+# is ever committed that way, bash on the run box fails with an opaque
+# "\r: command not found" or "syntax error near unexpected token". Pin the
+# scripts to LF in both the index and the checkout so that cannot happen.
+*.sh text eol=lf

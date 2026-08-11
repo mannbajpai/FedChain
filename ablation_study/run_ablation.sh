@@ -59,6 +59,48 @@ done
 
 [[ -z "$BLOCK" ]] && { fail "--block is required (A | B1 | C | D)"; usage; exit 2; }
 
+# -- metric-stack preflight ---------------------------------------------------
+# This script calls main.py directly, so it does not pass through run_all.sh's
+# environment step. With require_metric_backend set, a broken metric stack
+# aborts at the first evaluation - which for the E0 arm is ~20 minutes into the
+# block. Check it in seconds instead. See run_all.sh for the full rationale.
+if ! "$PYTHON" - <<'PY'
+import sys
+
+required = ""
+try:
+    import yaml
+    with open("configs/base_config.yaml") as fh:
+        required = str((yaml.safe_load(fh) or {}).get("require_metric_backend", "") or "").strip().lower()
+except Exception:
+    pass
+if required not in {"evaluate", "hf", "huggingface"}:
+    sys.exit(0)
+
+try:
+    import evaluate as hf
+    hf.load("rouge").compute(predictions=["the cat sat"], references=["the cat sat"])
+    hf.load("bleu").compute(predictions=["the cat sat"], references=[["the cat sat"]])
+except Exception as exc:
+    print(f"interpreter: {sys.executable}")
+    print(f"metric stack unusable: {type(exc).__name__}: {exc}")
+    for name in ("nltk", "rouge_score", "evaluate"):
+        try:
+            module = __import__(name)
+        except Exception as inner:
+            print(f"  {name}: {type(inner).__name__}: {inner}")
+        else:
+            print(f"  {name} {getattr(module, '__version__', 'unknown')}")
+    sys.exit(1)
+PY
+then
+    fail "base_config.yaml requires the \`evaluate\` metric backend but it is unusable."
+    fail "Activate the venv and install into THAT interpreter:"
+    fail "    source .venv/bin/activate && python -m pip install -U nltk rouge-score evaluate"
+    exit 1
+fi
+info "generation-metric stack ready"
+
 # -- C2 presence check --------------------------------------------------------
 # Block A2 measures a trajectory that only exists once C2 lands.
 if [[ "$BLOCK" == "A" ]] && ! grep -q "eval_local_clients_every_round" trainer/federated.py 2>/dev/null; then

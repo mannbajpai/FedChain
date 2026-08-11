@@ -135,7 +135,7 @@ eval_local_clients_every_round: false
 # entire sweep with the built-in implementation, whose absolute values are not
 # comparable with published numbers. The backend actually used is always
 # recorded as `generation_metric_backend` in the metrics file.
-require_metric_backend: ""         # "" => allow the built-in fallback
+require_metric_backend: "evaluate"         # "" => allow the built-in fallback
 enable_generation_metrics: true
 # 50 prompts gives 95% CIs spanning 5-17% of the value - enough to detect a
 # collapse, not enough to support a comparison. Use 250+ for any number that

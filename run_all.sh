@@ -291,6 +291,69 @@ fi
 
 PYTHON="$(command -v python || command -v python3)"
 
+# -- metric-stack preflight ---------------------------------------------------
+# `evaluate` probes its metric script's dependencies and, on any ImportError,
+# raises a message naming the *declared* dependency ("you need to install
+# ['nltk']") regardless of the real cause. The evaluator then falls back to the
+# built-in ROUGE-L/BLEU and the run completes with non-standard absolute values.
+# The baseline sweep lost generation metrics on all 36 runs to exactly that,
+# discovered only by grepping logs afterwards.
+#
+# So exercise the real code path here - load the metric and score one pair -
+# before any GPU time is spent. If the configs demand the `evaluate` backend and
+# it is not usable, fail now (seconds) rather than at the first evaluation
+# (~7 minutes in) or, worse, silently.
+info "checking the generation-metric stack"
+if ! METRIC_CHECK="$("$PYTHON" - <<'PY' 2>&1
+import sys
+
+required = ""
+try:
+    import yaml
+    with open("configs/base_config.yaml") as fh:
+        required = str((yaml.safe_load(fh) or {}).get("require_metric_backend", "") or "").strip().lower()
+except Exception as exc:
+    print(f"could not read require_metric_backend from base_config.yaml ({exc})")
+
+print(f"interpreter: {sys.executable}")
+failures = []
+for name in ("nltk", "rouge_score", "evaluate"):
+    try:
+        module = __import__(name)
+    except Exception as exc:
+        failures.append(f"{name}: {type(exc).__name__}: {exc}")
+    else:
+        print(f"  {name} {getattr(module, '__version__', 'unknown')}")
+
+if not failures:
+    try:
+        import evaluate as hf
+        hf.load("rouge").compute(predictions=["the cat sat"], references=["the cat sat"])
+        hf.load("bleu").compute(predictions=["the cat sat"], references=[["the cat sat"]])
+        print("  evaluate.load(rouge/bleu).compute() OK")
+    except Exception as exc:
+        failures.append(f"evaluate.compute: {type(exc).__name__}: {exc}")
+
+for line in failures:
+    print(f"  FAILED {line}")
+# Exit non-zero only when the configs actually require this backend.
+sys.exit(1 if (failures and required in {"evaluate", "hf", "huggingface"}) else 0)
+PY
+    )"; then
+    printf '%s\n' "$METRIC_CHECK"
+    fail "the metric stack is unusable but configs/base_config.yaml sets"
+    fail "require_metric_backend - every run would abort at its first evaluation."
+    fail ""
+    fail "Install into THIS interpreter (shown above), not the ambient one:"
+    fail "    source \"$VENV_DIR/bin/activate\" && python -m pip install -U nltk rouge-score evaluate"
+    fail ""
+    fail "Or set require_metric_backend: \"\" to accept the built-in implementation,"
+    fail "whose absolute ROUGE-L values are not comparable with published numbers."
+    exit 1
+fi
+printf '%s\n' "$METRIC_CHECK"
+ok "generation-metric stack ready"
+
 # =============================================================================
 # 3. Infrastructure
 # =============================================================================

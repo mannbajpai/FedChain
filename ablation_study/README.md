@@ -18,26 +18,34 @@ Read in order:
 | 08 | [Shortcomings & roadmap](08_shortcomings_and_roadmap.md) | Every known weakness, ranked by how much it threatens the paper |
 | 09 | [Run guide](09_run_guide.md) | **The commands to execute**, in order, on the GPU box |
 | 10 | [Two-model results](10_two_model_results.md) | **Qwen2.5-0.5B vs SmolLM2-360M** — the motivation gap closes with scale |
+| 11 | [Final status](11_final_status.md) | **Start here.** Evidence ledger, what each claim rests on, and the remaining run plan |
 
 ## Status
 
 | Stage | State |
 |---|---|
 | Baseline run (smollm2-360m, 3 seeds, E0–E7) | **complete** — documented in 01–03 |
-| Instrumentation changes C1–C7 | **applied and verified** — see 04 |
-| `qwen-0.5b` tier (3 seeds, E0–E4, E6–E7) | **complete** — analysed in 10 |
-| Ablation runs A–F | **not started** — see 05; A has dropped in priority |
+| Instrumentation changes C1–C7 | C1, C5, C6, C7 applied; **C3/C4 implemented but never enabled in any run** |
+| `qwen-0.5b` tier (3 seeds, E0–E5, E6–E7) | **complete and clean** — analysed in 10 |
+| Ablation runs A–F | **not started** — see 05 |
 
 **The motivation gap is closed.** FedAvg recovered 2.4% of the isolation→
 centralized gap at 360M and **34.0% at 0.5B** — so the benefit of federating
 grows with model capacity, and there is something worth auditing after all. The
-audit layer remains bit-identical to plain FedAvg at both scales, and gas is
-byte-identical across tiers.
+audit layer remains bit-identical to plain FedAvg at both scales (**18/18
+global-model hashes**), and gas is byte-identical across tiers.
 
-Ablation A (round sweep) existed to rescue that claim and is no longer on the
-critical path. Outstanding: a VRAM leak that makes 0.5B timing metrics unusable,
-E6 running on synthetic adapters at 0.5B, and no non-IID arm above 360M — all in
-[10](10_two_model_results.md).
+The clean 0.5B sweep of 2026-08-10 resolved all four defects the previous pass
+carried: the VRAM leak is fixed (per-client training time now flat at 1.02×, was
+7.43×), E6 runs on real adapters, E5 exists at 0.5B, and no run resumed. **0.5B
+timing metrics are now the tightest in the study.**
+
+**One confound survives:** E5 is Dirichlet-sharded while E0/E1/E2 are IID, so no
+non-IID *learning* claim is licensed yet — only the systems claim. Ablation B1
+(~12 h) fixes it and is the highest-value outstanding run. Ablation A has moved
+back up: it no longer rescues the motivation, but the loss curve is still
+descending at R=3, so it bounds the 34.0% headline. Full ledger in
+[11](11_final_status.md).
 
 Documents 06 and 07 contain **no results**. They are pre-registered templates:
 the tables, the hypotheses, and the decision rules are written down *before* the
@@ -46,21 +54,28 @@ Every cell is marked `—` until a real run fills it. Do not quote them until th
 
 ## The one-paragraph version
 
-The baseline pass proved the audit layer is free and effective: E2/E3/E4 produce
-**bit-identical adapters**, so blockchain anchoring and IPFS transport cost
-exactly zero accuracy, add <1% wall-clock, and detect 200/200 tampered artefacts
-with 0/50 false positives, at a gas cost linear in clients and flat in model
-size. What it did *not* prove is that the thing being audited is worth doing:
-FedAvg beat isolated local training by 0.00085 nats — about 2.4% of the distance
-to the centralized upper bound. The ablation study exists almost entirely to
-close that gap, by testing whether the FedAvg advantage grows with **rounds**
-(Ablation A) and with **data heterogeneity** (Ablation B), which are the two
-regimes where federation is supposed to pay for itself.
+The audit layer is free and effective, at two model scales and two
+architectures: E2/E3/E4 produce **bit-identical adapters** — 18/18 global-model
+SHA-256 hashes match — so blockchain anchoring and IPFS transport cost exactly
+zero accuracy, add a measured 0.45% wall-clock, and detect every tampered
+artefact on real trained adapters at 0% false positives, at a gas cost linear in
+clients (R² = 0.999994) and flat across a 220× model-size range. What the 360M
+pass could not prove is that the thing being audited is worth doing — FedAvg beat
+isolated training by only 2.4% of the distance to the centralized bound. **The
+0.5B tier settled that: 34.0%**, budget-matched and tightly measured. What
+remains is scope, not existence: that 34% is an IID number at a 3-round budget,
+and the non-IID arm still lacks matched baselines. Ablation B1 closes the second
+gap in ~12 h; Ablation A bounds the first.
 
 ## Provenance
 
-All baseline numbers here trace to `results/smollm2-360m/`, produced on a single
+All 360M numbers trace to `results/smollm2-360m/` (run 2026-08-04/05) and all
+0.5B numbers to `results/qwen-0.5b/` (run 2026-08-09/10), produced on a single
 NVIDIA T600 (4 GB) under WSL2 with a live anvil chain (id 31337) and a local
-Kubo IPFS daemon. Nothing in documents 01–03 is estimated or reconstructed;
-where a number is derived rather than read directly from a metrics file, the
-derivation is shown.
+Kubo IPFS daemon. Nothing in documents 01–03 or 10–11 is estimated or
+reconstructed; where a number is derived rather than read directly from a metrics
+file, the derivation is shown.
+
+Two directories are **not** evidence and must never be quoted:
+`results/qwen-0.5b.leaky_backup/` (the VRAM-contaminated sweep, kept only for the
+before/after comparison) and `results/_archive_prefix_20260804_222225/`.

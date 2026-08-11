@@ -71,6 +71,45 @@ ALPACA_NO_CONTEXT = (
 #: exp() of anything above this overflows float64; report inf instead of crashing.
 _MAX_EXP_ARG = 709.0
 
+#: Third-party modules `evaluate`'s rouge/bleu metric scripts import at load time.
+_METRIC_STACK = ("nltk", "rouge_score", "evaluate")
+
+
+def _diagnose_metric_stack() -> str:
+    """Report which metric dependency actually failed to import, and where from.
+
+    `evaluate` probes its metric script's dependencies with a bare
+    ``importlib.import_module`` inside a ``try/except ImportError``, then raises
+    a message naming the *declared* dependency:
+
+        To be able to use evaluate-metric/rouge, you need to install the
+        following dependencies['nltk'] using 'pip install nltk' for instance'
+
+    That message is generated from the declaration, not from the failure, so it
+    says ``['nltk']`` whether nltk is genuinely absent, installed into a
+    different interpreter than the one running this process, or present but
+    unimportable because one of *its* dependencies (regex, joblib, click, tqdm)
+    is broken. All three read identically, and the real traceback is discarded.
+
+    The baseline sweep lost generation metrics on all 36 runs to this, and
+    `pip install nltk` reported "Requirement already satisfied" each time
+    because it resolved against a different environment. So report the
+    interpreter and the true per-module import result.
+    """
+    import importlib
+    import sys
+
+    parts = [f"interpreter={sys.executable}"]
+    for name in _METRIC_STACK:
+        try:
+            module = importlib.import_module(name)
+        except Exception as exc:  # ImportError, but a broken install can raise others
+            parts.append(f"{name}=FAILED({type(exc).__name__}: {exc})")
+        else:
+            version = getattr(module, "__version__", "unknown")
+            parts.append(f"{name}={version}")
+    return "Metric stack: " + ", ".join(parts) + "."
+
 
 class Evaluator:
     """Computes validation loss, perplexity, ROUGE-L, BLEU and latency.
@@ -556,7 +595,8 @@ class Evaluator:
             import evaluate as hf_evaluate
         except Exception as exc:
             self._fallback_to_builtin(
-                f"the `evaluate` library is unavailable ({exc})", level=LOGGER.info
+                f"the `evaluate` library is unavailable ({exc}). {_diagnose_metric_stack()}",
+                level=LOGGER.info,
             )
             return None
 
@@ -587,7 +627,9 @@ class Evaluator:
                 "backend": "evaluate",
             }
         except Exception as exc:
-            self._fallback_to_builtin(f"the `evaluate` library failed to score ({exc})")
+            self._fallback_to_builtin(
+                f"the `evaluate` library failed to score ({exc}). {_diagnose_metric_stack()}"
+            )
             return None
 
     def _fallback_to_builtin(self, reason: str, level: Any = None) -> None:
