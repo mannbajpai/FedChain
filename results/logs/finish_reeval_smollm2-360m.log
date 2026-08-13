@@ -1,0 +1,1097 @@
+00:42:57 | INFO     | utils.config             | Applying 5 CLI override(s): {'gen_num_samples': 250, 'enable_generation_metrics': True, 'require_metric_backend': 'evaluate', 'model_name': 'HuggingFaceTB/SmolLM2-360M-Instruct', 'dry_run': False}
+00:42:57 | INFO     | reevaluate               | Re-scoring 24 adapter(s) at 250 generation prompt(s). Model: HuggingFaceTB/SmolLM2-360M-Instruct
+00:43:01 | INFO     | utils.common             | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+00:43:01 | INFO     | evaluation.eval_loss     | Evaluator ready | 500 loss samples | 250 generation samples | seq_len=512 | device=cuda
+00:43:01 | INFO     | reevaluate               | [1/24] exp0_local:client_1
+00:43:02 | INFO     | httpx                    | HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+00:43:02 | INFO     | evaluation.eval_loss     | Evaluation split: 500 samples from eval_500.jsonl
+00:43:04 | INFO     | httpx                    | HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+00:43:04 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+00:43:04 | WARNING  | huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+00:43:04 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+00:43:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+00:43:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/tokenizer_config.json "HTTP/1.1 200 OK"
+00:43:05 | INFO     | httpx                    | HTTP Request: GET https://huggingface.co/api/models/HuggingFaceTB/SmolLM2-360M-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+00:43:05 | INFO     | httpx                    | HTTP Request: GET https://huggingface.co/api/models/HuggingFaceTB/SmolLM2-360M-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+00:43:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+00:43:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+00:43:07 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+00:43:07 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<03:54,  1.23it/s]Loading weights:   1%|          | 3/290 [00:01<01:24,  3.40it/s]Loading weights:   3%|▎         | 9/290 [00:01<00:23, 11.98it/s]Loading weights:   5%|▍         | 14/290 [00:01<00:14, 18.41it/s]Loading weights:   8%|▊         | 22/290 [00:01<00:08, 29.89it/s]Loading weights:  10%|█         | 30/290 [00:01<00:06, 39.54it/s]Loading weights:  12%|█▏        | 36/290 [00:01<00:06, 41.50it/s]Loading weights:  14%|█▍        | 42/290 [00:01<00:05, 44.35it/s]Loading weights:  17%|█▋        | 49/290 [00:01<00:04, 48.80it/s]Loading weights:  20%|█▉        | 57/290 [00:01<00:04, 54.60it/s]Loading weights:  22%|██▏       | 63/290 [00:02<00:04, 55.49it/s]Loading weights:  24%|██▍       | 69/290 [00:02<00:04, 54.88it/s]Loading weights:  26%|██▌       | 76/290 [00:02<00:03, 57.39it/s]Loading weights:  29%|██▉       | 84/290 [00:02<00:03, 61.67it/s]Loading weights:  31%|███▏      | 91/290 [00:02<00:03, 62.01it/s]Loading weights:  34%|███▍      | 98/290 [00:02<00:03, 59.11it/s]Loading weights:  36%|███▌      | 105/290 [00:02<00:03, 56.57it/s]Loading weights:  39%|███▊      | 112/290 [00:02<00:03, 55.98it/s]Loading weights:  41%|████▏     | 120/290 [00:03<00:02, 59.28it/s]Loading weights:  43%|████▎     | 126/290 [00:03<00:02, 58.58it/s]Loading weights:  46%|████▌     | 132/290 [00:03<00:02, 57.11it/s]Loading weights:  48%|████▊     | 139/290 [00:03<00:02, 58.74it/s]Loading weights:  51%|█████     | 147/290 [00:03<00:02, 62.87it/s]Loading weights:  53%|█████▎    | 154/290 [00:03<00:02, 62.93it/s]Loading weights:  56%|█████▌    | 161/290 [00:03<00:02, 60.11it/s]Loading weights:  58%|█████▊    | 168/290 [00:03<00:02, 58.09it/s]Loading weights:  60%|██████    | 175/290 [00:03<00:01, 61.19it/s]Loading weights:  63%|██████▎   | 183/290 [00:04<00:01, 61.22it/s]Loading weights:  66%|██████▌   | 190/290 [00:04<00:01, 62.47it/s]Loading weights:  68%|██████▊   | 197/290 [00:04<00:01, 59.87it/s]Loading weights:  70%|███████   | 204/290 [00:04<00:01, 59.53it/s]Loading weights:  73%|███████▎  | 211/290 [00:04<00:01, 62.16it/s]Loading weights:  76%|███████▌  | 219/290 [00:04<00:01, 66.12it/s]Loading weights:  78%|███████▊  | 226/290 [00:04<00:01, 61.90it/s]Loading weights:  80%|████████  | 233/290 [00:04<00:00, 60.07it/s]Loading weights:  83%|████████▎ | 240/290 [00:04<00:00, 59.90it/s]Loading weights:  85%|████████▌ | 247/290 [00:05<00:00, 62.27it/s]Loading weights:  88%|████████▊ | 255/290 [00:05<00:00, 66.02it/s]Loading weights:  91%|█████████ | 264/290 [00:05<00:00, 66.93it/s]Loading weights:  93%|█████████▎| 271/290 [00:05<00:00, 61.05it/s]Loading weights:  96%|█████████▌| 278/290 [00:05<00:00, 60.41it/s]Loading weights:  98%|█████████▊| 285/290 [00:05<00:00, 56.54it/s]Loading weights: 100%|██████████| 290/290 [00:05<00:00, 50.21it/s]
+00:43:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+00:43:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+00:43:14 | INFO     | evaluation.eval_loss     | Evaluation base model load took 8.65s
+00:43:14 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp0_local/round_3/client_1
+00:43:15 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+00:43:37 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0007 ppl=7.3939
+00:43:56 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0168 ppl=7.5144
+00:44:16 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9956 ppl=7.3565
+00:44:37 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0068 ppl=7.4397
+00:44:57 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0255 ppl=7.5796
+00:44:57 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+00:45:36 | INFO     | evaluation.eval_loss     |   generated 10/250
+00:46:29 | INFO     | evaluation.eval_loss     |   generated 20/250
+00:46:55 | INFO     | evaluation.eval_loss     |   generated 30/250
+00:47:50 | INFO     | evaluation.eval_loss     |   generated 40/250
+00:48:37 | INFO     | evaluation.eval_loss     |   generated 50/250
+00:49:44 | INFO     | evaluation.eval_loss     |   generated 60/250
+00:50:34 | INFO     | evaluation.eval_loss     |   generated 70/250
+00:51:25 | INFO     | evaluation.eval_loss     |   generated 80/250
+00:52:14 | INFO     | evaluation.eval_loss     |   generated 90/250
+00:53:09 | INFO     | evaluation.eval_loss     |   generated 100/250
+00:54:04 | INFO     | evaluation.eval_loss     |   generated 110/250
+00:55:11 | INFO     | evaluation.eval_loss     |   generated 120/250
+00:56:12 | INFO     | evaluation.eval_loss     |   generated 130/250
+00:56:45 | INFO     | evaluation.eval_loss     |   generated 140/250
+00:58:01 | INFO     | evaluation.eval_loss     |   generated 150/250
+00:58:46 | INFO     | evaluation.eval_loss     |   generated 160/250
+00:59:47 | INFO     | evaluation.eval_loss     |   generated 170/250
+01:00:27 | INFO     | evaluation.eval_loss     |   generated 180/250
+01:01:25 | INFO     | evaluation.eval_loss     |   generated 190/250
+01:02:00 | INFO     | evaluation.eval_loss     |   generated 200/250
+01:03:15 | INFO     | evaluation.eval_loss     |   generated 210/250
+01:03:59 | INFO     | evaluation.eval_loss     |   generated 220/250
+01:05:05 | INFO     | evaluation.eval_loss     |   generated 230/250
+01:05:59 | INFO     | evaluation.eval_loss     |   generated 240/250
+01:06:51 | INFO     | evaluation.eval_loss     |   generated 250/250
+01:06:55 | INFO     | absl                     | Using default tokenizer.
+01:06:56 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2506 BLEU=0.0574 (backend=evaluate, 21m 53.6s)
+01:06:56 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0255 ppl=7.5796 rougeL=0.2506 bleu=0.0574 over 88,069 tokens in 23m 55.8s
+01:06:57 | INFO     | reevaluate               | [2/24] exp0_local:client_2
+01:06:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:06:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+01:06:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:06:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   3%|▎         | 9/290 [00:00<00:03, 88.74it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:01, 217.88it/s]Loading weights:  26%|██▌       | 76/290 [00:00<00:00, 274.61it/s]Loading weights:  58%|█████▊    | 167/290 [00:00<00:00, 518.99it/s]Loading weights:  85%|████████▍ | 246/290 [00:00<00:00, 613.76it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 474.43it/s]
+01:06:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+01:06:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+01:06:59 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.61s
+01:06:59 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp0_local/round_3/client_2
+01:06:59 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+01:07:20 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0026 ppl=7.4084
+01:07:39 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0178 ppl=7.5218
+01:07:59 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9956 ppl=7.3567
+01:08:19 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0059 ppl=7.4328
+01:08:41 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0246 ppl=7.5728
+01:08:41 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+01:09:16 | INFO     | evaluation.eval_loss     |   generated 10/250
+01:10:28 | INFO     | evaluation.eval_loss     |   generated 20/250
+01:10:58 | INFO     | evaluation.eval_loss     |   generated 30/250
+01:12:07 | INFO     | evaluation.eval_loss     |   generated 40/250
+01:12:57 | INFO     | evaluation.eval_loss     |   generated 50/250
+01:14:13 | INFO     | evaluation.eval_loss     |   generated 60/250
+01:15:17 | INFO     | evaluation.eval_loss     |   generated 70/250
+01:15:58 | INFO     | evaluation.eval_loss     |   generated 80/250
+01:16:49 | INFO     | evaluation.eval_loss     |   generated 90/250
+01:17:33 | INFO     | evaluation.eval_loss     |   generated 100/250
+01:18:39 | INFO     | evaluation.eval_loss     |   generated 110/250
+01:19:40 | INFO     | evaluation.eval_loss     |   generated 120/250
+01:20:42 | INFO     | evaluation.eval_loss     |   generated 130/250
+01:21:19 | INFO     | evaluation.eval_loss     |   generated 140/250
+01:22:38 | INFO     | evaluation.eval_loss     |   generated 150/250
+01:23:34 | INFO     | evaluation.eval_loss     |   generated 160/250
+01:24:49 | INFO     | evaluation.eval_loss     |   generated 170/250
+01:25:30 | INFO     | evaluation.eval_loss     |   generated 180/250
+01:26:10 | INFO     | evaluation.eval_loss     |   generated 190/250
+01:26:53 | INFO     | evaluation.eval_loss     |   generated 200/250
+01:28:25 | INFO     | evaluation.eval_loss     |   generated 210/250
+01:29:11 | INFO     | evaluation.eval_loss     |   generated 220/250
+01:30:29 | INFO     | evaluation.eval_loss     |   generated 230/250
+01:31:17 | INFO     | evaluation.eval_loss     |   generated 240/250
+01:32:10 | INFO     | evaluation.eval_loss     |   generated 250/250
+01:32:10 | INFO     | absl                     | Using default tokenizer.
+01:32:11 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2396 BLEU=0.0613 (backend=evaluate, 23m 29.6s)
+01:32:11 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0246 ppl=7.5728 rougeL=0.2396 bleu=0.0613 over 88,069 tokens in 25m 14.2s
+01:32:12 | INFO     | reevaluate               | [3/24] exp0_local:client_3
+01:32:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:32:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+01:32:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:32:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  10%|▉         | 28/290 [00:00<00:00, 277.89it/s]Loading weights:  26%|██▌       | 75/290 [00:00<00:00, 383.56it/s]Loading weights:  44%|████▍     | 129/290 [00:00<00:00, 451.57it/s]Loading weights:  64%|██████▍   | 185/290 [00:00<00:00, 492.44it/s]Loading weights:  81%|████████  | 235/290 [00:00<00:00, 492.24it/s]Loading weights:  98%|█████████▊| 285/290 [00:00<00:00, 492.82it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 472.10it/s]
+01:32:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+01:32:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+01:32:13 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.64s
+01:32:13 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp0_local/round_3/client_3
+01:32:14 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+01:32:35 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9974 ppl=7.3696
+01:32:55 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0141 ppl=7.4938
+01:33:15 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9926 ppl=7.3342
+01:33:35 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0035 ppl=7.4153
+01:33:56 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0223 ppl=7.5557
+01:33:56 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+01:34:31 | INFO     | evaluation.eval_loss     |   generated 10/250
+01:35:20 | INFO     | evaluation.eval_loss     |   generated 20/250
+01:35:44 | INFO     | evaluation.eval_loss     |   generated 30/250
+01:36:48 | INFO     | evaluation.eval_loss     |   generated 40/250
+01:37:38 | INFO     | evaluation.eval_loss     |   generated 50/250
+01:38:36 | INFO     | evaluation.eval_loss     |   generated 60/250
+01:39:29 | INFO     | evaluation.eval_loss     |   generated 70/250
+01:40:01 | INFO     | evaluation.eval_loss     |   generated 80/250
+01:40:58 | INFO     | evaluation.eval_loss     |   generated 90/250
+01:41:47 | INFO     | evaluation.eval_loss     |   generated 100/250
+01:42:38 | INFO     | evaluation.eval_loss     |   generated 110/250
+01:43:49 | INFO     | evaluation.eval_loss     |   generated 120/250
+01:44:54 | INFO     | evaluation.eval_loss     |   generated 130/250
+01:45:22 | INFO     | evaluation.eval_loss     |   generated 140/250
+01:46:35 | INFO     | evaluation.eval_loss     |   generated 150/250
+01:47:20 | INFO     | evaluation.eval_loss     |   generated 160/250
+01:48:11 | INFO     | evaluation.eval_loss     |   generated 170/250
+01:48:54 | INFO     | evaluation.eval_loss     |   generated 180/250
+01:49:51 | INFO     | evaluation.eval_loss     |   generated 190/250
+01:50:36 | INFO     | evaluation.eval_loss     |   generated 200/250
+01:51:39 | INFO     | evaluation.eval_loss     |   generated 210/250
+01:52:37 | INFO     | evaluation.eval_loss     |   generated 220/250
+01:54:02 | INFO     | evaluation.eval_loss     |   generated 230/250
+01:55:03 | INFO     | evaluation.eval_loss     |   generated 240/250
+01:55:39 | INFO     | evaluation.eval_loss     |   generated 250/250
+01:55:39 | INFO     | absl                     | Using default tokenizer.
+01:55:40 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2456 BLEU=0.0571 (backend=evaluate, 21m 42.9s)
+01:55:40 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0223 ppl=7.5557 rougeL=0.2456 bleu=0.0571 over 88,069 tokens in 23m 28.0s
+01:55:40 | INFO     | reevaluate               | [4/24] exp1_sft
+01:55:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:55:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+01:55:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+01:55:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 408.51it/s]Loading weights:  38%|███▊      | 111/290 [00:00<00:00, 573.36it/s]Loading weights:  60%|██████    | 175/290 [00:00<00:00, 603.46it/s]Loading weights:  93%|█████████▎| 271/290 [00:00<00:00, 742.39it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 691.99it/s]
+01:55:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+01:55:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+01:55:42 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.41s
+01:55:42 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp1_sft/global
+01:55:43 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+01:56:04 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9615 ppl=7.1102
+01:56:24 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=1.9800 ppl=7.2428
+01:56:44 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9598 ppl=7.0977
+01:57:04 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=1.9695 ppl=7.1670
+01:57:25 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=1.9885 ppl=7.3048
+01:57:25 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+01:58:04 | INFO     | evaluation.eval_loss     |   generated 10/250
+01:59:11 | INFO     | evaluation.eval_loss     |   generated 20/250
+01:59:44 | INFO     | evaluation.eval_loss     |   generated 30/250
+02:01:07 | INFO     | evaluation.eval_loss     |   generated 40/250
+02:01:55 | INFO     | evaluation.eval_loss     |   generated 50/250
+02:03:10 | INFO     | evaluation.eval_loss     |   generated 60/250
+02:04:14 | INFO     | evaluation.eval_loss     |   generated 70/250
+02:04:57 | INFO     | evaluation.eval_loss     |   generated 80/250
+02:05:55 | INFO     | evaluation.eval_loss     |   generated 90/250
+02:06:54 | INFO     | evaluation.eval_loss     |   generated 100/250
+02:08:06 | INFO     | evaluation.eval_loss     |   generated 110/250
+02:09:23 | INFO     | evaluation.eval_loss     |   generated 120/250
+02:10:24 | INFO     | evaluation.eval_loss     |   generated 130/250
+02:11:07 | INFO     | evaluation.eval_loss     |   generated 140/250
+02:12:31 | INFO     | evaluation.eval_loss     |   generated 150/250
+02:13:40 | INFO     | evaluation.eval_loss     |   generated 160/250
+02:14:37 | INFO     | evaluation.eval_loss     |   generated 170/250
+02:15:20 | INFO     | evaluation.eval_loss     |   generated 180/250
+02:15:52 | INFO     | evaluation.eval_loss     |   generated 190/250
+02:16:53 | INFO     | evaluation.eval_loss     |   generated 200/250
+02:18:32 | INFO     | evaluation.eval_loss     |   generated 210/250
+02:19:36 | INFO     | evaluation.eval_loss     |   generated 220/250
+02:21:07 | INFO     | evaluation.eval_loss     |   generated 230/250
+02:22:05 | INFO     | evaluation.eval_loss     |   generated 240/250
+02:22:48 | INFO     | evaluation.eval_loss     |   generated 250/250
+02:22:48 | INFO     | absl                     | Using default tokenizer.
+02:22:49 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2481 BLEU=0.0587 (backend=evaluate, 25m 23.3s)
+02:22:49 | INFO     | evaluation.eval_loss     | Evaluation: loss=1.9885 ppl=7.3048 rougeL=0.2481 bleu=0.0587 over 88,069 tokens in 27m 08.8s
+02:22:50 | INFO     | reevaluate               | [5/24] exp2_fl
+02:22:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+02:22:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+02:22:51 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+02:22:51 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   5%|▍         | 14/290 [00:00<00:02, 137.07it/s]Loading weights:  20%|██        | 58/290 [00:00<00:00, 310.61it/s]Loading weights:  35%|███▌      | 102/290 [00:00<00:00, 366.38it/s]Loading weights:  76%|███████▌  | 220/290 [00:00<00:00, 682.27it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 613.29it/s]
+02:22:52 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+02:22:52 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+02:22:52 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.47s
+02:22:52 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp2_fl/round_3/global
+02:22:52 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+02:23:13 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9992 ppl=7.3831
+02:23:33 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0152 ppl=7.5025
+02:23:53 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9937 ppl=7.3429
+02:24:14 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0046 ppl=7.4230
+02:24:35 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0234 ppl=7.5637
+02:24:35 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+02:25:17 | INFO     | evaluation.eval_loss     |   generated 10/250
+02:26:12 | INFO     | evaluation.eval_loss     |   generated 20/250
+02:26:37 | INFO     | evaluation.eval_loss     |   generated 30/250
+02:27:35 | INFO     | evaluation.eval_loss     |   generated 40/250
+02:28:23 | INFO     | evaluation.eval_loss     |   generated 50/250
+02:29:35 | INFO     | evaluation.eval_loss     |   generated 60/250
+02:30:26 | INFO     | evaluation.eval_loss     |   generated 70/250
+02:31:07 | INFO     | evaluation.eval_loss     |   generated 80/250
+02:32:04 | INFO     | evaluation.eval_loss     |   generated 90/250
+02:33:08 | INFO     | evaluation.eval_loss     |   generated 100/250
+02:34:09 | INFO     | evaluation.eval_loss     |   generated 110/250
+02:35:16 | INFO     | evaluation.eval_loss     |   generated 120/250
+02:36:18 | INFO     | evaluation.eval_loss     |   generated 130/250
+02:36:47 | INFO     | evaluation.eval_loss     |   generated 140/250
+02:38:01 | INFO     | evaluation.eval_loss     |   generated 150/250
+02:38:43 | INFO     | evaluation.eval_loss     |   generated 160/250
+02:39:33 | INFO     | evaluation.eval_loss     |   generated 170/250
+02:40:16 | INFO     | evaluation.eval_loss     |   generated 180/250
+02:40:59 | INFO     | evaluation.eval_loss     |   generated 190/250
+02:41:39 | INFO     | evaluation.eval_loss     |   generated 200/250
+02:42:53 | INFO     | evaluation.eval_loss     |   generated 210/250
+02:43:46 | INFO     | evaluation.eval_loss     |   generated 220/250
+02:45:14 | INFO     | evaluation.eval_loss     |   generated 230/250
+02:46:03 | INFO     | evaluation.eval_loss     |   generated 240/250
+02:46:43 | INFO     | evaluation.eval_loss     |   generated 250/250
+02:46:43 | INFO     | absl                     | Using default tokenizer.
+02:46:43 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2480 BLEU=0.0576 (backend=evaluate, 22m 07.5s)
+02:46:43 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0234 ppl=7.5637 rougeL=0.2480 bleu=0.0576 over 88,069 tokens in 23m 53.3s
+02:46:44 | INFO     | reevaluate               | [6/24] exp3_fl_bc
+02:46:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+02:46:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+02:46:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+02:46:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 407.32it/s]Loading weights:  38%|███▊      | 109/290 [00:00<00:00, 565.67it/s]Loading weights:  61%|██████    | 176/290 [00:00<00:00, 606.27it/s]Loading weights:  89%|████████▉ | 259/290 [00:00<00:00, 693.28it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 668.52it/s]
+02:46:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+02:46:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+02:46:46 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.43s
+02:46:46 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp3_fl_bc/round_3/global
+02:46:46 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+02:47:07 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9992 ppl=7.3831
+02:47:26 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0152 ppl=7.5025
+02:47:46 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9937 ppl=7.3429
+02:48:07 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0046 ppl=7.4230
+02:48:28 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0234 ppl=7.5637
+02:48:28 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+02:49:09 | INFO     | evaluation.eval_loss     |   generated 10/250
+02:50:03 | INFO     | evaluation.eval_loss     |   generated 20/250
+02:50:29 | INFO     | evaluation.eval_loss     |   generated 30/250
+02:51:25 | INFO     | evaluation.eval_loss     |   generated 40/250
+02:52:12 | INFO     | evaluation.eval_loss     |   generated 50/250
+02:53:29 | INFO     | evaluation.eval_loss     |   generated 60/250
+02:54:24 | INFO     | evaluation.eval_loss     |   generated 70/250
+02:55:07 | INFO     | evaluation.eval_loss     |   generated 80/250
+02:56:04 | INFO     | evaluation.eval_loss     |   generated 90/250
+02:57:07 | INFO     | evaluation.eval_loss     |   generated 100/250
+02:58:04 | INFO     | evaluation.eval_loss     |   generated 110/250
+02:59:11 | INFO     | evaluation.eval_loss     |   generated 120/250
+03:00:17 | INFO     | evaluation.eval_loss     |   generated 130/250
+03:00:44 | INFO     | evaluation.eval_loss     |   generated 140/250
+03:01:53 | INFO     | evaluation.eval_loss     |   generated 150/250
+03:02:34 | INFO     | evaluation.eval_loss     |   generated 160/250
+03:03:27 | INFO     | evaluation.eval_loss     |   generated 170/250
+03:04:08 | INFO     | evaluation.eval_loss     |   generated 180/250
+03:04:55 | INFO     | evaluation.eval_loss     |   generated 190/250
+03:05:40 | INFO     | evaluation.eval_loss     |   generated 200/250
+03:06:49 | INFO     | evaluation.eval_loss     |   generated 210/250
+03:07:38 | INFO     | evaluation.eval_loss     |   generated 220/250
+03:09:06 | INFO     | evaluation.eval_loss     |   generated 230/250
+03:09:51 | INFO     | evaluation.eval_loss     |   generated 240/250
+03:10:33 | INFO     | evaluation.eval_loss     |   generated 250/250
+03:10:33 | INFO     | absl                     | Using default tokenizer.
+03:10:34 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2480 BLEU=0.0576 (backend=evaluate, 22m 05.3s)
+03:10:34 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0234 ppl=7.5637 rougeL=0.2480 bleu=0.0576 over 88,069 tokens in 23m 50.1s
+03:10:35 | INFO     | reevaluate               | [7/24] exp4_fedchain
+03:10:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+03:10:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+03:10:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+03:10:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  10%|█         | 30/290 [00:00<00:00, 290.73it/s]Loading weights:  23%|██▎       | 67/290 [00:00<00:00, 327.10it/s]Loading weights:  40%|████      | 117/290 [00:00<00:00, 401.80it/s]Loading weights:  67%|██████▋   | 193/290 [00:00<00:00, 540.04it/s]Loading weights:  94%|█████████▍| 274/290 [00:00<00:00, 630.71it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 541.89it/s]
+03:10:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+03:10:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+03:10:37 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.49s
+03:10:37 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp4_fedchain/round_3/global
+03:10:37 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+03:10:58 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9992 ppl=7.3831
+03:11:18 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0152 ppl=7.5025
+03:11:38 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9937 ppl=7.3429
+03:11:59 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0046 ppl=7.4230
+03:12:20 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0234 ppl=7.5637
+03:12:20 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+03:13:04 | INFO     | evaluation.eval_loss     |   generated 10/250
+03:14:00 | INFO     | evaluation.eval_loss     |   generated 20/250
+03:14:26 | INFO     | evaluation.eval_loss     |   generated 30/250
+03:15:24 | INFO     | evaluation.eval_loss     |   generated 40/250
+03:16:15 | INFO     | evaluation.eval_loss     |   generated 50/250
+03:17:29 | INFO     | evaluation.eval_loss     |   generated 60/250
+03:18:21 | INFO     | evaluation.eval_loss     |   generated 70/250
+03:19:05 | INFO     | evaluation.eval_loss     |   generated 80/250
+03:20:00 | INFO     | evaluation.eval_loss     |   generated 90/250
+03:21:03 | INFO     | evaluation.eval_loss     |   generated 100/250
+03:22:03 | INFO     | evaluation.eval_loss     |   generated 110/250
+03:23:12 | INFO     | evaluation.eval_loss     |   generated 120/250
+03:24:12 | INFO     | evaluation.eval_loss     |   generated 130/250
+03:24:42 | INFO     | evaluation.eval_loss     |   generated 140/250
+03:25:51 | INFO     | evaluation.eval_loss     |   generated 150/250
+03:26:30 | INFO     | evaluation.eval_loss     |   generated 160/250
+03:27:26 | INFO     | evaluation.eval_loss     |   generated 170/250
+03:28:06 | INFO     | evaluation.eval_loss     |   generated 180/250
+03:28:51 | INFO     | evaluation.eval_loss     |   generated 190/250
+03:29:30 | INFO     | evaluation.eval_loss     |   generated 200/250
+03:30:42 | INFO     | evaluation.eval_loss     |   generated 210/250
+03:31:30 | INFO     | evaluation.eval_loss     |   generated 220/250
+03:32:55 | INFO     | evaluation.eval_loss     |   generated 230/250
+03:33:44 | INFO     | evaluation.eval_loss     |   generated 240/250
+03:34:24 | INFO     | evaluation.eval_loss     |   generated 250/250
+03:34:24 | INFO     | absl                     | Using default tokenizer.
+03:34:25 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2480 BLEU=0.0576 (backend=evaluate, 22m 04.2s)
+03:34:25 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0234 ppl=7.5637 rougeL=0.2480 bleu=0.0576 over 88,069 tokens in 23m 50.1s
+03:34:26 | INFO     | reevaluate               | [8/24] exp5_noniid
+03:34:26 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+03:34:26 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+03:34:27 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+03:34:27 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 37/290 [00:00<00:00, 367.24it/s]Loading weights:  31%|███▏      | 91/290 [00:00<00:00, 468.52it/s]Loading weights:  57%|█████▋    | 166/290 [00:00<00:00, 593.23it/s]Loading weights:  90%|█████████ | 262/290 [00:00<00:00, 736.22it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 669.58it/s]
+03:34:27 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+03:34:27 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+03:34:27 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.57s
+03:34:27 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_42/exp5_noniid/round_3/global
+03:34:28 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+03:34:50 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0009 ppl=7.3958
+03:35:10 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0177 ppl=7.5211
+03:35:30 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9956 ppl=7.3567
+03:35:51 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0068 ppl=7.4396
+03:36:12 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0252 ppl=7.5774
+03:36:12 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+03:36:43 | INFO     | evaluation.eval_loss     |   generated 10/250
+03:37:34 | INFO     | evaluation.eval_loss     |   generated 20/250
+03:38:00 | INFO     | evaluation.eval_loss     |   generated 30/250
+03:38:49 | INFO     | evaluation.eval_loss     |   generated 40/250
+03:39:36 | INFO     | evaluation.eval_loss     |   generated 50/250
+03:40:49 | INFO     | evaluation.eval_loss     |   generated 60/250
+03:41:32 | INFO     | evaluation.eval_loss     |   generated 70/250
+03:42:18 | INFO     | evaluation.eval_loss     |   generated 80/250
+03:43:09 | INFO     | evaluation.eval_loss     |   generated 90/250
+03:44:01 | INFO     | evaluation.eval_loss     |   generated 100/250
+03:44:52 | INFO     | evaluation.eval_loss     |   generated 110/250
+03:45:56 | INFO     | evaluation.eval_loss     |   generated 120/250
+03:46:50 | INFO     | evaluation.eval_loss     |   generated 130/250
+03:47:14 | INFO     | evaluation.eval_loss     |   generated 140/250
+03:48:18 | INFO     | evaluation.eval_loss     |   generated 150/250
+03:49:09 | INFO     | evaluation.eval_loss     |   generated 160/250
+03:50:04 | INFO     | evaluation.eval_loss     |   generated 170/250
+03:50:46 | INFO     | evaluation.eval_loss     |   generated 180/250
+03:51:20 | INFO     | evaluation.eval_loss     |   generated 190/250
+03:51:51 | INFO     | evaluation.eval_loss     |   generated 200/250
+03:52:52 | INFO     | evaluation.eval_loss     |   generated 210/250
+03:53:25 | INFO     | evaluation.eval_loss     |   generated 220/250
+03:54:37 | INFO     | evaluation.eval_loss     |   generated 230/250
+03:55:34 | INFO     | evaluation.eval_loss     |   generated 240/250
+03:56:12 | INFO     | evaluation.eval_loss     |   generated 250/250
+03:56:12 | INFO     | absl                     | Using default tokenizer.
+03:56:13 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2384 BLEU=0.0520 (backend=evaluate, 19m 59.5s)
+03:56:13 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0252 ppl=7.5774 rougeL=0.2384 bleu=0.0520 over 88,069 tokens in 21m 46.7s
+03:56:13 | INFO     | reevaluate               | [9/24] exp0_local:client_1
+03:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+03:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+03:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+03:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 35/290 [00:00<00:00, 347.08it/s]Loading weights:  26%|██▌       | 76/290 [00:00<00:00, 376.46it/s]Loading weights:  48%|████▊     | 139/290 [00:00<00:00, 488.92it/s]Loading weights:  79%|███████▉  | 230/290 [00:00<00:00, 650.29it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 614.98it/s]
+03:56:15 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+03:56:15 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+03:56:15 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.58s
+03:56:15 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp0_local/round_3/client_1
+03:56:15 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+03:56:37 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9990 ppl=7.3819
+03:56:56 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0161 ppl=7.5090
+03:57:16 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9946 ppl=7.3491
+03:57:38 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0059 ppl=7.4330
+03:57:59 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0247 ppl=7.5741
+03:57:59 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+03:58:43 | INFO     | evaluation.eval_loss     |   generated 10/250
+03:59:48 | INFO     | evaluation.eval_loss     |   generated 20/250
+04:00:19 | INFO     | evaluation.eval_loss     |   generated 30/250
+04:01:30 | INFO     | evaluation.eval_loss     |   generated 40/250
+04:02:35 | INFO     | evaluation.eval_loss     |   generated 50/250
+04:03:27 | INFO     | evaluation.eval_loss     |   generated 60/250
+04:04:21 | INFO     | evaluation.eval_loss     |   generated 70/250
+04:05:07 | INFO     | evaluation.eval_loss     |   generated 80/250
+04:06:14 | INFO     | evaluation.eval_loss     |   generated 90/250
+04:07:04 | INFO     | evaluation.eval_loss     |   generated 100/250
+04:07:56 | INFO     | evaluation.eval_loss     |   generated 110/250
+04:09:06 | INFO     | evaluation.eval_loss     |   generated 120/250
+04:10:12 | INFO     | evaluation.eval_loss     |   generated 130/250
+04:10:58 | INFO     | evaluation.eval_loss     |   generated 140/250
+04:12:13 | INFO     | evaluation.eval_loss     |   generated 150/250
+04:12:58 | INFO     | evaluation.eval_loss     |   generated 160/250
+04:14:01 | INFO     | evaluation.eval_loss     |   generated 170/250
+04:14:41 | INFO     | evaluation.eval_loss     |   generated 180/250
+04:15:27 | INFO     | evaluation.eval_loss     |   generated 190/250
+04:16:18 | INFO     | evaluation.eval_loss     |   generated 200/250
+04:17:43 | INFO     | evaluation.eval_loss     |   generated 210/250
+04:18:34 | INFO     | evaluation.eval_loss     |   generated 220/250
+04:19:44 | INFO     | evaluation.eval_loss     |   generated 230/250
+04:20:38 | INFO     | evaluation.eval_loss     |   generated 240/250
+04:21:33 | INFO     | evaluation.eval_loss     |   generated 250/250
+04:21:33 | INFO     | absl                     | Using default tokenizer.
+04:21:33 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2479 BLEU=0.0651 (backend=evaluate, 23m 33.8s)
+04:21:33 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0247 ppl=7.5741 rougeL=0.2479 bleu=0.0651 over 88,069 tokens in 25m 20.3s
+04:21:34 | INFO     | reevaluate               | [10/24] exp0_local:client_2
+04:21:34 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+04:21:34 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+04:21:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+04:21:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 37/290 [00:00<00:00, 369.13it/s]Loading weights:  28%|██▊       | 80/290 [00:00<00:00, 401.16it/s]Loading weights:  50%|████▉     | 144/290 [00:00<00:00, 507.91it/s]Loading weights:  88%|████████▊ | 256/290 [00:00<00:00, 744.72it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 658.05it/s]
+04:21:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+04:21:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+04:21:36 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.44s
+04:21:36 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp0_local/round_3/client_2
+04:21:36 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+04:21:57 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0009 ppl=7.3959
+04:22:17 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0158 ppl=7.5067
+04:22:37 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9938 ppl=7.3432
+04:22:57 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0044 ppl=7.4216
+04:23:18 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0228 ppl=7.5591
+04:23:18 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+04:23:59 | INFO     | evaluation.eval_loss     |   generated 10/250
+04:25:04 | INFO     | evaluation.eval_loss     |   generated 20/250
+04:25:30 | INFO     | evaluation.eval_loss     |   generated 30/250
+04:26:36 | INFO     | evaluation.eval_loss     |   generated 40/250
+04:27:20 | INFO     | evaluation.eval_loss     |   generated 50/250
+04:28:25 | INFO     | evaluation.eval_loss     |   generated 60/250
+04:29:14 | INFO     | evaluation.eval_loss     |   generated 70/250
+04:29:58 | INFO     | evaluation.eval_loss     |   generated 80/250
+04:30:53 | INFO     | evaluation.eval_loss     |   generated 90/250
+04:31:52 | INFO     | evaluation.eval_loss     |   generated 100/250
+04:32:55 | INFO     | evaluation.eval_loss     |   generated 110/250
+04:34:04 | INFO     | evaluation.eval_loss     |   generated 120/250
+04:35:08 | INFO     | evaluation.eval_loss     |   generated 130/250
+04:35:46 | INFO     | evaluation.eval_loss     |   generated 140/250
+04:37:09 | INFO     | evaluation.eval_loss     |   generated 150/250
+04:38:06 | INFO     | evaluation.eval_loss     |   generated 160/250
+04:39:13 | INFO     | evaluation.eval_loss     |   generated 170/250
+04:39:54 | INFO     | evaluation.eval_loss     |   generated 180/250
+04:40:34 | INFO     | evaluation.eval_loss     |   generated 190/250
+04:41:22 | INFO     | evaluation.eval_loss     |   generated 200/250
+04:42:34 | INFO     | evaluation.eval_loss     |   generated 210/250
+04:43:21 | INFO     | evaluation.eval_loss     |   generated 220/250
+04:44:27 | INFO     | evaluation.eval_loss     |   generated 230/250
+04:45:23 | INFO     | evaluation.eval_loss     |   generated 240/250
+04:46:00 | INFO     | evaluation.eval_loss     |   generated 250/250
+04:46:00 | INFO     | absl                     | Using default tokenizer.
+04:46:01 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2500 BLEU=0.0628 (backend=evaluate, 22m 42.1s)
+04:46:01 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0228 ppl=7.5591 rougeL=0.2500 bleu=0.0628 over 88,069 tokens in 24m 26.7s
+04:46:01 | INFO     | reevaluate               | [11/24] exp0_local:client_3
+04:46:02 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+04:46:02 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+04:46:02 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+04:46:02 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   5%|▍         | 14/290 [00:00<00:02, 133.78it/s]Loading weights:  19%|█▊        | 54/290 [00:00<00:00, 286.83it/s]Loading weights:  44%|████▍     | 129/290 [00:00<00:00, 494.98it/s]Loading weights:  71%|███████   | 206/290 [00:00<00:00, 600.39it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 588.67it/s]
+04:46:03 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+04:46:03 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+04:46:03 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.49s
+04:46:03 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp0_local/round_3/client_3
+04:46:03 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+04:46:25 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9983 ppl=7.3767
+04:46:45 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0151 ppl=7.5015
+04:47:05 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9936 ppl=7.3416
+04:47:25 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0040 ppl=7.4190
+04:47:46 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0225 ppl=7.5574
+04:47:46 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+04:48:20 | INFO     | evaluation.eval_loss     |   generated 10/250
+04:49:15 | INFO     | evaluation.eval_loss     |   generated 20/250
+04:49:41 | INFO     | evaluation.eval_loss     |   generated 30/250
+04:50:58 | INFO     | evaluation.eval_loss     |   generated 40/250
+04:51:45 | INFO     | evaluation.eval_loss     |   generated 50/250
+04:52:42 | INFO     | evaluation.eval_loss     |   generated 60/250
+04:53:39 | INFO     | evaluation.eval_loss     |   generated 70/250
+04:54:21 | INFO     | evaluation.eval_loss     |   generated 80/250
+04:55:18 | INFO     | evaluation.eval_loss     |   generated 90/250
+04:56:17 | INFO     | evaluation.eval_loss     |   generated 100/250
+04:57:24 | INFO     | evaluation.eval_loss     |   generated 110/250
+04:58:32 | INFO     | evaluation.eval_loss     |   generated 120/250
+04:59:29 | INFO     | evaluation.eval_loss     |   generated 130/250
+05:00:08 | INFO     | evaluation.eval_loss     |   generated 140/250
+05:01:14 | INFO     | evaluation.eval_loss     |   generated 150/250
+05:02:00 | INFO     | evaluation.eval_loss     |   generated 160/250
+05:02:53 | INFO     | evaluation.eval_loss     |   generated 170/250
+05:03:40 | INFO     | evaluation.eval_loss     |   generated 180/250
+05:04:26 | INFO     | evaluation.eval_loss     |   generated 190/250
+05:05:13 | INFO     | evaluation.eval_loss     |   generated 200/250
+05:06:08 | INFO     | evaluation.eval_loss     |   generated 210/250
+05:06:49 | INFO     | evaluation.eval_loss     |   generated 220/250
+05:08:07 | INFO     | evaluation.eval_loss     |   generated 230/250
+05:08:59 | INFO     | evaluation.eval_loss     |   generated 240/250
+05:09:36 | INFO     | evaluation.eval_loss     |   generated 250/250
+05:09:36 | INFO     | absl                     | Using default tokenizer.
+05:09:37 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2371 BLEU=0.0503 (backend=evaluate, 21m 49.9s)
+05:09:37 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0225 ppl=7.5574 rougeL=0.2371 bleu=0.0503 over 88,069 tokens in 23m 35.7s
+05:09:38 | INFO     | reevaluate               | [12/24] exp1_sft
+05:09:38 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+05:09:38 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+05:09:38 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+05:09:38 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 40/290 [00:00<00:00, 399.02it/s]Loading weights:  36%|███▌      | 104/290 [00:00<00:00, 534.82it/s]Loading weights:  66%|██████▌   | 192/290 [00:00<00:00, 687.97it/s]Loading weights:  98%|█████████▊| 284/290 [00:00<00:00, 772.04it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 707.62it/s]
+05:09:39 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+05:09:39 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+05:09:39 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.39s
+05:09:39 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp1_sft/global
+05:09:40 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+05:10:02 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9600 ppl=7.0992
+05:10:21 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=1.9791 ppl=7.2364
+05:10:41 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9593 ppl=7.0941
+05:11:01 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=1.9689 ppl=7.1627
+05:11:22 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=1.9882 ppl=7.3022
+05:11:22 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+05:12:07 | INFO     | evaluation.eval_loss     |   generated 10/250
+05:13:14 | INFO     | evaluation.eval_loss     |   generated 20/250
+05:13:41 | INFO     | evaluation.eval_loss     |   generated 30/250
+05:14:43 | INFO     | evaluation.eval_loss     |   generated 40/250
+05:15:39 | INFO     | evaluation.eval_loss     |   generated 50/250
+05:16:53 | INFO     | evaluation.eval_loss     |   generated 60/250
+05:17:48 | INFO     | evaluation.eval_loss     |   generated 70/250
+05:18:35 | INFO     | evaluation.eval_loss     |   generated 80/250
+05:19:33 | INFO     | evaluation.eval_loss     |   generated 90/250
+05:20:27 | INFO     | evaluation.eval_loss     |   generated 100/250
+05:21:43 | INFO     | evaluation.eval_loss     |   generated 110/250
+05:23:03 | INFO     | evaluation.eval_loss     |   generated 120/250
+05:24:08 | INFO     | evaluation.eval_loss     |   generated 130/250
+05:24:49 | INFO     | evaluation.eval_loss     |   generated 140/250
+05:26:08 | INFO     | evaluation.eval_loss     |   generated 150/250
+05:27:18 | INFO     | evaluation.eval_loss     |   generated 160/250
+05:28:09 | INFO     | evaluation.eval_loss     |   generated 170/250
+05:28:52 | INFO     | evaluation.eval_loss     |   generated 180/250
+05:29:21 | INFO     | evaluation.eval_loss     |   generated 190/250
+05:30:36 | INFO     | evaluation.eval_loss     |   generated 200/250
+05:31:57 | INFO     | evaluation.eval_loss     |   generated 210/250
+05:32:59 | INFO     | evaluation.eval_loss     |   generated 220/250
+05:34:28 | INFO     | evaluation.eval_loss     |   generated 230/250
+05:35:19 | INFO     | evaluation.eval_loss     |   generated 240/250
+05:36:10 | INFO     | evaluation.eval_loss     |   generated 250/250
+05:36:10 | INFO     | absl                     | Using default tokenizer.
+05:36:11 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2467 BLEU=0.0573 (backend=evaluate, 24m 47.6s)
+05:36:11 | INFO     | evaluation.eval_loss     | Evaluation: loss=1.9882 ppl=7.3022 rougeL=0.2467 bleu=0.0573 over 88,069 tokens in 26m 33.1s
+05:36:12 | INFO     | reevaluate               | [13/24] exp2_fl
+05:36:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+05:36:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+05:36:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+05:36:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   5%|▍         | 14/290 [00:00<00:02, 136.13it/s]Loading weights:  20%|█▉        | 57/290 [00:00<00:00, 304.21it/s]Loading weights:  41%|████▏     | 120/290 [00:00<00:00, 449.49it/s]Loading weights:  77%|███████▋  | 224/290 [00:00<00:00, 679.06it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 615.43it/s]
+05:36:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+05:36:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+05:36:13 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.49s
+05:36:13 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp2_fl/round_3/global
+05:36:14 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+05:36:36 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9986 ppl=7.3788
+05:36:55 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0146 ppl=7.4979
+05:37:16 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9930 ppl=7.3372
+05:37:36 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0038 ppl=7.4168
+05:37:57 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0224 ppl=7.5567
+05:37:57 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+05:38:40 | INFO     | evaluation.eval_loss     |   generated 10/250
+05:39:35 | INFO     | evaluation.eval_loss     |   generated 20/250
+05:40:02 | INFO     | evaluation.eval_loss     |   generated 30/250
+05:41:04 | INFO     | evaluation.eval_loss     |   generated 40/250
+05:41:45 | INFO     | evaluation.eval_loss     |   generated 50/250
+05:42:59 | INFO     | evaluation.eval_loss     |   generated 60/250
+05:43:48 | INFO     | evaluation.eval_loss     |   generated 70/250
+05:44:36 | INFO     | evaluation.eval_loss     |   generated 80/250
+05:45:30 | INFO     | evaluation.eval_loss     |   generated 90/250
+05:46:22 | INFO     | evaluation.eval_loss     |   generated 100/250
+05:47:10 | INFO     | evaluation.eval_loss     |   generated 110/250
+05:48:17 | INFO     | evaluation.eval_loss     |   generated 120/250
+05:49:17 | INFO     | evaluation.eval_loss     |   generated 130/250
+05:49:53 | INFO     | evaluation.eval_loss     |   generated 140/250
+05:51:13 | INFO     | evaluation.eval_loss     |   generated 150/250
+05:51:57 | INFO     | evaluation.eval_loss     |   generated 160/250
+05:52:44 | INFO     | evaluation.eval_loss     |   generated 170/250
+05:53:19 | INFO     | evaluation.eval_loss     |   generated 180/250
+05:54:01 | INFO     | evaluation.eval_loss     |   generated 190/250
+05:54:54 | INFO     | evaluation.eval_loss     |   generated 200/250
+05:56:06 | INFO     | evaluation.eval_loss     |   generated 210/250
+05:56:57 | INFO     | evaluation.eval_loss     |   generated 220/250
+05:58:19 | INFO     | evaluation.eval_loss     |   generated 230/250
+05:59:10 | INFO     | evaluation.eval_loss     |   generated 240/250
+05:59:47 | INFO     | evaluation.eval_loss     |   generated 250/250
+05:59:47 | INFO     | absl                     | Using default tokenizer.
+05:59:48 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2390 BLEU=0.0536 (backend=evaluate, 21m 49.6s)
+05:59:48 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0224 ppl=7.5567 rougeL=0.2390 bleu=0.0536 over 88,069 tokens in 23m 35.9s
+05:59:49 | INFO     | reevaluate               | [14/24] exp3_fl_bc
+05:59:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+05:59:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+05:59:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+05:59:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 399.66it/s]Loading weights:  36%|███▌      | 104/290 [00:00<00:00, 531.96it/s]Loading weights:  61%|██████    | 177/290 [00:00<00:00, 621.59it/s]Loading weights:  98%|█████████▊| 283/290 [00:00<00:00, 789.76it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 705.36it/s]
+05:59:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+05:59:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+05:59:50 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.41s
+05:59:50 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp3_fl_bc/round_3/global
+05:59:51 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+06:00:12 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9986 ppl=7.3788
+06:00:32 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0146 ppl=7.4979
+06:00:52 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9930 ppl=7.3372
+06:01:12 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0038 ppl=7.4168
+06:01:34 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0224 ppl=7.5567
+06:01:34 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+06:02:17 | INFO     | evaluation.eval_loss     |   generated 10/250
+06:03:14 | INFO     | evaluation.eval_loss     |   generated 20/250
+06:03:42 | INFO     | evaluation.eval_loss     |   generated 30/250
+06:04:49 | INFO     | evaluation.eval_loss     |   generated 40/250
+06:05:30 | INFO     | evaluation.eval_loss     |   generated 50/250
+06:06:44 | INFO     | evaluation.eval_loss     |   generated 60/250
+06:07:37 | INFO     | evaluation.eval_loss     |   generated 70/250
+06:08:22 | INFO     | evaluation.eval_loss     |   generated 80/250
+06:09:18 | INFO     | evaluation.eval_loss     |   generated 90/250
+06:10:09 | INFO     | evaluation.eval_loss     |   generated 100/250
+06:10:54 | INFO     | evaluation.eval_loss     |   generated 110/250
+06:11:58 | INFO     | evaluation.eval_loss     |   generated 120/250
+06:12:58 | INFO     | evaluation.eval_loss     |   generated 130/250
+06:13:35 | INFO     | evaluation.eval_loss     |   generated 140/250
+06:14:54 | INFO     | evaluation.eval_loss     |   generated 150/250
+06:15:37 | INFO     | evaluation.eval_loss     |   generated 160/250
+06:16:20 | INFO     | evaluation.eval_loss     |   generated 170/250
+06:16:55 | INFO     | evaluation.eval_loss     |   generated 180/250
+06:17:37 | INFO     | evaluation.eval_loss     |   generated 190/250
+06:18:26 | INFO     | evaluation.eval_loss     |   generated 200/250
+06:19:41 | INFO     | evaluation.eval_loss     |   generated 210/250
+06:20:32 | INFO     | evaluation.eval_loss     |   generated 220/250
+06:21:51 | INFO     | evaluation.eval_loss     |   generated 230/250
+06:22:39 | INFO     | evaluation.eval_loss     |   generated 240/250
+06:23:17 | INFO     | evaluation.eval_loss     |   generated 250/250
+06:23:17 | INFO     | absl                     | Using default tokenizer.
+06:23:18 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2390 BLEU=0.0536 (backend=evaluate, 21m 42.8s)
+06:23:18 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0224 ppl=7.5567 rougeL=0.2390 bleu=0.0536 over 88,069 tokens in 23m 29.0s
+06:23:18 | INFO     | reevaluate               | [15/24] exp4_fedchain
+06:23:19 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+06:23:19 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+06:23:19 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+06:23:19 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 403.26it/s]Loading weights:  38%|███▊      | 111/290 [00:00<00:00, 572.14it/s]Loading weights:  76%|███████▌  | 221/290 [00:00<00:00, 806.84it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 753.74it/s]
+06:23:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+06:23:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+06:23:20 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.37s
+06:23:20 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp4_fedchain/round_3/global
+06:23:20 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+06:23:42 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9986 ppl=7.3788
+06:24:01 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0146 ppl=7.4979
+06:24:20 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9930 ppl=7.3372
+06:24:41 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0038 ppl=7.4168
+06:25:02 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0224 ppl=7.5567
+06:25:02 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+06:25:44 | INFO     | evaluation.eval_loss     |   generated 10/250
+06:26:45 | INFO     | evaluation.eval_loss     |   generated 20/250
+06:27:12 | INFO     | evaluation.eval_loss     |   generated 30/250
+06:28:18 | INFO     | evaluation.eval_loss     |   generated 40/250
+06:29:01 | INFO     | evaluation.eval_loss     |   generated 50/250
+06:30:19 | INFO     | evaluation.eval_loss     |   generated 60/250
+06:31:12 | INFO     | evaluation.eval_loss     |   generated 70/250
+06:32:01 | INFO     | evaluation.eval_loss     |   generated 80/250
+06:32:58 | INFO     | evaluation.eval_loss     |   generated 90/250
+06:33:51 | INFO     | evaluation.eval_loss     |   generated 100/250
+06:34:42 | INFO     | evaluation.eval_loss     |   generated 110/250
+06:35:49 | INFO     | evaluation.eval_loss     |   generated 120/250
+06:36:51 | INFO     | evaluation.eval_loss     |   generated 130/250
+06:37:27 | INFO     | evaluation.eval_loss     |   generated 140/250
+06:38:43 | INFO     | evaluation.eval_loss     |   generated 150/250
+06:39:29 | INFO     | evaluation.eval_loss     |   generated 160/250
+06:40:12 | INFO     | evaluation.eval_loss     |   generated 170/250
+06:40:48 | INFO     | evaluation.eval_loss     |   generated 180/250
+06:41:31 | INFO     | evaluation.eval_loss     |   generated 190/250
+06:42:19 | INFO     | evaluation.eval_loss     |   generated 200/250
+06:43:34 | INFO     | evaluation.eval_loss     |   generated 210/250
+06:44:23 | INFO     | evaluation.eval_loss     |   generated 220/250
+06:45:44 | INFO     | evaluation.eval_loss     |   generated 230/250
+06:46:37 | INFO     | evaluation.eval_loss     |   generated 240/250
+06:47:15 | INFO     | evaluation.eval_loss     |   generated 250/250
+06:47:15 | INFO     | absl                     | Using default tokenizer.
+06:47:16 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2390 BLEU=0.0536 (backend=evaluate, 22m 13.8s)
+06:47:16 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0224 ppl=7.5567 rougeL=0.2390 bleu=0.0536 over 88,069 tokens in 23m 58.0s
+06:47:17 | INFO     | reevaluate               | [16/24] exp5_noniid
+06:47:17 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+06:47:17 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+06:47:18 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+06:47:18 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 399.02it/s]Loading weights:  38%|███▊      | 109/290 [00:00<00:00, 561.30it/s]Loading weights:  76%|███████▌  | 220/290 [00:00<00:00, 806.95it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 753.54it/s]
+06:47:18 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+06:47:18 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+06:47:18 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.38s
+06:47:18 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_43/exp5_noniid/round_3/global
+06:47:19 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+06:47:40 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0009 ppl=7.3957
+06:48:00 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0171 ppl=7.5167
+06:48:21 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9951 ppl=7.3529
+06:48:42 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0063 ppl=7.4358
+06:49:03 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0248 ppl=7.5745
+06:49:03 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+06:49:37 | INFO     | evaluation.eval_loss     |   generated 10/250
+06:50:39 | INFO     | evaluation.eval_loss     |   generated 20/250
+06:51:05 | INFO     | evaluation.eval_loss     |   generated 30/250
+06:52:04 | INFO     | evaluation.eval_loss     |   generated 40/250
+06:52:50 | INFO     | evaluation.eval_loss     |   generated 50/250
+06:53:49 | INFO     | evaluation.eval_loss     |   generated 60/250
+06:54:41 | INFO     | evaluation.eval_loss     |   generated 70/250
+06:55:20 | INFO     | evaluation.eval_loss     |   generated 80/250
+06:56:18 | INFO     | evaluation.eval_loss     |   generated 90/250
+06:56:59 | INFO     | evaluation.eval_loss     |   generated 100/250
+06:57:55 | INFO     | evaluation.eval_loss     |   generated 110/250
+06:59:10 | INFO     | evaluation.eval_loss     |   generated 120/250
+07:00:10 | INFO     | evaluation.eval_loss     |   generated 130/250
+07:00:44 | INFO     | evaluation.eval_loss     |   generated 140/250
+07:01:55 | INFO     | evaluation.eval_loss     |   generated 150/250
+07:02:55 | INFO     | evaluation.eval_loss     |   generated 160/250
+07:04:01 | INFO     | evaluation.eval_loss     |   generated 170/250
+07:04:40 | INFO     | evaluation.eval_loss     |   generated 180/250
+07:05:13 | INFO     | evaluation.eval_loss     |   generated 190/250
+07:05:54 | INFO     | evaluation.eval_loss     |   generated 200/250
+07:06:58 | INFO     | evaluation.eval_loss     |   generated 210/250
+07:07:39 | INFO     | evaluation.eval_loss     |   generated 220/250
+07:08:52 | INFO     | evaluation.eval_loss     |   generated 230/250
+07:09:47 | INFO     | evaluation.eval_loss     |   generated 240/250
+07:10:23 | INFO     | evaluation.eval_loss     |   generated 250/250
+07:10:23 | INFO     | absl                     | Using default tokenizer.
+07:10:24 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2483 BLEU=0.0576 (backend=evaluate, 21m 20.0s)
+07:10:24 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0248 ppl=7.5745 rougeL=0.2483 bleu=0.0576 over 88,069 tokens in 23m 06.7s
+07:10:24 | INFO     | reevaluate               | [17/24] exp0_local:client_1
+07:10:25 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+07:10:25 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+07:10:25 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+07:10:25 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 405.43it/s]Loading weights:  36%|███▌      | 104/290 [00:00<00:00, 535.02it/s]Loading weights:  74%|███████▍  | 215/290 [00:00<00:00, 796.22it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 760.73it/s]
+07:10:26 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+07:10:26 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+07:10:26 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.53s
+07:10:26 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_3/client_1
+07:10:26 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+07:10:48 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9990 ppl=7.3815
+07:11:07 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0163 ppl=7.5107
+07:11:27 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9942 ppl=7.3466
+07:11:49 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0058 ppl=7.4318
+07:12:09 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0244 ppl=7.5716
+07:12:09 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+07:12:48 | INFO     | evaluation.eval_loss     |   generated 10/250
+07:13:52 | INFO     | evaluation.eval_loss     |   generated 20/250
+07:14:19 | INFO     | evaluation.eval_loss     |   generated 30/250
+07:15:26 | INFO     | evaluation.eval_loss     |   generated 40/250
+07:16:17 | INFO     | evaluation.eval_loss     |   generated 50/250
+07:17:17 | INFO     | evaluation.eval_loss     |   generated 60/250
+07:18:11 | INFO     | evaluation.eval_loss     |   generated 70/250
+07:18:58 | INFO     | evaluation.eval_loss     |   generated 80/250
+07:20:06 | INFO     | evaluation.eval_loss     |   generated 90/250
+07:21:05 | INFO     | evaluation.eval_loss     |   generated 100/250
+07:22:12 | INFO     | evaluation.eval_loss     |   generated 110/250
+07:23:19 | INFO     | evaluation.eval_loss     |   generated 120/250
+07:24:20 | INFO     | evaluation.eval_loss     |   generated 130/250
+07:24:54 | INFO     | evaluation.eval_loss     |   generated 140/250
+07:26:20 | INFO     | evaluation.eval_loss     |   generated 150/250
+07:27:02 | INFO     | evaluation.eval_loss     |   generated 160/250
+07:28:17 | INFO     | evaluation.eval_loss     |   generated 170/250
+07:29:12 | INFO     | evaluation.eval_loss     |   generated 180/250
+07:30:17 | INFO     | evaluation.eval_loss     |   generated 190/250
+07:30:52 | INFO     | evaluation.eval_loss     |   generated 200/250
+07:32:19 | INFO     | evaluation.eval_loss     |   generated 210/250
+07:32:58 | INFO     | evaluation.eval_loss     |   generated 220/250
+07:34:24 | INFO     | evaluation.eval_loss     |   generated 230/250
+07:35:20 | INFO     | evaluation.eval_loss     |   generated 240/250
+07:36:11 | INFO     | evaluation.eval_loss     |   generated 250/250
+07:36:11 | INFO     | absl                     | Using default tokenizer.
+07:36:12 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2426 BLEU=0.0629 (backend=evaluate, 24m 02.1s)
+07:36:12 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0244 ppl=7.5716 rougeL=0.2426 bleu=0.0629 over 88,069 tokens in 25m 48.0s
+07:36:13 | INFO     | reevaluate               | [18/24] exp0_local:client_2
+07:36:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+07:36:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+07:36:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+07:36:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 402.87it/s]Loading weights:  36%|███▌      | 104/290 [00:00<00:00, 528.33it/s]Loading weights:  67%|██████▋   | 194/290 [00:00<00:00, 694.90it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 717.20it/s]
+07:36:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+07:36:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+07:36:14 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.44s
+07:36:14 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_3/client_2
+07:36:15 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+07:36:37 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0002 ppl=7.3904
+07:36:57 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0160 ppl=7.5080
+07:37:17 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9943 ppl=7.3470
+07:37:38 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0049 ppl=7.4256
+07:37:59 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0233 ppl=7.5635
+07:37:59 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+07:38:37 | INFO     | evaluation.eval_loss     |   generated 10/250
+07:39:37 | INFO     | evaluation.eval_loss     |   generated 20/250
+07:40:05 | INFO     | evaluation.eval_loss     |   generated 30/250
+07:41:28 | INFO     | evaluation.eval_loss     |   generated 40/250
+07:42:08 | INFO     | evaluation.eval_loss     |   generated 50/250
+07:43:03 | INFO     | evaluation.eval_loss     |   generated 60/250
+07:44:04 | INFO     | evaluation.eval_loss     |   generated 70/250
+07:44:52 | INFO     | evaluation.eval_loss     |   generated 80/250
+07:45:53 | INFO     | evaluation.eval_loss     |   generated 90/250
+07:46:36 | INFO     | evaluation.eval_loss     |   generated 100/250
+07:47:50 | INFO     | evaluation.eval_loss     |   generated 110/250
+07:48:56 | INFO     | evaluation.eval_loss     |   generated 120/250
+07:50:06 | INFO     | evaluation.eval_loss     |   generated 130/250
+07:50:52 | INFO     | evaluation.eval_loss     |   generated 140/250
+07:51:59 | INFO     | evaluation.eval_loss     |   generated 150/250
+07:52:41 | INFO     | evaluation.eval_loss     |   generated 160/250
+07:53:47 | INFO     | evaluation.eval_loss     |   generated 170/250
+07:54:23 | INFO     | evaluation.eval_loss     |   generated 180/250
+07:55:04 | INFO     | evaluation.eval_loss     |   generated 190/250
+07:55:53 | INFO     | evaluation.eval_loss     |   generated 200/250
+07:57:06 | INFO     | evaluation.eval_loss     |   generated 210/250
+07:57:59 | INFO     | evaluation.eval_loss     |   generated 220/250
+07:59:22 | INFO     | evaluation.eval_loss     |   generated 230/250
+08:00:18 | INFO     | evaluation.eval_loss     |   generated 240/250
+08:01:01 | INFO     | evaluation.eval_loss     |   generated 250/250
+08:01:01 | INFO     | absl                     | Using default tokenizer.
+08:01:02 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2402 BLEU=0.0597 (backend=evaluate, 23m 02.1s)
+08:01:02 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0233 ppl=7.5635 rougeL=0.2402 bleu=0.0597 over 88,069 tokens in 24m 49.4s
+08:01:03 | INFO     | reevaluate               | [19/24] exp0_local:client_3
+08:01:03 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+08:01:03 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+08:01:04 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+08:01:04 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 406.83it/s]Loading weights:  37%|███▋      | 108/290 [00:00<00:00, 556.78it/s]Loading weights:  60%|██████    | 174/290 [00:00<00:00, 600.89it/s]Loading weights:  91%|█████████▏| 265/290 [00:00<00:00, 716.94it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 670.68it/s]
+08:01:04 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+08:01:04 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+08:01:04 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.49s
+08:01:04 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_3/client_3
+08:01:05 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+08:01:26 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9977 ppl=7.3722
+08:01:46 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0143 ppl=7.4958
+08:02:06 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9929 ppl=7.3371
+08:02:27 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0037 ppl=7.4166
+08:02:48 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0225 ppl=7.5570
+08:02:48 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+08:03:20 | INFO     | evaluation.eval_loss     |   generated 10/250
+08:04:24 | INFO     | evaluation.eval_loss     |   generated 20/250
+08:04:51 | INFO     | evaluation.eval_loss     |   generated 30/250
+08:06:03 | INFO     | evaluation.eval_loss     |   generated 40/250
+08:06:43 | INFO     | evaluation.eval_loss     |   generated 50/250
+08:07:52 | INFO     | evaluation.eval_loss     |   generated 60/250
+08:08:35 | INFO     | evaluation.eval_loss     |   generated 70/250
+08:09:17 | INFO     | evaluation.eval_loss     |   generated 80/250
+08:10:24 | INFO     | evaluation.eval_loss     |   generated 90/250
+08:11:21 | INFO     | evaluation.eval_loss     |   generated 100/250
+08:12:17 | INFO     | evaluation.eval_loss     |   generated 110/250
+08:13:18 | INFO     | evaluation.eval_loss     |   generated 120/250
+08:14:15 | INFO     | evaluation.eval_loss     |   generated 130/250
+08:14:41 | INFO     | evaluation.eval_loss     |   generated 140/250
+08:15:58 | INFO     | evaluation.eval_loss     |   generated 150/250
+08:16:36 | INFO     | evaluation.eval_loss     |   generated 160/250
+08:17:37 | INFO     | evaluation.eval_loss     |   generated 170/250
+08:18:26 | INFO     | evaluation.eval_loss     |   generated 180/250
+08:19:16 | INFO     | evaluation.eval_loss     |   generated 190/250
+08:20:15 | INFO     | evaluation.eval_loss     |   generated 200/250
+08:21:25 | INFO     | evaluation.eval_loss     |   generated 210/250
+08:22:06 | INFO     | evaluation.eval_loss     |   generated 220/250
+08:23:22 | INFO     | evaluation.eval_loss     |   generated 230/250
+08:24:20 | INFO     | evaluation.eval_loss     |   generated 240/250
+08:25:11 | INFO     | evaluation.eval_loss     |   generated 250/250
+08:25:11 | INFO     | absl                     | Using default tokenizer.
+08:25:11 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2381 BLEU=0.0581 (backend=evaluate, 22m 22.9s)
+08:25:11 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0225 ppl=7.5570 rougeL=0.2381 bleu=0.0581 over 88,069 tokens in 24m 08.5s
+08:25:12 | INFO     | reevaluate               | [20/24] exp1_sft
+08:25:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+08:25:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+08:25:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+08:25:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   5%|▍         | 14/290 [00:00<00:01, 138.85it/s]Loading weights:  20%|██        | 58/290 [00:00<00:00, 307.62it/s]Loading weights:  36%|███▌      | 103/290 [00:00<00:00, 363.67it/s]Loading weights:  66%|██████▌   | 192/290 [00:00<00:00, 566.71it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 569.10it/s]
+08:25:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+08:25:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+08:25:14 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.64s
+08:25:14 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp1_sft/global
+08:25:15 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+08:25:36 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9603 ppl=7.1015
+08:25:56 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=1.9798 ppl=7.2412
+08:26:16 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9594 ppl=7.0952
+08:26:37 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=1.9693 ppl=7.1657
+08:26:58 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=1.9886 ppl=7.3054
+08:26:58 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+08:27:48 | INFO     | evaluation.eval_loss     |   generated 10/250
+08:28:54 | INFO     | evaluation.eval_loss     |   generated 20/250
+08:29:25 | INFO     | evaluation.eval_loss     |   generated 30/250
+08:30:29 | INFO     | evaluation.eval_loss     |   generated 40/250
+08:31:25 | INFO     | evaluation.eval_loss     |   generated 50/250
+08:32:38 | INFO     | evaluation.eval_loss     |   generated 60/250
+08:33:43 | INFO     | evaluation.eval_loss     |   generated 70/250
+08:34:28 | INFO     | evaluation.eval_loss     |   generated 80/250
+08:35:52 | INFO     | evaluation.eval_loss     |   generated 90/250
+08:36:47 | INFO     | evaluation.eval_loss     |   generated 100/250
+08:37:59 | INFO     | evaluation.eval_loss     |   generated 110/250
+08:39:08 | INFO     | evaluation.eval_loss     |   generated 120/250
+08:40:11 | INFO     | evaluation.eval_loss     |   generated 130/250
+08:40:53 | INFO     | evaluation.eval_loss     |   generated 140/250
+08:42:14 | INFO     | evaluation.eval_loss     |   generated 150/250
+08:43:19 | INFO     | evaluation.eval_loss     |   generated 160/250
+08:44:17 | INFO     | evaluation.eval_loss     |   generated 170/250
+08:44:59 | INFO     | evaluation.eval_loss     |   generated 180/250
+08:45:39 | INFO     | evaluation.eval_loss     |   generated 190/250
+08:46:42 | INFO     | evaluation.eval_loss     |   generated 200/250
+08:48:02 | INFO     | evaluation.eval_loss     |   generated 210/250
+08:49:15 | INFO     | evaluation.eval_loss     |   generated 220/250
+08:50:49 | INFO     | evaluation.eval_loss     |   generated 230/250
+08:51:53 | INFO     | evaluation.eval_loss     |   generated 240/250
+08:52:57 | INFO     | evaluation.eval_loss     |   generated 250/250
+08:52:57 | INFO     | absl                     | Using default tokenizer.
+08:52:58 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2484 BLEU=0.0600 (backend=evaluate, 25m 59.1s)
+08:52:58 | INFO     | evaluation.eval_loss     | Evaluation: loss=1.9886 ppl=7.3054 rougeL=0.2484 bleu=0.0600 over 88,069 tokens in 27m 45.5s
+08:52:59 | INFO     | reevaluate               | [21/24] exp2_fl
+08:53:00 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+08:53:00 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+08:53:00 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+08:53:01 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   5%|▍         | 14/290 [00:00<00:01, 139.46it/s]Loading weights:  20%|█▉        | 57/290 [00:00<00:00, 308.24it/s]Loading weights:  51%|█████     | 148/290 [00:00<00:00, 578.79it/s]Loading weights:  88%|████████▊ | 256/290 [00:00<00:00, 775.19it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 666.57it/s]
+08:53:01 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+08:53:02 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+08:53:02 | INFO     | evaluation.eval_loss     | Evaluation base model load took 3.01s
+08:53:02 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp2_fl/round_3/global
+08:53:02 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+08:53:23 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9985 ppl=7.3777
+08:53:43 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0149 ppl=7.5002
+08:54:03 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9930 ppl=7.3373
+08:54:24 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0039 ppl=7.4181
+08:54:45 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0225 ppl=7.5572
+08:54:45 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+08:55:29 | INFO     | evaluation.eval_loss     |   generated 10/250
+08:56:29 | INFO     | evaluation.eval_loss     |   generated 20/250
+08:56:56 | INFO     | evaluation.eval_loss     |   generated 30/250
+08:58:14 | INFO     | evaluation.eval_loss     |   generated 40/250
+08:59:04 | INFO     | evaluation.eval_loss     |   generated 50/250
+09:00:13 | INFO     | evaluation.eval_loss     |   generated 60/250
+09:01:10 | INFO     | evaluation.eval_loss     |   generated 70/250
+09:02:00 | INFO     | evaluation.eval_loss     |   generated 80/250
+09:02:52 | INFO     | evaluation.eval_loss     |   generated 90/250
+09:03:43 | INFO     | evaluation.eval_loss     |   generated 100/250
+09:04:35 | INFO     | evaluation.eval_loss     |   generated 110/250
+09:05:39 | INFO     | evaluation.eval_loss     |   generated 120/250
+09:06:43 | INFO     | evaluation.eval_loss     |   generated 130/250
+09:07:15 | INFO     | evaluation.eval_loss     |   generated 140/250
+09:08:28 | INFO     | evaluation.eval_loss     |   generated 150/250
+09:09:11 | INFO     | evaluation.eval_loss     |   generated 160/250
+09:10:17 | INFO     | evaluation.eval_loss     |   generated 170/250
+09:10:49 | INFO     | evaluation.eval_loss     |   generated 180/250
+09:11:59 | INFO     | evaluation.eval_loss     |   generated 190/250
+09:12:46 | INFO     | evaluation.eval_loss     |   generated 200/250
+09:14:04 | INFO     | evaluation.eval_loss     |   generated 210/250
+09:14:48 | INFO     | evaluation.eval_loss     |   generated 220/250
+09:16:08 | INFO     | evaluation.eval_loss     |   generated 230/250
+09:17:05 | INFO     | evaluation.eval_loss     |   generated 240/250
+09:17:44 | INFO     | evaluation.eval_loss     |   generated 250/250
+09:17:44 | INFO     | absl                     | Using default tokenizer.
+09:17:45 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2382 BLEU=0.0626 (backend=evaluate, 22m 59.2s)
+09:17:45 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0225 ppl=7.5572 rougeL=0.2382 bleu=0.0626 over 88,069 tokens in 24m 46.2s
+09:17:46 | INFO     | reevaluate               | [22/24] exp3_fl_bc
+09:17:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+09:17:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+09:17:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+09:17:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:00, 402.08it/s]Loading weights:  37%|███▋      | 108/290 [00:00<00:00, 556.80it/s]Loading weights:  76%|███████▌  | 221/290 [00:00<00:00, 816.16it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 791.41it/s]
+09:17:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+09:17:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+09:17:47 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.43s
+09:17:47 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp3_fl_bc/round_3/global
+09:17:48 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+09:18:09 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9985 ppl=7.3777
+09:18:29 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0149 ppl=7.5002
+09:18:49 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9930 ppl=7.3373
+09:19:10 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0039 ppl=7.4181
+09:19:31 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0225 ppl=7.5572
+09:19:31 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+09:20:16 | INFO     | evaluation.eval_loss     |   generated 10/250
+09:21:21 | INFO     | evaluation.eval_loss     |   generated 20/250
+09:21:47 | INFO     | evaluation.eval_loss     |   generated 30/250
+09:23:03 | INFO     | evaluation.eval_loss     |   generated 40/250
+09:23:52 | INFO     | evaluation.eval_loss     |   generated 50/250
+09:25:01 | INFO     | evaluation.eval_loss     |   generated 60/250
+09:25:59 | INFO     | evaluation.eval_loss     |   generated 70/250
+09:26:48 | INFO     | evaluation.eval_loss     |   generated 80/250
+09:27:43 | INFO     | evaluation.eval_loss     |   generated 90/250
+09:28:35 | INFO     | evaluation.eval_loss     |   generated 100/250
+09:29:32 | INFO     | evaluation.eval_loss     |   generated 110/250
+09:30:37 | INFO     | evaluation.eval_loss     |   generated 120/250
+09:31:40 | INFO     | evaluation.eval_loss     |   generated 130/250
+09:32:09 | INFO     | evaluation.eval_loss     |   generated 140/250
+09:33:20 | INFO     | evaluation.eval_loss     |   generated 150/250
+09:34:02 | INFO     | evaluation.eval_loss     |   generated 160/250
+09:35:05 | INFO     | evaluation.eval_loss     |   generated 170/250
+09:35:37 | INFO     | evaluation.eval_loss     |   generated 180/250
+09:36:43 | INFO     | evaluation.eval_loss     |   generated 190/250
+09:37:36 | INFO     | evaluation.eval_loss     |   generated 200/250
+09:38:52 | INFO     | evaluation.eval_loss     |   generated 210/250
+09:39:34 | INFO     | evaluation.eval_loss     |   generated 220/250
+09:40:55 | INFO     | evaluation.eval_loss     |   generated 230/250
+09:41:54 | INFO     | evaluation.eval_loss     |   generated 240/250
+09:42:34 | INFO     | evaluation.eval_loss     |   generated 250/250
+09:42:34 | INFO     | absl                     | Using default tokenizer.
+09:42:35 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2382 BLEU=0.0626 (backend=evaluate, 23m 03.3s)
+09:42:35 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0225 ppl=7.5572 rougeL=0.2382 bleu=0.0626 over 88,069 tokens in 24m 49.1s
+09:42:36 | INFO     | reevaluate               | [23/24] exp4_fedchain
+09:42:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+09:42:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+09:42:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+09:42:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   5%|▍         | 14/290 [00:00<00:01, 139.99it/s]Loading weights:  20%|█▉        | 57/290 [00:00<00:00, 306.80it/s]Loading weights:  34%|███▍      | 98/290 [00:00<00:00, 351.85it/s]Loading weights:  69%|██████▉   | 201/290 [00:00<00:00, 617.38it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 581.78it/s]
+09:42:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+09:42:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+09:42:37 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.58s
+09:42:37 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp4_fedchain/round_3/global
+09:42:38 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+09:43:00 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=1.9985 ppl=7.3777
+09:43:19 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0149 ppl=7.5002
+09:43:39 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9930 ppl=7.3373
+09:44:00 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0039 ppl=7.4181
+09:44:21 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0225 ppl=7.5572
+09:44:21 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+09:45:06 | INFO     | evaluation.eval_loss     |   generated 10/250
+09:46:10 | INFO     | evaluation.eval_loss     |   generated 20/250
+09:46:37 | INFO     | evaluation.eval_loss     |   generated 30/250
+09:47:57 | INFO     | evaluation.eval_loss     |   generated 40/250
+09:48:48 | INFO     | evaluation.eval_loss     |   generated 50/250
+09:49:58 | INFO     | evaluation.eval_loss     |   generated 60/250
+09:50:58 | INFO     | evaluation.eval_loss     |   generated 70/250
+09:51:51 | INFO     | evaluation.eval_loss     |   generated 80/250
+09:52:45 | INFO     | evaluation.eval_loss     |   generated 90/250
+09:53:38 | INFO     | evaluation.eval_loss     |   generated 100/250
+09:54:34 | INFO     | evaluation.eval_loss     |   generated 110/250
+09:55:40 | INFO     | evaluation.eval_loss     |   generated 120/250
+09:56:43 | INFO     | evaluation.eval_loss     |   generated 130/250
+09:57:18 | INFO     | evaluation.eval_loss     |   generated 140/250
+09:58:28 | INFO     | evaluation.eval_loss     |   generated 150/250
+09:59:11 | INFO     | evaluation.eval_loss     |   generated 160/250
+10:00:19 | INFO     | evaluation.eval_loss     |   generated 170/250
+10:00:52 | INFO     | evaluation.eval_loss     |   generated 180/250
+10:01:59 | INFO     | evaluation.eval_loss     |   generated 190/250
+10:02:46 | INFO     | evaluation.eval_loss     |   generated 200/250
+10:04:00 | INFO     | evaluation.eval_loss     |   generated 210/250
+10:04:48 | INFO     | evaluation.eval_loss     |   generated 220/250
+10:06:10 | INFO     | evaluation.eval_loss     |   generated 230/250
+10:07:03 | INFO     | evaluation.eval_loss     |   generated 240/250
+10:07:41 | INFO     | evaluation.eval_loss     |   generated 250/250
+10:07:41 | INFO     | absl                     | Using default tokenizer.
+10:07:42 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2382 BLEU=0.0626 (backend=evaluate, 23m 20.1s)
+10:07:42 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0225 ppl=7.5572 rougeL=0.2382 bleu=0.0626 over 88,069 tokens in 25m 06.5s
+10:07:43 | INFO     | reevaluate               | [24/24] exp5_noniid
+10:07:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+10:07:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+10:07:44 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+10:07:44 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 36/290 [00:00<00:00, 354.79it/s]Loading weights:  27%|██▋       | 77/290 [00:00<00:00, 383.20it/s]Loading weights:  48%|████▊     | 140/290 [00:00<00:00, 492.80it/s]Loading weights:  87%|████████▋ | 252/290 [00:00<00:00, 738.09it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 650.10it/s]
+10:07:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+10:07:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/HuggingFaceTB/SmolLM2-360M-Instruct/a10cc1512eabd3dde888204e902eca88bddb4951/generation_config.json "HTTP/1.1 200 OK"
+10:07:45 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.58s
+10:07:45 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp5_noniid/round_3/global
+10:07:45 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+10:08:07 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0010 ppl=7.3964
+10:08:26 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0170 ppl=7.5155
+10:08:46 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=1.9948 ppl=7.3508
+10:09:06 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0061 ppl=7.4339
+10:09:27 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0247 ppl=7.5738
+10:09:27 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+10:10:01 | INFO     | evaluation.eval_loss     |   generated 10/250
+10:11:02 | INFO     | evaluation.eval_loss     |   generated 20/250
+10:11:31 | INFO     | evaluation.eval_loss     |   generated 30/250
+10:12:32 | INFO     | evaluation.eval_loss     |   generated 40/250
+10:13:21 | INFO     | evaluation.eval_loss     |   generated 50/250
+10:14:34 | INFO     | evaluation.eval_loss     |   generated 60/250
+10:15:29 | INFO     | evaluation.eval_loss     |   generated 70/250
+10:16:12 | INFO     | evaluation.eval_loss     |   generated 80/250
+10:17:14 | INFO     | evaluation.eval_loss     |   generated 90/250
+10:18:00 | INFO     | evaluation.eval_loss     |   generated 100/250
+10:19:05 | INFO     | evaluation.eval_loss     |   generated 110/250
+10:20:09 | INFO     | evaluation.eval_loss     |   generated 120/250
+10:21:13 | INFO     | evaluation.eval_loss     |   generated 130/250
+10:21:48 | INFO     | evaluation.eval_loss     |   generated 140/250
+10:22:52 | INFO     | evaluation.eval_loss     |   generated 150/250
+10:23:48 | INFO     | evaluation.eval_loss     |   generated 160/250
+10:24:49 | INFO     | evaluation.eval_loss     |   generated 170/250
+10:25:36 | INFO     | evaluation.eval_loss     |   generated 180/250
+10:26:21 | INFO     | evaluation.eval_loss     |   generated 190/250
+10:26:59 | INFO     | evaluation.eval_loss     |   generated 200/250
+10:28:13 | INFO     | evaluation.eval_loss     |   generated 210/250
+10:29:01 | INFO     | evaluation.eval_loss     |   generated 220/250
+10:30:24 | INFO     | evaluation.eval_loss     |   generated 230/250
+10:31:17 | INFO     | evaluation.eval_loss     |   generated 240/250
+10:32:03 | INFO     | evaluation.eval_loss     |   generated 250/250
+10:32:03 | INFO     | absl                     | Using default tokenizer.
+10:32:04 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2505 BLEU=0.0611 (backend=evaluate, 22m 36.0s)
+10:32:04 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0247 ppl=7.5738 rougeL=0.2505 bleu=0.0611 over 88,069 tokens in 24m 20.8s
+10:32:04 | INFO     | reevaluate               | Written: results/smollm2-360m/reeval250
+10:32:04 | INFO     | reevaluate               | Generation metric backend(s) used: evaluate

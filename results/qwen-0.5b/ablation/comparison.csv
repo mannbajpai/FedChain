@@ -1,0 +1,15 @@
+metric,ablationB_e0_noniid,ablationB_e1_noniid,ablationB_e2_noniid
+validation_loss,2.089075,2.047606,2.073369
+perplexity,8.077887,7.749328,7.951567
+rouge_l,0.248425,0.265892,0.233998
+bleu,0.039485,0.039793,0.042975
+training_time_sec,4666.7416,3925.5288,3978.3655
+communication_volume_mb,0.0,0.0,302.8646
+adapter_size_mb,16.827,16.8271,16.8247
+blockchain_tx_latency_sec,0.0,0.0,0.0
+blockchain_gas_used,0,0,0
+ipfs_upload_latency_sec,0.0,0.0,0.0
+ipfs_download_latency_sec,0.0,0.0,0.0
+aggregation_time_sec,0.0,0.0,0.2028
+end_to_end_round_duration_sec,1560.6775,3926.6949,1564.549
+total_round_time_sec,4682.03,3926.69,4693.65

@@ -198,3 +198,216 @@
 13:31:58 | INFO     | fedchain                     |   total_round_time_sec          : 4129.09
 13:31:58 | INFO     | fedchain                     | ------------------------------------------------------------------------------
 13:31:58 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/smollm2-360m/seed_44/exp0_local_metrics.json
+10:02:22 | INFO     | fedchain                     | ==============================================================================
+10:02:22 | INFO     | fedchain                     | FedChain :: exp0_local
+10:02:22 | INFO     | fedchain                     | Local-only QLoRA: three isolated clients, no aggregation
+10:02:22 | INFO     | fedchain                     | Config: /home/mann/FedChain/configs/exp0_local.yaml
+10:02:22 | INFO     | fedchain                     | Model:  HuggingFaceTB/SmolLM2-360M-Instruct  [tier=smollm2-360m]
+10:02:22 | INFO     | fedchain                     | Hugging Face Hub: anonymous (set HF_TOKEN for authenticated downloads)
+10:02:22 | INFO     | fedchain                     | ==============================================================================
+10:02:28 | INFO     | utils.common                 | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+10:02:28 | INFO     | fedchain                     | Seed=44 | device=cuda
+10:02:28 | INFO     | evaluation.eval_loss         | Evaluator ready | 500 loss samples | 50 generation samples | seq_len=512 | device=cuda
+10:02:28 | INFO     | fedchain                     | --force: archiving existing recovery state and starting a new run.
+10:02:28 | INFO     | utils.checkpoint             | Previous checkpoint archived as checkpoint.stale-forced-rerun-1786528948.json
+10:02:29 | INFO     | fedchain                     | ==============================================================================
+10:02:29 | INFO     | fedchain                     | PIPELINE: federated learning | blockchain=False | ipfs=False
+10:02:29 | INFO     | fedchain                     | ==============================================================================
+10:02:29 | INFO     | trainer.sft                  | LocalTrainer ready | model=HuggingFaceTB/SmolLM2-360M-Instruct device=cuda 4bit=True seq_len=512 dry_run=False
+10:02:29 | INFO     | trainer.federated            | FederatedOrchestrator ready | rounds=3 clients=3 blockchain=False ipfs=False checkpoint=True
+10:02:29 | INFO     | trainer.federated            | 
+10:02:29 | INFO     | trainer.federated            | ##############################################################################
+10:02:29 | INFO     | trainer.federated            | # ROUND 1 / 3
+10:02:29 | INFO     | trainer.federated            | ##############################################################################
+10:02:29 | INFO     | trainer.sft                  | ==============================================================================
+10:02:29 | INFO     | trainer.sft                  | Training client_1@r1 | shard=client1.jsonl | epochs=1.00 | window=[0, 500)
+10:02:29 | INFO     | trainer.sft                  | ==============================================================================
+10:02:30 | WARNING  | huggingface_hub.utils._http  | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+10:02:31 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+10:02:31 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:02:32 | INFO     | trainer.sft                  | Base model load took 1.31s
+10:02:33 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:02:33 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:02:34 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:09:32 | INFO     | trainer.sft                  | client_1@r1 finished in 7m 02.7s | train_loss=2.1009 | peak VRAM=726.66 MB
+10:09:32 | INFO     | trainer.sft                  | VRAM after client_1@r1 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:09:33 | INFO     | trainer.sft                  | ==============================================================================
+10:09:33 | INFO     | trainer.sft                  | Training client_2@r1 | shard=client2.jsonl | epochs=1.00 | window=[0, 500)
+10:09:33 | INFO     | trainer.sft                  | ==============================================================================
+10:09:34 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+10:09:34 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:09:35 | INFO     | trainer.sft                  | Base model load took 1.37s
+10:09:36 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:09:36 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:09:37 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:16:43 | INFO     | trainer.sft                  | client_2@r1 finished in 7m 09.7s | train_loss=2.0867 | peak VRAM=728.59 MB
+10:16:44 | INFO     | trainer.sft                  | VRAM after client_2@r1 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:16:44 | INFO     | trainer.sft                  | ==============================================================================
+10:16:44 | INFO     | trainer.sft                  | Training client_3@r1 | shard=client3.jsonl | epochs=1.00 | window=[0, 500)
+10:16:44 | INFO     | trainer.sft                  | ==============================================================================
+10:16:45 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=0, 4837 available) from 1 shard(s)
+10:16:45 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:16:47 | INFO     | trainer.sft                  | Base model load took 1.38s
+10:16:47 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:16:47 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:16:48 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:24:00 | INFO     | trainer.sft                  | client_3@r1 finished in 7m 14.9s | train_loss=2.1114 | peak VRAM=728.21 MB
+10:24:01 | INFO     | trainer.sft                  | VRAM after client_3@r1 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:24:01 | INFO     | trainer.federated            | Round 1 done in 21m 32.5s | comm=0.000 MB | evaluation skipped
+10:24:01 | INFO     | trainer.federated            | 
+10:24:01 | INFO     | trainer.federated            | ##############################################################################
+10:24:01 | INFO     | trainer.federated            | # ROUND 2 / 3
+10:24:01 | INFO     | trainer.federated            | ##############################################################################
+10:24:01 | INFO     | trainer.sft                  | ==============================================================================
+10:24:01 | INFO     | trainer.sft                  | Training client_1@r2 | shard=client1.jsonl | epochs=1.00 | window=[500, 1000)
+10:24:01 | INFO     | trainer.sft                  | ==============================================================================
+10:24:02 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+10:24:02 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:24:04 | INFO     | trainer.sft                  | Base model load took 1.41s
+10:24:04 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_1/client_1
+10:24:04 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:24:04 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:24:05 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:31:04 | INFO     | trainer.sft                  | client_1@r2 finished in 7m 02.3s | train_loss=2.0090 | peak VRAM=729.21 MB
+10:31:05 | INFO     | trainer.sft                  | VRAM after client_1@r2 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:31:05 | INFO     | trainer.sft                  | ==============================================================================
+10:31:05 | INFO     | trainer.sft                  | Training client_2@r2 | shard=client2.jsonl | epochs=1.00 | window=[500, 1000)
+10:31:05 | INFO     | trainer.sft                  | ==============================================================================
+10:31:06 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+10:31:06 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:31:08 | INFO     | trainer.sft                  | Base model load took 1.39s
+10:31:08 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_1/client_2
+10:31:08 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:31:08 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:31:09 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:38:27 | INFO     | trainer.sft                  | client_2@r2 finished in 7m 21.7s | train_loss=2.0353 | peak VRAM=729.35 MB
+10:38:28 | INFO     | trainer.sft                  | VRAM after client_2@r2 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:38:29 | INFO     | trainer.sft                  | ==============================================================================
+10:38:29 | INFO     | trainer.sft                  | Training client_3@r2 | shard=client3.jsonl | epochs=1.00 | window=[500, 1000)
+10:38:29 | INFO     | trainer.sft                  | ==============================================================================
+10:38:30 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=500, 4837 available) from 1 shard(s)
+10:38:30 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:38:31 | INFO     | trainer.sft                  | Base model load took 1.38s
+10:38:31 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_1/client_3
+10:38:32 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:38:32 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:38:33 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:45:42 | INFO     | trainer.sft                  | client_3@r2 finished in 7m 13.0s | train_loss=2.0251 | peak VRAM=728.33 MB
+10:45:43 | INFO     | trainer.sft                  | VRAM after client_3@r2 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:45:44 | INFO     | trainer.federated            | Round 2 done in 21m 42.6s | comm=0.000 MB | evaluation skipped
+10:45:44 | INFO     | trainer.federated            | 
+10:45:44 | INFO     | trainer.federated            | ##############################################################################
+10:45:44 | INFO     | trainer.federated            | # ROUND 3 / 3
+10:45:44 | INFO     | trainer.federated            | ##############################################################################
+10:45:44 | INFO     | trainer.sft                  | ==============================================================================
+10:45:44 | INFO     | trainer.sft                  | Training client_1@r3 | shard=client1.jsonl | epochs=1.00 | window=[1000, 1500)
+10:45:44 | INFO     | trainer.sft                  | ==============================================================================
+10:45:45 | INFO     | trainer.sft                  | Loaded client1.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+10:45:45 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:45:46 | INFO     | trainer.sft                  | Base model load took 1.42s
+10:45:46 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_2/client_1
+10:45:47 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:45:47 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:45:48 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:52:37 | INFO     | trainer.sft                  | client_1@r3 finished in 6m 52.5s | train_loss=2.0016 | peak VRAM=728.21 MB
+10:52:38 | INFO     | trainer.sft                  | VRAM after client_1@r3 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:52:38 | INFO     | trainer.sft                  | ==============================================================================
+10:52:38 | INFO     | trainer.sft                  | Training client_2@r3 | shard=client2.jsonl | epochs=1.00 | window=[1000, 1500)
+10:52:38 | INFO     | trainer.sft                  | ==============================================================================
+10:52:39 | INFO     | trainer.sft                  | Loaded client2.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+10:52:39 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:52:41 | INFO     | trainer.sft                  | Base model load took 1.33s
+10:52:41 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_2/client_2
+10:52:41 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:52:41 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:52:42 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+10:59:46 | INFO     | trainer.sft                  | client_2@r3 finished in 7m 07.7s | train_loss=2.0068 | peak VRAM=728.72 MB
+10:59:47 | INFO     | trainer.sft                  | VRAM after client_2@r3 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+10:59:48 | INFO     | trainer.sft                  | ==============================================================================
+10:59:48 | INFO     | trainer.sft                  | Training client_3@r3 | shard=client3.jsonl | epochs=1.00 | window=[1000, 1500)
+10:59:48 | INFO     | trainer.sft                  | ==============================================================================
+10:59:49 | INFO     | trainer.sft                  | Loaded client3.jsonl: 500 samples (offset=1000, 4837 available) from 1 shard(s)
+10:59:49 | INFO     | trainer.sft                  | Loading base model HuggingFaceTB/SmolLM2-360M-Instruct (4bit=True, dtype=torch.bfloat16) ...
+10:59:50 | INFO     | trainer.sft                  | Base model load took 1.40s
+10:59:50 | INFO     | trainer.sft                  | Resuming from the global adapter at /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_2/client_3
+10:59:51 | INFO     | trainer.sft                  | LoRA attached: 8,683,520 trainable / 213,218,240 total parameters (4.0726%)
+10:59:51 | INFO     | trainer.sft                  | Optimisation plan: 500 samples, effective batch 8, ~63 step(s) over 1.00 epoch(s)
+10:59:52 | INFO     | trainer.sft                  | Starting local optimisation via trl.SFTTrainer ...
+11:07:03 | INFO     | trainer.sft                  | client_3@r3 finished in 7m 14.9s | train_loss=2.0096 | peak VRAM=728.22 MB
+11:07:04 | INFO     | trainer.sft                  | VRAM after client_3@r3 teardown | allocated=16.3 MB reserved=290.0 MB peak=16.3 MB
+11:07:04 | INFO     | trainer.federated            | Round 3 done in 21m 20.6s | comm=0.000 MB | evaluation skipped
+11:07:06 | INFO     | evaluation.eval_loss         | Evaluation split: 500 samples from eval_500.jsonl
+11:07:08 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.31s
+11:07:08 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_3/client_1
+11:07:08 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+11:07:30 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=1.9990 ppl=7.3815
+11:07:49 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0163 ppl=7.5107
+11:08:09 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=1.9942 ppl=7.3466
+11:08:30 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0058 ppl=7.4318
+11:08:51 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0244 ppl=7.5716
+11:08:51 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+11:09:29 | INFO     | evaluation.eval_loss         |   generated 10/50
+11:10:25 | INFO     | evaluation.eval_loss         |   generated 20/50
+11:10:53 | INFO     | evaluation.eval_loss         |   generated 30/50
+11:11:59 | INFO     | evaluation.eval_loss         |   generated 40/50
+11:12:50 | INFO     | evaluation.eval_loss         |   generated 50/50
+11:12:54 | INFO     | absl                         | Using default tokenizer.
+11:12:54 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2524 BLEU=0.0424 (backend=evaluate, 3m 59.2s)
+11:12:54 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0244 ppl=7.5716 rougeL=0.2524 bleu=0.0424 over 88,069 tokens in 5m 49.2s
+11:12:57 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.57s
+11:12:57 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_3/client_2
+11:12:57 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+11:13:18 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=2.0002 ppl=7.3904
+11:13:37 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0160 ppl=7.5080
+11:13:58 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=1.9943 ppl=7.3470
+11:14:19 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0049 ppl=7.4256
+11:14:40 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0233 ppl=7.5635
+11:14:40 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+11:15:17 | INFO     | evaluation.eval_loss         |   generated 10/50
+11:16:14 | INFO     | evaluation.eval_loss         |   generated 20/50
+11:16:40 | INFO     | evaluation.eval_loss         |   generated 30/50
+11:18:01 | INFO     | evaluation.eval_loss         |   generated 40/50
+11:18:40 | INFO     | evaluation.eval_loss         |   generated 50/50
+11:18:40 | INFO     | absl                         | Using default tokenizer.
+11:18:40 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2443 BLEU=0.0433 (backend=evaluate, 3m 59.5s)
+11:18:40 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0233 ppl=7.5635 rougeL=0.2443 bleu=0.0433 over 88,069 tokens in 5m 44.6s
+11:18:42 | INFO     | evaluation.eval_loss         | Evaluation base model load took 1.46s
+11:18:42 | INFO     | evaluation.eval_loss         | Attaching adapter /home/mann/FedChain/outputs/smollm2-360m/seed_44/exp0_local/round_3/client_3
+11:18:42 | INFO     | evaluation.eval_loss         | Scoring 500 evaluation samples for loss ...
+11:19:04 | INFO     | evaluation.eval_loss         |   100/500 scored | running loss=1.9977 ppl=7.3722
+11:19:23 | INFO     | evaluation.eval_loss         |   200/500 scored | running loss=2.0143 ppl=7.4958
+11:19:43 | INFO     | evaluation.eval_loss         |   300/500 scored | running loss=1.9929 ppl=7.3371
+11:20:03 | INFO     | evaluation.eval_loss         |   400/500 scored | running loss=2.0037 ppl=7.4166
+11:20:24 | INFO     | evaluation.eval_loss         |   500/500 scored | running loss=2.0225 ppl=7.5570
+11:20:24 | INFO     | evaluation.eval_loss         | Generating 50 responses for ROUGE-L / BLEU ...
+11:20:57 | INFO     | evaluation.eval_loss         |   generated 10/50
+11:21:54 | INFO     | evaluation.eval_loss         |   generated 20/50
+11:22:22 | INFO     | evaluation.eval_loss         |   generated 30/50
+11:23:32 | INFO     | evaluation.eval_loss         |   generated 40/50
+11:24:11 | INFO     | evaluation.eval_loss         |   generated 50/50
+11:24:11 | INFO     | absl                         | Using default tokenizer.
+11:24:11 | INFO     | evaluation.eval_loss         | Generation quality over 50 samples: ROUGE-L=0.2503 BLEU=0.0366 (backend=evaluate, 3m 46.5s)
+11:24:11 | INFO     | evaluation.eval_loss         | Evaluation: loss=2.0225 ppl=7.5570 rougeL=0.2503 bleu=0.0366 over 88,069 tokens in 5m 30.2s
+11:24:12 | INFO     | trainer.federated            | ==============================================================================
+11:24:12 | INFO     | trainer.federated            | Federated run complete: 3 round(s) in 1h 04m 35.9s | comm=0.000 MB | train=1h 04m 19.5s
+11:24:12 | INFO     | trainer.federated            | ==============================================================================
+11:24:13 | INFO     | fedchain                     | Local-only ablation: reporting the per-client mean over 3 client(s) instead of a single adapter.
+11:24:13 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+11:24:13 | INFO     | fedchain                     | COLLECTED METRICS
+11:24:13 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+11:24:13 | INFO     | fedchain                     |   validation_loss               : 2.0234
+11:24:13 | INFO     | fedchain                     |   perplexity                    : 7.5640
+11:24:13 | INFO     | fedchain                     |   rouge_l                       : 0.2490
+11:24:13 | INFO     | fedchain                     |   bleu                          : 0.0408
+11:24:13 | INFO     | fedchain                     |   training_time_sec             : 3859.49
+11:24:13 | INFO     | fedchain                     |   communication_volume_mb       : 0.000
+11:24:13 | INFO     | fedchain                     |   adapter_size_mb               : 16.622
+11:24:13 | INFO     | fedchain                     |   blockchain_tx_latency_sec     : 0.0000
+11:24:13 | INFO     | fedchain                     |   blockchain_gas_used           : 0
+11:24:13 | INFO     | fedchain                     |   ipfs_upload_latency_sec       : 0.0000
+11:24:13 | INFO     | fedchain                     |   ipfs_download_latency_sec     : 0.0000
+11:24:13 | INFO     | fedchain                     |   aggregation_time_sec          : 0.0000
+11:24:13 | INFO     | fedchain                     |   end_to_end_round_duration_sec : 1291.86
+11:24:13 | INFO     | fedchain                     |   total_round_time_sec          : 3875.59
+11:24:13 | INFO     | fedchain                     | ------------------------------------------------------------------------------
+11:24:13 | INFO     | fedchain                     | Detailed JSON report written to /home/mann/FedChain/results/smollm2-360m/seed_44/exp0_local_metrics.json

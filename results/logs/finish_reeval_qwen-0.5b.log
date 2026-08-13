@@ -1,0 +1,1771 @@
+11:24:15 | INFO     | utils.config             | Applying 5 CLI override(s): {'gen_num_samples': 250, 'enable_generation_metrics': True, 'require_metric_backend': 'evaluate', 'model_name': 'Qwen/Qwen2.5-0.5B-Instruct', 'dry_run': False}
+11:24:15 | INFO     | reevaluate               | Re-scoring 39 adapter(s) at 250 generation prompt(s). Model: Qwen/Qwen2.5-0.5B-Instruct
+11:24:17 | INFO     | utils.common             | Device: CUDA -> NVIDIA T600 Laptop GPU (4.00 GB VRAM, sm_75, bf16=True)
+11:24:17 | INFO     | evaluation.eval_loss     | Evaluator ready | 500 loss samples | 250 generation samples | seq_len=512 | device=cuda
+11:24:17 | INFO     | reevaluate               | [1/39] ablationB_e0_noniid:client_1
+11:24:42 | INFO     | evaluation.eval_loss     | Evaluation split: 500 samples from eval_500.jsonl
+11:24:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+11:24:43 | WARNING  | huggingface_hub.utils._http | Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+11:24:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+11:24:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+11:24:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/tokenizer_config.json "HTTP/1.1 200 OK"
+11:24:44 | INFO     | httpx                    | HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-0.5B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+11:24:44 | INFO     | httpx                    | HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-0.5B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+11:24:44 | INFO     | httpx                    | HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-0.5B-Instruct "HTTP/1.1 200 OK"
+11:24:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+11:24:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+11:24:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+11:24:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:42,  6.80it/s]Loading weights:  10%|█         | 29/290 [00:00<00:01, 141.12it/s]Loading weights:  26%|██▌       | 76/290 [00:00<00:00, 276.70it/s]Loading weights:  59%|█████▉    | 172/290 [00:00<00:00, 527.50it/s]Loading weights:  84%|████████▍ | 245/290 [00:00<00:00, 595.26it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 472.69it/s]
+11:24:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+11:24:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+11:24:47 | INFO     | evaluation.eval_loss     | Evaluation base model load took 3.10s
+11:24:48 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_42/ablationB_e0_noniid/round_3/client_1
+11:24:48 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+11:25:12 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0521 ppl=7.7839
+11:25:33 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0717 ppl=7.9385
+11:25:56 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0471 ppl=7.7458
+11:26:19 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0564 ppl=7.8178
+11:26:42 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0805 ppl=8.0084
+11:26:42 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+11:27:16 | INFO     | evaluation.eval_loss     |   generated 10/250
+11:28:07 | INFO     | evaluation.eval_loss     |   generated 20/250
+11:28:44 | INFO     | evaluation.eval_loss     |   generated 30/250
+11:29:41 | INFO     | evaluation.eval_loss     |   generated 40/250
+11:30:38 | INFO     | evaluation.eval_loss     |   generated 50/250
+11:31:40 | INFO     | evaluation.eval_loss     |   generated 60/250
+11:32:23 | INFO     | evaluation.eval_loss     |   generated 70/250
+11:32:44 | INFO     | evaluation.eval_loss     |   generated 80/250
+11:33:27 | INFO     | evaluation.eval_loss     |   generated 90/250
+11:34:08 | INFO     | evaluation.eval_loss     |   generated 100/250
+11:34:55 | INFO     | evaluation.eval_loss     |   generated 110/250
+11:35:38 | INFO     | evaluation.eval_loss     |   generated 120/250
+11:36:26 | INFO     | evaluation.eval_loss     |   generated 130/250
+11:37:09 | INFO     | evaluation.eval_loss     |   generated 140/250
+11:38:03 | INFO     | evaluation.eval_loss     |   generated 150/250
+11:38:36 | INFO     | evaluation.eval_loss     |   generated 160/250
+11:39:22 | INFO     | evaluation.eval_loss     |   generated 170/250
+11:40:06 | INFO     | evaluation.eval_loss     |   generated 180/250
+11:40:52 | INFO     | evaluation.eval_loss     |   generated 190/250
+11:41:38 | INFO     | evaluation.eval_loss     |   generated 200/250
+11:42:42 | INFO     | evaluation.eval_loss     |   generated 210/250
+11:43:31 | INFO     | evaluation.eval_loss     |   generated 220/250
+11:44:24 | INFO     | evaluation.eval_loss     |   generated 230/250
+11:45:38 | INFO     | evaluation.eval_loss     |   generated 240/250
+11:46:13 | INFO     | evaluation.eval_loss     |   generated 250/250
+11:47:20 | INFO     | absl                     | Using default tokenizer.
+11:47:21 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2501 BLEU=0.0559 (backend=evaluate, 19m 30.6s)
+11:47:21 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0805 ppl=8.0084 rougeL=0.2501 bleu=0.0559 over 85,843 tokens in 23m 03.6s
+11:47:21 | INFO     | reevaluate               | [2/39] ablationB_e0_noniid:client_2
+11:47:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+11:47:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+11:47:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+11:47:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:51,  5.57it/s]Loading weights:  13%|█▎        | 39/290 [00:00<00:01, 166.50it/s]Loading weights:  39%|███▉      | 113/290 [00:00<00:00, 382.18it/s]Loading weights:  76%|███████▌  | 221/290 [00:00<00:00, 621.50it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 505.06it/s]
+11:47:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+11:47:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+11:47:23 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.54s
+11:47:23 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_42/ablationB_e0_noniid/round_3/client_2
+11:47:23 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+11:47:46 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0789 ppl=7.9955
+11:48:08 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0965 ppl=8.1380
+11:48:30 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0695 ppl=7.9213
+11:48:54 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0793 ppl=7.9991
+11:49:17 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.1039 ppl=8.1980
+11:49:17 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+11:49:38 | INFO     | evaluation.eval_loss     |   generated 10/250
+11:50:34 | INFO     | evaluation.eval_loss     |   generated 20/250
+11:50:57 | INFO     | evaluation.eval_loss     |   generated 30/250
+11:51:47 | INFO     | evaluation.eval_loss     |   generated 40/250
+11:52:23 | INFO     | evaluation.eval_loss     |   generated 50/250
+11:53:05 | INFO     | evaluation.eval_loss     |   generated 60/250
+11:53:39 | INFO     | evaluation.eval_loss     |   generated 70/250
+11:54:06 | INFO     | evaluation.eval_loss     |   generated 80/250
+11:54:54 | INFO     | evaluation.eval_loss     |   generated 90/250
+11:55:37 | INFO     | evaluation.eval_loss     |   generated 100/250
+11:56:10 | INFO     | evaluation.eval_loss     |   generated 110/250
+11:56:46 | INFO     | evaluation.eval_loss     |   generated 120/250
+11:57:29 | INFO     | evaluation.eval_loss     |   generated 130/250
+11:57:48 | INFO     | evaluation.eval_loss     |   generated 140/250
+11:58:34 | INFO     | evaluation.eval_loss     |   generated 150/250
+11:59:06 | INFO     | evaluation.eval_loss     |   generated 160/250
+11:59:46 | INFO     | evaluation.eval_loss     |   generated 170/250
+12:00:17 | INFO     | evaluation.eval_loss     |   generated 180/250
+12:00:47 | INFO     | evaluation.eval_loss     |   generated 190/250
+12:01:24 | INFO     | evaluation.eval_loss     |   generated 200/250
+12:02:19 | INFO     | evaluation.eval_loss     |   generated 210/250
+12:02:45 | INFO     | evaluation.eval_loss     |   generated 220/250
+12:03:27 | INFO     | evaluation.eval_loss     |   generated 230/250
+12:04:09 | INFO     | evaluation.eval_loss     |   generated 240/250
+12:04:34 | INFO     | evaluation.eval_loss     |   generated 250/250
+12:04:34 | INFO     | absl                     | Using default tokenizer.
+12:04:35 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2288 BLEU=0.0322 (backend=evaluate, 15m 17.1s)
+12:04:35 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.1039 ppl=8.1980 rougeL=0.2288 bleu=0.0322 over 85,843 tokens in 17m 13.8s
+12:04:36 | INFO     | reevaluate               | [3/39] ablationB_e0_noniid:client_3
+12:04:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+12:04:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+12:04:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+12:04:36 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|▏         | 4/290 [00:00<00:07, 38.29it/s]Loading weights:  21%|██        | 60/290 [00:00<00:00, 339.63it/s]Loading weights:  51%|█████     | 147/290 [00:00<00:00, 577.14it/s]Loading weights:  87%|████████▋ | 251/290 [00:00<00:00, 756.52it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 654.28it/s]
+12:04:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+12:04:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+12:04:37 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.41s
+12:04:37 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_42/ablationB_e0_noniid/round_3/client_3
+12:04:38 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+12:05:01 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0525 ppl=7.7872
+12:05:23 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0729 ppl=7.9480
+12:05:46 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0502 ppl=7.7695
+12:06:09 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0585 ppl=7.8344
+12:06:32 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0828 ppl=8.0273
+12:06:32 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+12:07:01 | INFO     | evaluation.eval_loss     |   generated 10/250
+12:07:53 | INFO     | evaluation.eval_loss     |   generated 20/250
+12:08:22 | INFO     | evaluation.eval_loss     |   generated 30/250
+12:09:09 | INFO     | evaluation.eval_loss     |   generated 40/250
+12:10:01 | INFO     | evaluation.eval_loss     |   generated 50/250
+12:10:46 | INFO     | evaluation.eval_loss     |   generated 60/250
+12:11:45 | INFO     | evaluation.eval_loss     |   generated 70/250
+12:12:10 | INFO     | evaluation.eval_loss     |   generated 80/250
+12:12:51 | INFO     | evaluation.eval_loss     |   generated 90/250
+12:13:54 | INFO     | evaluation.eval_loss     |   generated 100/250
+12:14:43 | INFO     | evaluation.eval_loss     |   generated 110/250
+12:15:23 | INFO     | evaluation.eval_loss     |   generated 120/250
+12:16:11 | INFO     | evaluation.eval_loss     |   generated 130/250
+12:16:50 | INFO     | evaluation.eval_loss     |   generated 140/250
+12:17:52 | INFO     | evaluation.eval_loss     |   generated 150/250
+12:18:34 | INFO     | evaluation.eval_loss     |   generated 160/250
+12:19:32 | INFO     | evaluation.eval_loss     |   generated 170/250
+12:20:06 | INFO     | evaluation.eval_loss     |   generated 180/250
+12:20:47 | INFO     | evaluation.eval_loss     |   generated 190/250
+12:21:41 | INFO     | evaluation.eval_loss     |   generated 200/250
+12:22:46 | INFO     | evaluation.eval_loss     |   generated 210/250
+12:23:32 | INFO     | evaluation.eval_loss     |   generated 220/250
+12:24:22 | INFO     | evaluation.eval_loss     |   generated 230/250
+12:25:11 | INFO     | evaluation.eval_loss     |   generated 240/250
+12:25:51 | INFO     | evaluation.eval_loss     |   generated 250/250
+12:25:51 | INFO     | absl                     | Using default tokenizer.
+12:25:52 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2494 BLEU=0.0549 (backend=evaluate, 19m 18.4s)
+12:25:52 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0828 ppl=8.0273 rougeL=0.2494 bleu=0.0549 over 85,843 tokens in 21m 15.9s
+12:25:52 | INFO     | reevaluate               | [4/39] ablationB_e1_noniid
+12:25:53 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+12:25:53 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+12:25:53 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+12:25:53 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.48it/s]Loading weights:  18%|█▊        | 52/290 [00:00<00:00, 288.82it/s]Loading weights:  49%|████▉     | 143/290 [00:00<00:00, 564.40it/s]Loading weights:  84%|████████▍ | 243/290 [00:00<00:00, 730.00it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 632.42it/s]
+12:25:54 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+12:25:54 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+12:25:54 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.40s
+12:25:54 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_42/ablationB_e1_noniid/global
+12:25:54 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+12:26:18 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0242 ppl=7.5702
+12:26:39 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0390 ppl=7.6832
+12:27:02 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0154 ppl=7.5035
+12:27:25 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0217 ppl=7.5515
+12:27:49 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0476 ppl=7.7493
+12:27:49 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+12:28:15 | INFO     | evaluation.eval_loss     |   generated 10/250
+12:29:05 | INFO     | evaluation.eval_loss     |   generated 20/250
+12:29:40 | INFO     | evaluation.eval_loss     |   generated 30/250
+12:30:56 | INFO     | evaluation.eval_loss     |   generated 40/250
+12:31:53 | INFO     | evaluation.eval_loss     |   generated 50/250
+12:32:37 | INFO     | evaluation.eval_loss     |   generated 60/250
+12:33:21 | INFO     | evaluation.eval_loss     |   generated 70/250
+12:33:46 | INFO     | evaluation.eval_loss     |   generated 80/250
+12:34:33 | INFO     | evaluation.eval_loss     |   generated 90/250
+12:35:38 | INFO     | evaluation.eval_loss     |   generated 100/250
+12:36:46 | INFO     | evaluation.eval_loss     |   generated 110/250
+12:37:39 | INFO     | evaluation.eval_loss     |   generated 120/250
+12:38:37 | INFO     | evaluation.eval_loss     |   generated 130/250
+12:39:32 | INFO     | evaluation.eval_loss     |   generated 140/250
+12:40:30 | INFO     | evaluation.eval_loss     |   generated 150/250
+12:41:06 | INFO     | evaluation.eval_loss     |   generated 160/250
+12:42:10 | INFO     | evaluation.eval_loss     |   generated 170/250
+12:42:45 | INFO     | evaluation.eval_loss     |   generated 180/250
+12:43:27 | INFO     | evaluation.eval_loss     |   generated 190/250
+12:44:06 | INFO     | evaluation.eval_loss     |   generated 200/250
+12:45:04 | INFO     | evaluation.eval_loss     |   generated 210/250
+12:45:54 | INFO     | evaluation.eval_loss     |   generated 220/250
+12:46:40 | INFO     | evaluation.eval_loss     |   generated 230/250
+12:47:37 | INFO     | evaluation.eval_loss     |   generated 240/250
+12:48:10 | INFO     | evaluation.eval_loss     |   generated 250/250
+12:48:10 | INFO     | absl                     | Using default tokenizer.
+12:48:11 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2734 BLEU=0.0617 (backend=evaluate, 20m 21.8s)
+12:48:11 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0476 ppl=7.7493 rougeL=0.2734 bleu=0.0617 over 85,843 tokens in 22m 18.9s
+12:48:12 | INFO     | reevaluate               | [5/39] ablationB_e2_noniid
+12:48:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+12:48:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+12:48:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+12:48:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.56it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 295.75it/s]Loading weights:  41%|████▏     | 120/290 [00:00<00:00, 463.08it/s]Loading weights:  76%|███████▌  | 220/290 [00:00<00:00, 668.61it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 606.32it/s]
+12:48:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+12:48:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+12:48:14 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.46s
+12:48:14 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_42/ablationB_e2_noniid/round_3/global
+12:48:14 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+12:48:37 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0448 ppl=7.7277
+12:48:59 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0635 ppl=7.8736
+12:49:22 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0398 ppl=7.6893
+12:49:45 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0491 ppl=7.7606
+12:50:09 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0734 ppl=7.9516
+12:50:09 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+12:50:40 | INFO     | evaluation.eval_loss     |   generated 10/250
+12:51:31 | INFO     | evaluation.eval_loss     |   generated 20/250
+12:51:59 | INFO     | evaluation.eval_loss     |   generated 30/250
+12:52:45 | INFO     | evaluation.eval_loss     |   generated 40/250
+12:53:30 | INFO     | evaluation.eval_loss     |   generated 50/250
+12:54:24 | INFO     | evaluation.eval_loss     |   generated 60/250
+12:55:00 | INFO     | evaluation.eval_loss     |   generated 70/250
+12:55:24 | INFO     | evaluation.eval_loss     |   generated 80/250
+12:56:14 | INFO     | evaluation.eval_loss     |   generated 90/250
+12:57:00 | INFO     | evaluation.eval_loss     |   generated 100/250
+12:57:48 | INFO     | evaluation.eval_loss     |   generated 110/250
+12:58:25 | INFO     | evaluation.eval_loss     |   generated 120/250
+12:59:06 | INFO     | evaluation.eval_loss     |   generated 130/250
+12:59:44 | INFO     | evaluation.eval_loss     |   generated 140/250
+13:00:34 | INFO     | evaluation.eval_loss     |   generated 150/250
+13:01:09 | INFO     | evaluation.eval_loss     |   generated 160/250
+13:02:01 | INFO     | evaluation.eval_loss     |   generated 170/250
+13:02:31 | INFO     | evaluation.eval_loss     |   generated 180/250
+13:03:08 | INFO     | evaluation.eval_loss     |   generated 190/250
+13:03:48 | INFO     | evaluation.eval_loss     |   generated 200/250
+13:05:02 | INFO     | evaluation.eval_loss     |   generated 210/250
+13:05:40 | INFO     | evaluation.eval_loss     |   generated 220/250
+13:06:21 | INFO     | evaluation.eval_loss     |   generated 230/250
+13:07:14 | INFO     | evaluation.eval_loss     |   generated 240/250
+13:07:47 | INFO     | evaluation.eval_loss     |   generated 250/250
+13:07:47 | INFO     | absl                     | Using default tokenizer.
+13:07:48 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2436 BLEU=0.0447 (backend=evaluate, 17m 37.7s)
+13:07:48 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0734 ppl=7.9516 rougeL=0.2436 bleu=0.0447 over 85,843 tokens in 19m 35.7s
+13:07:48 | INFO     | reevaluate               | [6/39] ablationB_e0_noniid:client_1
+13:07:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+13:07:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+13:07:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+13:07:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.87it/s]Loading weights:  22%|██▏       | 63/290 [00:00<00:00, 361.53it/s]Loading weights:  59%|█████▉    | 172/290 [00:00<00:00, 691.37it/s]Loading weights:  92%|█████████▏| 268/290 [00:00<00:00, 790.78it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 686.65it/s]
+13:07:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+13:07:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+13:07:50 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.40s
+13:07:50 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_43/ablationB_e0_noniid/round_3/client_1
+13:07:50 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+13:08:14 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0538 ppl=7.7971
+13:08:36 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0737 ppl=7.9545
+13:08:58 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0483 ppl=7.7550
+13:09:22 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0563 ppl=7.8172
+13:09:46 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0805 ppl=8.0086
+13:09:46 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+13:10:25 | INFO     | evaluation.eval_loss     |   generated 10/250
+13:11:04 | INFO     | evaluation.eval_loss     |   generated 20/250
+13:11:32 | INFO     | evaluation.eval_loss     |   generated 30/250
+13:12:26 | INFO     | evaluation.eval_loss     |   generated 40/250
+13:13:17 | INFO     | evaluation.eval_loss     |   generated 50/250
+13:14:17 | INFO     | evaluation.eval_loss     |   generated 60/250
+13:14:59 | INFO     | evaluation.eval_loss     |   generated 70/250
+13:15:20 | INFO     | evaluation.eval_loss     |   generated 80/250
+13:16:10 | INFO     | evaluation.eval_loss     |   generated 90/250
+13:16:57 | INFO     | evaluation.eval_loss     |   generated 100/250
+13:17:39 | INFO     | evaluation.eval_loss     |   generated 110/250
+13:18:15 | INFO     | evaluation.eval_loss     |   generated 120/250
+13:19:06 | INFO     | evaluation.eval_loss     |   generated 130/250
+13:19:46 | INFO     | evaluation.eval_loss     |   generated 140/250
+13:20:39 | INFO     | evaluation.eval_loss     |   generated 150/250
+13:21:10 | INFO     | evaluation.eval_loss     |   generated 160/250
+13:22:00 | INFO     | evaluation.eval_loss     |   generated 170/250
+13:22:35 | INFO     | evaluation.eval_loss     |   generated 180/250
+13:23:25 | INFO     | evaluation.eval_loss     |   generated 190/250
+13:24:09 | INFO     | evaluation.eval_loss     |   generated 200/250
+13:25:10 | INFO     | evaluation.eval_loss     |   generated 210/250
+13:25:53 | INFO     | evaluation.eval_loss     |   generated 220/250
+13:26:43 | INFO     | evaluation.eval_loss     |   generated 230/250
+13:27:32 | INFO     | evaluation.eval_loss     |   generated 240/250
+13:28:10 | INFO     | evaluation.eval_loss     |   generated 250/250
+13:28:10 | INFO     | absl                     | Using default tokenizer.
+13:28:11 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2543 BLEU=0.0505 (backend=evaluate, 18m 23.8s)
+13:28:11 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0805 ppl=8.0086 rougeL=0.2543 bleu=0.0505 over 85,843 tokens in 20m 22.1s
+13:28:11 | INFO     | reevaluate               | [7/39] ablationB_e0_noniid:client_2
+13:28:11 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+13:28:11 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+13:28:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+13:28:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.69it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 301.13it/s]Loading weights:  53%|█████▎    | 153/290 [00:00<00:00, 615.92it/s]Loading weights:  90%|████████▉ | 260/290 [00:00<00:00, 793.19it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 672.19it/s]
+13:28:12 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+13:28:13 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+13:28:13 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.38s
+13:28:13 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_43/ablationB_e0_noniid/round_3/client_2
+13:28:13 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+13:28:37 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0811 ppl=8.0131
+13:28:58 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0971 ppl=8.1422
+13:29:21 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0697 ppl=7.9225
+13:29:44 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0791 ppl=7.9971
+13:30:08 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.1033 ppl=8.1931
+13:30:08 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+13:30:37 | INFO     | evaluation.eval_loss     |   generated 10/250
+13:31:27 | INFO     | evaluation.eval_loss     |   generated 20/250
+13:31:55 | INFO     | evaluation.eval_loss     |   generated 30/250
+13:32:52 | INFO     | evaluation.eval_loss     |   generated 40/250
+13:33:35 | INFO     | evaluation.eval_loss     |   generated 50/250
+13:34:16 | INFO     | evaluation.eval_loss     |   generated 60/250
+13:34:57 | INFO     | evaluation.eval_loss     |   generated 70/250
+13:35:23 | INFO     | evaluation.eval_loss     |   generated 80/250
+13:36:18 | INFO     | evaluation.eval_loss     |   generated 90/250
+13:37:10 | INFO     | evaluation.eval_loss     |   generated 100/250
+13:37:55 | INFO     | evaluation.eval_loss     |   generated 110/250
+13:38:32 | INFO     | evaluation.eval_loss     |   generated 120/250
+13:39:07 | INFO     | evaluation.eval_loss     |   generated 130/250
+13:39:36 | INFO     | evaluation.eval_loss     |   generated 140/250
+13:40:20 | INFO     | evaluation.eval_loss     |   generated 150/250
+13:40:58 | INFO     | evaluation.eval_loss     |   generated 160/250
+13:42:00 | INFO     | evaluation.eval_loss     |   generated 170/250
+13:42:43 | INFO     | evaluation.eval_loss     |   generated 180/250
+13:43:21 | INFO     | evaluation.eval_loss     |   generated 190/250
+13:43:59 | INFO     | evaluation.eval_loss     |   generated 200/250
+13:45:01 | INFO     | evaluation.eval_loss     |   generated 210/250
+13:45:59 | INFO     | evaluation.eval_loss     |   generated 220/250
+13:46:44 | INFO     | evaluation.eval_loss     |   generated 230/250
+13:47:22 | INFO     | evaluation.eval_loss     |   generated 240/250
+13:47:55 | INFO     | evaluation.eval_loss     |   generated 250/250
+13:47:55 | INFO     | absl                     | Using default tokenizer.
+13:47:56 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2321 BLEU=0.0395 (backend=evaluate, 17m 46.6s)
+13:47:56 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.1033 ppl=8.1931 rougeL=0.2321 bleu=0.0395 over 85,843 tokens in 19m 44.7s
+13:47:56 | INFO     | reevaluate               | [8/39] ablationB_e0_noniid:client_3
+13:47:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+13:47:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+13:47:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+13:47:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.66it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 302.47it/s]Loading weights:  58%|█████▊    | 169/290 [00:00<00:00, 690.10it/s]Loading weights:  94%|█████████▍| 273/290 [00:00<00:00, 825.17it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 695.31it/s]
+13:47:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+13:47:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+13:47:58 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.81s
+13:47:58 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_43/ablationB_e0_noniid/round_3/client_3
+13:47:59 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+13:48:22 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0536 ppl=7.7959
+13:48:44 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0736 ppl=7.9534
+13:49:07 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0511 ppl=7.7766
+13:49:31 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0588 ppl=7.8366
+13:49:55 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0824 ppl=8.0234
+13:49:55 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+13:50:31 | INFO     | evaluation.eval_loss     |   generated 10/250
+13:51:16 | INFO     | evaluation.eval_loss     |   generated 20/250
+13:51:46 | INFO     | evaluation.eval_loss     |   generated 30/250
+13:52:42 | INFO     | evaluation.eval_loss     |   generated 40/250
+13:53:40 | INFO     | evaluation.eval_loss     |   generated 50/250
+13:54:33 | INFO     | evaluation.eval_loss     |   generated 60/250
+13:55:32 | INFO     | evaluation.eval_loss     |   generated 70/250
+13:56:05 | INFO     | evaluation.eval_loss     |   generated 80/250
+13:56:51 | INFO     | evaluation.eval_loss     |   generated 90/250
+13:57:35 | INFO     | evaluation.eval_loss     |   generated 100/250
+13:58:31 | INFO     | evaluation.eval_loss     |   generated 110/250
+13:59:24 | INFO     | evaluation.eval_loss     |   generated 120/250
+14:00:16 | INFO     | evaluation.eval_loss     |   generated 130/250
+14:01:00 | INFO     | evaluation.eval_loss     |   generated 140/250
+14:02:00 | INFO     | evaluation.eval_loss     |   generated 150/250
+14:02:47 | INFO     | evaluation.eval_loss     |   generated 160/250
+14:03:42 | INFO     | evaluation.eval_loss     |   generated 170/250
+14:04:33 | INFO     | evaluation.eval_loss     |   generated 180/250
+14:05:12 | INFO     | evaluation.eval_loss     |   generated 190/250
+14:06:03 | INFO     | evaluation.eval_loss     |   generated 200/250
+14:07:03 | INFO     | evaluation.eval_loss     |   generated 210/250
+14:08:01 | INFO     | evaluation.eval_loss     |   generated 220/250
+14:09:02 | INFO     | evaluation.eval_loss     |   generated 230/250
+14:10:01 | INFO     | evaluation.eval_loss     |   generated 240/250
+14:10:47 | INFO     | evaluation.eval_loss     |   generated 250/250
+14:10:47 | INFO     | absl                     | Using default tokenizer.
+14:10:48 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2485 BLEU=0.0686 (backend=evaluate, 20m 51.8s)
+14:10:48 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0824 ppl=8.0234 rougeL=0.2485 bleu=0.0686 over 85,843 tokens in 22m 51.2s
+14:10:48 | INFO     | reevaluate               | [9/39] ablationB_e1_noniid
+14:10:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+14:10:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+14:10:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+14:10:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.73it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 298.57it/s]Loading weights:  59%|█████▉    | 171/290 [00:00<00:00, 687.60it/s]Loading weights:  96%|█████████▌| 277/290 [00:00<00:00, 831.40it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 684.07it/s]
+14:10:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+14:10:50 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+14:10:50 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.52s
+14:10:50 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_43/ablationB_e1_noniid/global
+14:10:50 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+14:11:14 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0218 ppl=7.5520
+14:11:36 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0409 ppl=7.6976
+14:11:59 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0180 ppl=7.5231
+14:12:22 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0263 ppl=7.5859
+14:12:46 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0510 ppl=7.7755
+14:12:46 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+14:13:13 | INFO     | evaluation.eval_loss     |   generated 10/250
+14:14:01 | INFO     | evaluation.eval_loss     |   generated 20/250
+14:14:32 | INFO     | evaluation.eval_loss     |   generated 30/250
+14:15:26 | INFO     | evaluation.eval_loss     |   generated 40/250
+14:16:11 | INFO     | evaluation.eval_loss     |   generated 50/250
+14:16:57 | INFO     | evaluation.eval_loss     |   generated 60/250
+14:17:48 | INFO     | evaluation.eval_loss     |   generated 70/250
+14:18:08 | INFO     | evaluation.eval_loss     |   generated 80/250
+14:18:48 | INFO     | evaluation.eval_loss     |   generated 90/250
+14:19:40 | INFO     | evaluation.eval_loss     |   generated 100/250
+14:20:25 | INFO     | evaluation.eval_loss     |   generated 110/250
+14:21:12 | INFO     | evaluation.eval_loss     |   generated 120/250
+14:21:54 | INFO     | evaluation.eval_loss     |   generated 130/250
+14:22:38 | INFO     | evaluation.eval_loss     |   generated 140/250
+14:23:32 | INFO     | evaluation.eval_loss     |   generated 150/250
+14:24:05 | INFO     | evaluation.eval_loss     |   generated 160/250
+14:24:50 | INFO     | evaluation.eval_loss     |   generated 170/250
+14:25:31 | INFO     | evaluation.eval_loss     |   generated 180/250
+14:26:07 | INFO     | evaluation.eval_loss     |   generated 190/250
+14:26:44 | INFO     | evaluation.eval_loss     |   generated 200/250
+14:27:41 | INFO     | evaluation.eval_loss     |   generated 210/250
+14:28:29 | INFO     | evaluation.eval_loss     |   generated 220/250
+14:29:05 | INFO     | evaluation.eval_loss     |   generated 230/250
+14:29:54 | INFO     | evaluation.eval_loss     |   generated 240/250
+14:30:27 | INFO     | evaluation.eval_loss     |   generated 250/250
+14:30:27 | INFO     | absl                     | Using default tokenizer.
+14:30:28 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2730 BLEU=0.0562 (backend=evaluate, 17m 40.6s)
+14:30:28 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0510 ppl=7.7755 rougeL=0.2730 bleu=0.0562 over 85,843 tokens in 19m 39.4s
+14:30:28 | INFO     | reevaluate               | [10/39] ablationB_e2_noniid
+14:30:29 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+14:30:29 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+14:30:29 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+14:30:29 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.73it/s]Loading weights:  19%|█▊        | 54/290 [00:00<00:00, 310.95it/s]Loading weights:  39%|███▊      | 112/290 [00:00<00:00, 424.93it/s]Loading weights:  64%|██████▍   | 185/290 [00:00<00:00, 542.11it/s]Loading weights:  99%|█████████▉| 288/290 [00:00<00:00, 716.14it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 571.82it/s]
+14:30:30 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+14:30:30 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+14:30:30 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.62s
+14:30:30 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_43/ablationB_e2_noniid/round_3/global
+14:30:30 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+14:30:54 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0454 ppl=7.7321
+14:31:16 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0638 ppl=7.8758
+14:31:39 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0395 ppl=7.6864
+14:32:02 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0482 ppl=7.7537
+14:32:26 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0724 ppl=7.9435
+14:32:26 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+14:33:00 | INFO     | evaluation.eval_loss     |   generated 10/250
+14:33:43 | INFO     | evaluation.eval_loss     |   generated 20/250
+14:34:14 | INFO     | evaluation.eval_loss     |   generated 30/250
+14:35:06 | INFO     | evaluation.eval_loss     |   generated 40/250
+14:35:51 | INFO     | evaluation.eval_loss     |   generated 50/250
+14:37:33 | INFO     | evaluation.eval_loss     |   generated 60/250
+14:39:05 | INFO     | evaluation.eval_loss     |   generated 70/250
+14:39:52 | INFO     | evaluation.eval_loss     |   generated 80/250
+14:41:11 | INFO     | evaluation.eval_loss     |   generated 90/250
+14:42:43 | INFO     | evaluation.eval_loss     |   generated 100/250
+14:44:12 | INFO     | evaluation.eval_loss     |   generated 110/250
+14:45:27 | INFO     | evaluation.eval_loss     |   generated 120/250
+14:46:58 | INFO     | evaluation.eval_loss     |   generated 130/250
+14:47:35 | INFO     | evaluation.eval_loss     |   generated 140/250
+14:48:26 | INFO     | evaluation.eval_loss     |   generated 150/250
+14:49:04 | INFO     | evaluation.eval_loss     |   generated 160/250
+14:49:58 | INFO     | evaluation.eval_loss     |   generated 170/250
+14:50:30 | INFO     | evaluation.eval_loss     |   generated 180/250
+14:51:16 | INFO     | evaluation.eval_loss     |   generated 190/250
+14:52:00 | INFO     | evaluation.eval_loss     |   generated 200/250
+14:53:05 | INFO     | evaluation.eval_loss     |   generated 210/250
+14:53:53 | INFO     | evaluation.eval_loss     |   generated 220/250
+14:54:44 | INFO     | evaluation.eval_loss     |   generated 230/250
+14:55:34 | INFO     | evaluation.eval_loss     |   generated 240/250
+14:56:03 | INFO     | evaluation.eval_loss     |   generated 250/250
+14:56:03 | INFO     | absl                     | Using default tokenizer.
+14:56:05 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2423 BLEU=0.0494 (backend=evaluate, 23m 37.4s)
+14:56:05 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0724 ppl=7.9435 rougeL=0.2423 bleu=0.0494 over 85,843 tokens in 25m 36.2s
+14:56:05 | INFO     | reevaluate               | [11/39] ablationB_e0_noniid:client_1
+14:56:06 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+14:56:06 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+14:56:06 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+14:56:06 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.67it/s]Loading weights:  26%|██▌       | 75/290 [00:00<00:00, 432.01it/s]Loading weights:  63%|██████▎   | 184/290 [00:00<00:00, 722.18it/s]Loading weights:  98%|█████████▊| 283/290 [00:00<00:00, 826.68it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 706.55it/s]
+14:56:07 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+14:56:07 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+14:56:07 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.35s
+14:56:07 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_44/ablationB_e0_noniid/round_3/client_1
+14:56:07 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+14:56:31 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0501 ppl=7.7685
+14:56:54 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0701 ppl=7.9259
+14:57:17 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0448 ppl=7.7280
+14:57:41 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0551 ppl=7.8073
+14:58:05 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0802 ppl=8.0064
+14:58:05 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+14:58:38 | INFO     | evaluation.eval_loss     |   generated 10/250
+14:59:11 | INFO     | evaluation.eval_loss     |   generated 20/250
+14:59:45 | INFO     | evaluation.eval_loss     |   generated 30/250
+15:00:33 | INFO     | evaluation.eval_loss     |   generated 40/250
+15:01:15 | INFO     | evaluation.eval_loss     |   generated 50/250
+15:02:05 | INFO     | evaluation.eval_loss     |   generated 60/250
+15:02:44 | INFO     | evaluation.eval_loss     |   generated 70/250
+15:03:08 | INFO     | evaluation.eval_loss     |   generated 80/250
+15:04:01 | INFO     | evaluation.eval_loss     |   generated 90/250
+15:04:35 | INFO     | evaluation.eval_loss     |   generated 100/250
+15:05:16 | INFO     | evaluation.eval_loss     |   generated 110/250
+15:06:02 | INFO     | evaluation.eval_loss     |   generated 120/250
+15:06:46 | INFO     | evaluation.eval_loss     |   generated 130/250
+15:07:26 | INFO     | evaluation.eval_loss     |   generated 140/250
+15:08:16 | INFO     | evaluation.eval_loss     |   generated 150/250
+15:08:49 | INFO     | evaluation.eval_loss     |   generated 160/250
+15:09:33 | INFO     | evaluation.eval_loss     |   generated 170/250
+15:10:08 | INFO     | evaluation.eval_loss     |   generated 180/250
+15:10:50 | INFO     | evaluation.eval_loss     |   generated 190/250
+15:11:41 | INFO     | evaluation.eval_loss     |   generated 200/250
+15:12:35 | INFO     | evaluation.eval_loss     |   generated 210/250
+15:13:27 | INFO     | evaluation.eval_loss     |   generated 220/250
+15:14:08 | INFO     | evaluation.eval_loss     |   generated 230/250
+15:15:01 | INFO     | evaluation.eval_loss     |   generated 240/250
+15:15:40 | INFO     | evaluation.eval_loss     |   generated 250/250
+15:15:40 | INFO     | absl                     | Using default tokenizer.
+15:15:41 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2533 BLEU=0.0482 (backend=evaluate, 17m 35.3s)
+15:15:41 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0802 ppl=8.0064 rougeL=0.2533 bleu=0.0482 over 85,843 tokens in 19m 36.1s
+15:15:42 | INFO     | reevaluate               | [12/39] ablationB_e0_noniid:client_2
+15:15:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+15:15:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+15:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+15:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.82it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 300.58it/s]Loading weights:  59%|█████▉    | 171/290 [00:00<00:00, 697.39it/s]Loading weights:  93%|█████████▎| 269/290 [00:00<00:00, 806.15it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 691.80it/s]
+15:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+15:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+15:15:43 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.39s
+15:15:43 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_44/ablationB_e0_noniid/round_3/client_2
+15:15:44 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+15:16:08 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0766 ppl=7.9770
+15:16:30 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0942 ppl=8.1193
+15:16:53 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0668 ppl=7.8995
+15:17:17 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0773 ppl=7.9828
+15:17:41 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.1015 ppl=8.1787
+15:17:41 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+15:18:21 | INFO     | evaluation.eval_loss     |   generated 10/250
+15:19:19 | INFO     | evaluation.eval_loss     |   generated 20/250
+15:19:50 | INFO     | evaluation.eval_loss     |   generated 30/250
+15:20:45 | INFO     | evaluation.eval_loss     |   generated 40/250
+15:21:33 | INFO     | evaluation.eval_loss     |   generated 50/250
+15:22:26 | INFO     | evaluation.eval_loss     |   generated 60/250
+15:23:04 | INFO     | evaluation.eval_loss     |   generated 70/250
+15:23:31 | INFO     | evaluation.eval_loss     |   generated 80/250
+15:24:23 | INFO     | evaluation.eval_loss     |   generated 90/250
+15:25:14 | INFO     | evaluation.eval_loss     |   generated 100/250
+15:26:11 | INFO     | evaluation.eval_loss     |   generated 110/250
+15:26:56 | INFO     | evaluation.eval_loss     |   generated 120/250
+15:27:43 | INFO     | evaluation.eval_loss     |   generated 130/250
+15:28:27 | INFO     | evaluation.eval_loss     |   generated 140/250
+15:29:27 | INFO     | evaluation.eval_loss     |   generated 150/250
+15:30:07 | INFO     | evaluation.eval_loss     |   generated 160/250
+15:30:56 | INFO     | evaluation.eval_loss     |   generated 170/250
+15:31:29 | INFO     | evaluation.eval_loss     |   generated 180/250
+15:32:10 | INFO     | evaluation.eval_loss     |   generated 190/250
+15:32:58 | INFO     | evaluation.eval_loss     |   generated 200/250
+15:34:08 | INFO     | evaluation.eval_loss     |   generated 210/250
+15:34:57 | INFO     | evaluation.eval_loss     |   generated 220/250
+15:35:43 | INFO     | evaluation.eval_loss     |   generated 230/250
+15:36:37 | INFO     | evaluation.eval_loss     |   generated 240/250
+15:37:20 | INFO     | evaluation.eval_loss     |   generated 250/250
+15:37:20 | INFO     | absl                     | Using default tokenizer.
+15:37:21 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2366 BLEU=0.0444 (backend=evaluate, 19m 38.3s)
+15:37:21 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.1015 ppl=8.1787 rougeL=0.2366 bleu=0.0444 over 85,843 tokens in 21m 38.9s
+15:37:22 | INFO     | reevaluate               | [13/39] ablationB_e0_noniid:client_3
+15:37:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+15:37:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+15:37:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+15:37:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.82it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 302.65it/s]Loading weights:  47%|████▋     | 136/290 [00:00<00:00, 538.22it/s]Loading weights:  80%|███████▉  | 231/290 [00:00<00:00, 697.00it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 616.51it/s]
+15:37:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+15:37:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+15:37:23 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.59s
+15:37:23 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_44/ablationB_e0_noniid/round_3/client_3
+15:37:23 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+15:37:48 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0515 ppl=7.7792
+15:38:10 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0714 ppl=7.9358
+15:38:33 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0484 ppl=7.7551
+15:38:57 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0565 ppl=7.8186
+15:39:21 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0818 ppl=8.0185
+15:39:21 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+15:39:57 | INFO     | evaluation.eval_loss     |   generated 10/250
+15:40:39 | INFO     | evaluation.eval_loss     |   generated 20/250
+15:41:07 | INFO     | evaluation.eval_loss     |   generated 30/250
+15:41:56 | INFO     | evaluation.eval_loss     |   generated 40/250
+15:42:41 | INFO     | evaluation.eval_loss     |   generated 50/250
+15:43:28 | INFO     | evaluation.eval_loss     |   generated 60/250
+15:44:10 | INFO     | evaluation.eval_loss     |   generated 70/250
+15:44:33 | INFO     | evaluation.eval_loss     |   generated 80/250
+15:45:07 | INFO     | evaluation.eval_loss     |   generated 90/250
+15:45:54 | INFO     | evaluation.eval_loss     |   generated 100/250
+15:46:37 | INFO     | evaluation.eval_loss     |   generated 110/250
+15:47:22 | INFO     | evaluation.eval_loss     |   generated 120/250
+15:47:58 | INFO     | evaluation.eval_loss     |   generated 130/250
+15:48:40 | INFO     | evaluation.eval_loss     |   generated 140/250
+15:49:27 | INFO     | evaluation.eval_loss     |   generated 150/250
+15:50:02 | INFO     | evaluation.eval_loss     |   generated 160/250
+15:50:57 | INFO     | evaluation.eval_loss     |   generated 170/250
+15:51:28 | INFO     | evaluation.eval_loss     |   generated 180/250
+15:52:05 | INFO     | evaluation.eval_loss     |   generated 190/250
+15:52:35 | INFO     | evaluation.eval_loss     |   generated 200/250
+15:53:36 | INFO     | evaluation.eval_loss     |   generated 210/250
+15:54:22 | INFO     | evaluation.eval_loss     |   generated 220/250
+15:54:59 | INFO     | evaluation.eval_loss     |   generated 230/250
+15:55:43 | INFO     | evaluation.eval_loss     |   generated 240/250
+15:56:12 | INFO     | evaluation.eval_loss     |   generated 250/250
+15:56:12 | INFO     | absl                     | Using default tokenizer.
+15:56:13 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2634 BLEU=0.0509 (backend=evaluate, 16m 51.0s)
+15:56:13 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0818 ppl=8.0185 rougeL=0.2634 bleu=0.0509 over 85,843 tokens in 18m 51.7s
+15:56:14 | INFO     | reevaluate               | [14/39] ablationB_e1_noniid
+15:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+15:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+15:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+15:56:14 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.97it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 303.82it/s]Loading weights:  52%|█████▏    | 152/290 [00:00<00:00, 615.02it/s]Loading weights:  88%|████████▊ | 256/290 [00:00<00:00, 777.09it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 655.63it/s]
+15:56:15 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+15:56:15 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+15:56:15 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.42s
+15:56:15 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_44/ablationB_e1_noniid/global
+15:56:16 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+15:56:40 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0228 ppl=7.5594
+15:57:02 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0388 ppl=7.6814
+15:57:24 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0155 ppl=7.5042
+15:57:48 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0239 ppl=7.5678
+15:58:13 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0491 ppl=7.7608
+15:58:13 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+15:58:38 | INFO     | evaluation.eval_loss     |   generated 10/250
+15:59:31 | INFO     | evaluation.eval_loss     |   generated 20/250
+16:00:00 | INFO     | evaluation.eval_loss     |   generated 30/250
+16:00:56 | INFO     | evaluation.eval_loss     |   generated 40/250
+16:01:41 | INFO     | evaluation.eval_loss     |   generated 50/250
+16:02:29 | INFO     | evaluation.eval_loss     |   generated 60/250
+16:03:33 | INFO     | evaluation.eval_loss     |   generated 70/250
+16:03:57 | INFO     | evaluation.eval_loss     |   generated 80/250
+16:04:40 | INFO     | evaluation.eval_loss     |   generated 90/250
+16:05:25 | INFO     | evaluation.eval_loss     |   generated 100/250
+16:06:15 | INFO     | evaluation.eval_loss     |   generated 110/250
+16:06:53 | INFO     | evaluation.eval_loss     |   generated 120/250
+16:07:36 | INFO     | evaluation.eval_loss     |   generated 130/250
+16:08:22 | INFO     | evaluation.eval_loss     |   generated 140/250
+16:09:13 | INFO     | evaluation.eval_loss     |   generated 150/250
+16:09:52 | INFO     | evaluation.eval_loss     |   generated 160/250
+16:10:47 | INFO     | evaluation.eval_loss     |   generated 170/250
+16:11:21 | INFO     | evaluation.eval_loss     |   generated 180/250
+16:12:02 | INFO     | evaluation.eval_loss     |   generated 190/250
+16:12:48 | INFO     | evaluation.eval_loss     |   generated 200/250
+16:13:45 | INFO     | evaluation.eval_loss     |   generated 210/250
+16:14:28 | INFO     | evaluation.eval_loss     |   generated 220/250
+16:15:19 | INFO     | evaluation.eval_loss     |   generated 230/250
+16:16:20 | INFO     | evaluation.eval_loss     |   generated 240/250
+16:16:52 | INFO     | evaluation.eval_loss     |   generated 250/250
+16:16:52 | INFO     | absl                     | Using default tokenizer.
+16:16:53 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2641 BLEU=0.0570 (backend=evaluate, 18m 39.0s)
+16:16:53 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0491 ppl=7.7608 rougeL=0.2641 bleu=0.0570 over 85,843 tokens in 20m 38.7s
+16:16:53 | INFO     | reevaluate               | [15/39] ablationB_e2_noniid
+16:16:54 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+16:16:54 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+16:16:54 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+16:16:54 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.62it/s]Loading weights:  26%|██▌       | 76/290 [00:00<00:00, 439.01it/s]Loading weights:  66%|██████▌   | 191/290 [00:00<00:00, 758.33it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 739.27it/s]
+16:16:55 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+16:16:55 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+16:16:55 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.41s
+16:16:55 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/ablation/seed_44/ablationB_e2_noniid/round_3/global
+16:16:55 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+16:17:19 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0423 ppl=7.7084
+16:17:41 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0614 ppl=7.8572
+16:18:04 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0369 ppl=7.6666
+16:18:28 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0463 ppl=7.7391
+16:18:52 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0711 ppl=7.9337
+16:18:52 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+16:19:28 | INFO     | evaluation.eval_loss     |   generated 10/250
+16:20:17 | INFO     | evaluation.eval_loss     |   generated 20/250
+16:20:48 | INFO     | evaluation.eval_loss     |   generated 30/250
+16:21:32 | INFO     | evaluation.eval_loss     |   generated 40/250
+16:22:17 | INFO     | evaluation.eval_loss     |   generated 50/250
+16:23:12 | INFO     | evaluation.eval_loss     |   generated 60/250
+16:23:46 | INFO     | evaluation.eval_loss     |   generated 70/250
+16:24:10 | INFO     | evaluation.eval_loss     |   generated 80/250
+16:24:55 | INFO     | evaluation.eval_loss     |   generated 90/250
+16:25:47 | INFO     | evaluation.eval_loss     |   generated 100/250
+16:26:39 | INFO     | evaluation.eval_loss     |   generated 110/250
+16:27:22 | INFO     | evaluation.eval_loss     |   generated 120/250
+16:27:59 | INFO     | evaluation.eval_loss     |   generated 130/250
+16:28:34 | INFO     | evaluation.eval_loss     |   generated 140/250
+16:29:25 | INFO     | evaluation.eval_loss     |   generated 150/250
+16:29:56 | INFO     | evaluation.eval_loss     |   generated 160/250
+16:30:47 | INFO     | evaluation.eval_loss     |   generated 170/250
+16:31:18 | INFO     | evaluation.eval_loss     |   generated 180/250
+16:31:59 | INFO     | evaluation.eval_loss     |   generated 190/250
+16:32:41 | INFO     | evaluation.eval_loss     |   generated 200/250
+16:33:42 | INFO     | evaluation.eval_loss     |   generated 210/250
+16:34:31 | INFO     | evaluation.eval_loss     |   generated 220/250
+16:35:18 | INFO     | evaluation.eval_loss     |   generated 230/250
+16:36:06 | INFO     | evaluation.eval_loss     |   generated 240/250
+16:36:38 | INFO     | evaluation.eval_loss     |   generated 250/250
+16:36:38 | INFO     | absl                     | Using default tokenizer.
+16:36:39 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2506 BLEU=0.0524 (backend=evaluate, 17m 45.3s)
+16:36:39 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0711 ppl=7.9337 rougeL=0.2506 bleu=0.0524 over 85,843 tokens in 19m 45.4s
+16:36:39 | INFO     | reevaluate               | [16/39] exp0_local:client_1
+16:36:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+16:36:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+16:36:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+16:36:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.85it/s]Loading weights:  22%|██▏       | 64/290 [00:00<00:00, 369.50it/s]Loading weights:  62%|██████▏   | 179/290 [00:00<00:00, 723.47it/s]Loading weights:  97%|█████████▋| 281/290 [00:00<00:00, 834.04it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 712.53it/s]
+16:36:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+16:36:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+16:36:41 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.38s
+16:36:41 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp0_local/round_3/client_1
+16:36:41 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+16:37:06 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0483 ppl=7.7547
+16:37:28 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0672 ppl=7.9029
+16:37:51 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0452 ppl=7.7308
+16:38:15 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0549 ppl=7.8060
+16:38:40 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0805 ppl=8.0084
+16:38:40 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+16:39:15 | INFO     | evaluation.eval_loss     |   generated 10/250
+16:39:58 | INFO     | evaluation.eval_loss     |   generated 20/250
+16:40:27 | INFO     | evaluation.eval_loss     |   generated 30/250
+16:41:22 | INFO     | evaluation.eval_loss     |   generated 40/250
+16:41:55 | INFO     | evaluation.eval_loss     |   generated 50/250
+16:42:46 | INFO     | evaluation.eval_loss     |   generated 60/250
+16:43:30 | INFO     | evaluation.eval_loss     |   generated 70/250
+16:43:52 | INFO     | evaluation.eval_loss     |   generated 80/250
+16:44:27 | INFO     | evaluation.eval_loss     |   generated 90/250
+16:45:04 | INFO     | evaluation.eval_loss     |   generated 100/250
+16:45:47 | INFO     | evaluation.eval_loss     |   generated 110/250
+16:46:30 | INFO     | evaluation.eval_loss     |   generated 120/250
+16:47:05 | INFO     | evaluation.eval_loss     |   generated 130/250
+16:47:40 | INFO     | evaluation.eval_loss     |   generated 140/250
+16:48:29 | INFO     | evaluation.eval_loss     |   generated 150/250
+16:49:02 | INFO     | evaluation.eval_loss     |   generated 160/250
+16:49:53 | INFO     | evaluation.eval_loss     |   generated 170/250
+16:50:28 | INFO     | evaluation.eval_loss     |   generated 180/250
+16:51:11 | INFO     | evaluation.eval_loss     |   generated 190/250
+16:51:47 | INFO     | evaluation.eval_loss     |   generated 200/250
+16:52:42 | INFO     | evaluation.eval_loss     |   generated 210/250
+16:53:26 | INFO     | evaluation.eval_loss     |   generated 220/250
+16:54:11 | INFO     | evaluation.eval_loss     |   generated 230/250
+16:54:53 | INFO     | evaluation.eval_loss     |   generated 240/250
+16:55:30 | INFO     | evaluation.eval_loss     |   generated 250/250
+16:55:30 | INFO     | absl                     | Using default tokenizer.
+16:55:31 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2513 BLEU=0.0401 (backend=evaluate, 16m 50.1s)
+16:55:31 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0805 ppl=8.0084 rougeL=0.2513 bleu=0.0401 over 85,843 tokens in 18m 51.3s
+16:55:31 | INFO     | reevaluate               | [17/39] exp0_local:client_2
+16:55:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+16:55:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+16:55:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+16:55:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.97it/s]Loading weights:  22%|██▏       | 63/290 [00:00<00:00, 363.12it/s]Loading weights:  61%|██████    | 177/290 [00:00<00:00, 715.55it/s]Loading weights:  98%|█████████▊| 284/290 [00:00<00:00, 854.77it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 713.96it/s]
+16:55:33 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+16:55:33 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+16:55:33 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.38s
+16:55:33 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp0_local/round_3/client_2
+16:55:33 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+16:55:58 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0521 ppl=7.7839
+16:56:20 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0695 ppl=7.9206
+16:56:43 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0461 ppl=7.7373
+16:57:07 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0530 ppl=7.7911
+16:57:31 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0779 ppl=7.9879
+16:57:31 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+16:58:06 | INFO     | evaluation.eval_loss     |   generated 10/250
+16:58:57 | INFO     | evaluation.eval_loss     |   generated 20/250
+16:59:30 | INFO     | evaluation.eval_loss     |   generated 30/250
+17:00:32 | INFO     | evaluation.eval_loss     |   generated 40/250
+17:01:12 | INFO     | evaluation.eval_loss     |   generated 50/250
+17:01:59 | INFO     | evaluation.eval_loss     |   generated 60/250
+17:02:46 | INFO     | evaluation.eval_loss     |   generated 70/250
+17:03:12 | INFO     | evaluation.eval_loss     |   generated 80/250
+17:03:58 | INFO     | evaluation.eval_loss     |   generated 90/250
+17:04:44 | INFO     | evaluation.eval_loss     |   generated 100/250
+17:05:37 | INFO     | evaluation.eval_loss     |   generated 110/250
+17:06:19 | INFO     | evaluation.eval_loss     |   generated 120/250
+17:07:07 | INFO     | evaluation.eval_loss     |   generated 130/250
+17:07:45 | INFO     | evaluation.eval_loss     |   generated 140/250
+17:08:42 | INFO     | evaluation.eval_loss     |   generated 150/250
+17:09:10 | INFO     | evaluation.eval_loss     |   generated 160/250
+17:10:03 | INFO     | evaluation.eval_loss     |   generated 170/250
+17:10:38 | INFO     | evaluation.eval_loss     |   generated 180/250
+17:11:23 | INFO     | evaluation.eval_loss     |   generated 190/250
+17:12:12 | INFO     | evaluation.eval_loss     |   generated 200/250
+17:13:13 | INFO     | evaluation.eval_loss     |   generated 210/250
+17:14:07 | INFO     | evaluation.eval_loss     |   generated 220/250
+17:14:57 | INFO     | evaluation.eval_loss     |   generated 230/250
+17:15:45 | INFO     | evaluation.eval_loss     |   generated 240/250
+17:16:20 | INFO     | evaluation.eval_loss     |   generated 250/250
+17:16:20 | INFO     | absl                     | Using default tokenizer.
+17:16:22 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2601 BLEU=0.0528 (backend=evaluate, 18m 49.0s)
+17:16:22 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0779 ppl=7.9879 rougeL=0.2601 bleu=0.0528 over 85,843 tokens in 20m 50.2s
+17:16:22 | INFO     | reevaluate               | [18/39] exp0_local:client_3
+17:16:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+17:16:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+17:16:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+17:16:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:34,  8.42it/s]Loading weights:  11%|█▏        | 33/290 [00:00<00:01, 177.20it/s]Loading weights:  38%|███▊      | 111/290 [00:00<00:00, 435.92it/s]Loading weights:  76%|███████▌  | 220/290 [00:00<00:00, 684.80it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 588.70it/s]
+17:16:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+17:16:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+17:16:24 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.51s
+17:16:24 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp0_local/round_3/client_3
+17:16:25 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+17:16:49 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0476 ppl=7.7490
+17:17:11 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0646 ppl=7.8818
+17:17:34 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0410 ppl=7.6982
+17:17:59 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0498 ppl=7.7665
+17:18:23 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0755 ppl=7.9687
+17:18:23 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+17:18:54 | INFO     | evaluation.eval_loss     |   generated 10/250
+17:19:39 | INFO     | evaluation.eval_loss     |   generated 20/250
+17:20:05 | INFO     | evaluation.eval_loss     |   generated 30/250
+17:20:51 | INFO     | evaluation.eval_loss     |   generated 40/250
+17:21:33 | INFO     | evaluation.eval_loss     |   generated 50/250
+17:22:30 | INFO     | evaluation.eval_loss     |   generated 60/250
+17:23:06 | INFO     | evaluation.eval_loss     |   generated 70/250
+17:23:22 | INFO     | evaluation.eval_loss     |   generated 80/250
+17:24:10 | INFO     | evaluation.eval_loss     |   generated 90/250
+17:25:04 | INFO     | evaluation.eval_loss     |   generated 100/250
+17:26:02 | INFO     | evaluation.eval_loss     |   generated 110/250
+17:26:47 | INFO     | evaluation.eval_loss     |   generated 120/250
+17:27:31 | INFO     | evaluation.eval_loss     |   generated 130/250
+17:28:11 | INFO     | evaluation.eval_loss     |   generated 140/250
+17:29:00 | INFO     | evaluation.eval_loss     |   generated 150/250
+17:29:23 | INFO     | evaluation.eval_loss     |   generated 160/250
+17:30:17 | INFO     | evaluation.eval_loss     |   generated 170/250
+17:30:48 | INFO     | evaluation.eval_loss     |   generated 180/250
+17:31:30 | INFO     | evaluation.eval_loss     |   generated 190/250
+17:32:13 | INFO     | evaluation.eval_loss     |   generated 200/250
+17:33:12 | INFO     | evaluation.eval_loss     |   generated 210/250
+17:33:52 | INFO     | evaluation.eval_loss     |   generated 220/250
+17:34:48 | INFO     | evaluation.eval_loss     |   generated 230/250
+17:35:40 | INFO     | evaluation.eval_loss     |   generated 240/250
+17:36:22 | INFO     | evaluation.eval_loss     |   generated 250/250
+17:36:22 | INFO     | absl                     | Using default tokenizer.
+17:36:23 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2611 BLEU=0.0492 (backend=evaluate, 17m 59.2s)
+17:36:23 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0755 ppl=7.9687 rougeL=0.2611 bleu=0.0492 over 85,843 tokens in 20m 00.7s
+17:36:24 | INFO     | reevaluate               | [19/39] exp1_sft
+17:36:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+17:36:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+17:36:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+17:36:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.72it/s]Loading weights:  26%|██▌       | 74/290 [00:00<00:00, 428.03it/s]Loading weights:  63%|██████▎   | 184/290 [00:00<00:00, 728.24it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 728.23it/s]
+17:36:25 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+17:36:25 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+17:36:25 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.34s
+17:36:25 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp1_sft/global
+17:36:26 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+17:36:50 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0210 ppl=7.5458
+17:37:12 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0384 ppl=7.6785
+17:37:35 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0144 ppl=7.4961
+17:38:00 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0232 ppl=7.5628
+17:38:24 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0492 ppl=7.7614
+17:38:24 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+17:38:49 | INFO     | evaluation.eval_loss     |   generated 10/250
+17:39:28 | INFO     | evaluation.eval_loss     |   generated 20/250
+17:40:03 | INFO     | evaluation.eval_loss     |   generated 30/250
+17:40:59 | INFO     | evaluation.eval_loss     |   generated 40/250
+17:41:48 | INFO     | evaluation.eval_loss     |   generated 50/250
+17:42:47 | INFO     | evaluation.eval_loss     |   generated 60/250
+17:43:33 | INFO     | evaluation.eval_loss     |   generated 70/250
+17:43:49 | INFO     | evaluation.eval_loss     |   generated 80/250
+17:44:27 | INFO     | evaluation.eval_loss     |   generated 90/250
+17:45:10 | INFO     | evaluation.eval_loss     |   generated 100/250
+17:46:03 | INFO     | evaluation.eval_loss     |   generated 110/250
+17:46:46 | INFO     | evaluation.eval_loss     |   generated 120/250
+17:47:31 | INFO     | evaluation.eval_loss     |   generated 130/250
+17:48:13 | INFO     | evaluation.eval_loss     |   generated 140/250
+17:49:09 | INFO     | evaluation.eval_loss     |   generated 150/250
+17:49:37 | INFO     | evaluation.eval_loss     |   generated 160/250
+17:50:30 | INFO     | evaluation.eval_loss     |   generated 170/250
+17:51:06 | INFO     | evaluation.eval_loss     |   generated 180/250
+17:51:41 | INFO     | evaluation.eval_loss     |   generated 190/250
+17:52:23 | INFO     | evaluation.eval_loss     |   generated 200/250
+17:53:33 | INFO     | evaluation.eval_loss     |   generated 210/250
+17:54:30 | INFO     | evaluation.eval_loss     |   generated 220/250
+17:55:09 | INFO     | evaluation.eval_loss     |   generated 230/250
+17:56:04 | INFO     | evaluation.eval_loss     |   generated 240/250
+17:56:46 | INFO     | evaluation.eval_loss     |   generated 250/250
+17:56:46 | INFO     | absl                     | Using default tokenizer.
+17:56:47 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2750 BLEU=0.0597 (backend=evaluate, 18m 22.0s)
+17:56:47 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0492 ppl=7.7614 rougeL=0.2750 bleu=0.0597 over 85,843 tokens in 20m 23.1s
+17:56:48 | INFO     | reevaluate               | [20/39] exp2_fl
+17:56:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+17:56:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+17:56:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+17:56:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.71it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 304.55it/s]Loading weights:  39%|███▊      | 112/290 [00:00<00:00, 426.04it/s]Loading weights:  71%|███████   | 205/290 [00:00<00:00, 621.08it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 595.32it/s]
+17:56:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+17:56:49 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+17:56:49 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.47s
+17:56:49 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp2_fl/round_3/global
+17:56:50 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+17:57:14 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0392 ppl=7.6845
+17:57:36 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0575 ppl=7.8261
+17:57:59 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0348 ppl=7.6510
+17:58:24 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0434 ppl=7.7172
+17:58:48 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0686 ppl=7.9136
+17:58:48 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+17:59:17 | INFO     | evaluation.eval_loss     |   generated 10/250
+18:00:05 | INFO     | evaluation.eval_loss     |   generated 20/250
+18:00:38 | INFO     | evaluation.eval_loss     |   generated 30/250
+18:01:25 | INFO     | evaluation.eval_loss     |   generated 40/250
+18:02:12 | INFO     | evaluation.eval_loss     |   generated 50/250
+18:02:59 | INFO     | evaluation.eval_loss     |   generated 60/250
+18:03:47 | INFO     | evaluation.eval_loss     |   generated 70/250
+18:04:05 | INFO     | evaluation.eval_loss     |   generated 80/250
+18:04:46 | INFO     | evaluation.eval_loss     |   generated 90/250
+18:05:28 | INFO     | evaluation.eval_loss     |   generated 100/250
+18:06:16 | INFO     | evaluation.eval_loss     |   generated 110/250
+18:06:53 | INFO     | evaluation.eval_loss     |   generated 120/250
+18:07:37 | INFO     | evaluation.eval_loss     |   generated 130/250
+18:08:10 | INFO     | evaluation.eval_loss     |   generated 140/250
+18:08:54 | INFO     | evaluation.eval_loss     |   generated 150/250
+18:09:24 | INFO     | evaluation.eval_loss     |   generated 160/250
+18:10:14 | INFO     | evaluation.eval_loss     |   generated 170/250
+18:10:44 | INFO     | evaluation.eval_loss     |   generated 180/250
+18:11:21 | INFO     | evaluation.eval_loss     |   generated 190/250
+18:12:04 | INFO     | evaluation.eval_loss     |   generated 200/250
+18:13:00 | INFO     | evaluation.eval_loss     |   generated 210/250
+18:13:39 | INFO     | evaluation.eval_loss     |   generated 220/250
+18:14:23 | INFO     | evaluation.eval_loss     |   generated 230/250
+18:15:08 | INFO     | evaluation.eval_loss     |   generated 240/250
+18:15:41 | INFO     | evaluation.eval_loss     |   generated 250/250
+18:15:41 | INFO     | absl                     | Using default tokenizer.
+18:15:42 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2611 BLEU=0.0501 (backend=evaluate, 16m 52.5s)
+18:15:42 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0686 ppl=7.9136 rougeL=0.2611 bleu=0.0501 over 85,843 tokens in 18m 53.9s
+18:15:42 | INFO     | reevaluate               | [21/39] exp3_fl_bc
+18:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+18:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+18:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+18:15:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.64it/s]Loading weights:  15%|█▌        | 44/290 [00:00<00:00, 250.09it/s]Loading weights:  30%|███       | 87/290 [00:00<00:00, 330.60it/s]Loading weights:  67%|██████▋   | 193/290 [00:00<00:00, 616.54it/s]Loading weights:  96%|█████████▌| 279/290 [00:00<00:00, 700.37it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 564.63it/s]
+18:15:44 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+18:15:44 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+18:15:44 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.44s
+18:15:44 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp3_fl_bc/round_3/global
+18:15:44 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+18:16:08 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0392 ppl=7.6845
+18:16:30 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0575 ppl=7.8261
+18:16:53 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0348 ppl=7.6510
+18:17:17 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0434 ppl=7.7172
+18:17:41 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0686 ppl=7.9136
+18:17:41 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+18:18:08 | INFO     | evaluation.eval_loss     |   generated 10/250
+18:18:58 | INFO     | evaluation.eval_loss     |   generated 20/250
+18:19:33 | INFO     | evaluation.eval_loss     |   generated 30/250
+18:20:27 | INFO     | evaluation.eval_loss     |   generated 40/250
+18:21:08 | INFO     | evaluation.eval_loss     |   generated 50/250
+18:21:51 | INFO     | evaluation.eval_loss     |   generated 60/250
+18:22:36 | INFO     | evaluation.eval_loss     |   generated 70/250
+18:22:53 | INFO     | evaluation.eval_loss     |   generated 80/250
+18:23:33 | INFO     | evaluation.eval_loss     |   generated 90/250
+18:24:15 | INFO     | evaluation.eval_loss     |   generated 100/250
+18:25:03 | INFO     | evaluation.eval_loss     |   generated 110/250
+18:25:38 | INFO     | evaluation.eval_loss     |   generated 120/250
+18:26:23 | INFO     | evaluation.eval_loss     |   generated 130/250
+18:26:55 | INFO     | evaluation.eval_loss     |   generated 140/250
+18:27:40 | INFO     | evaluation.eval_loss     |   generated 150/250
+18:28:08 | INFO     | evaluation.eval_loss     |   generated 160/250
+18:29:00 | INFO     | evaluation.eval_loss     |   generated 170/250
+18:29:30 | INFO     | evaluation.eval_loss     |   generated 180/250
+18:30:10 | INFO     | evaluation.eval_loss     |   generated 190/250
+18:30:54 | INFO     | evaluation.eval_loss     |   generated 200/250
+18:31:53 | INFO     | evaluation.eval_loss     |   generated 210/250
+18:32:31 | INFO     | evaluation.eval_loss     |   generated 220/250
+18:33:17 | INFO     | evaluation.eval_loss     |   generated 230/250
+18:34:03 | INFO     | evaluation.eval_loss     |   generated 240/250
+18:34:35 | INFO     | evaluation.eval_loss     |   generated 250/250
+18:34:35 | INFO     | absl                     | Using default tokenizer.
+18:34:36 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2611 BLEU=0.0501 (backend=evaluate, 16m 54.4s)
+18:34:36 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0686 ppl=7.9136 rougeL=0.2611 bleu=0.0501 over 85,843 tokens in 18m 54.0s
+18:34:37 | INFO     | reevaluate               | [22/39] exp4_fedchain
+18:34:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+18:34:37 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+18:34:38 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+18:34:38 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.86it/s]Loading weights:  15%|█▌        | 44/290 [00:00<00:00, 250.54it/s]Loading weights:  39%|███▉      | 113/290 [00:00<00:00, 445.27it/s]Loading weights:  73%|███████▎  | 212/290 [00:00<00:00, 656.44it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 601.08it/s]
+18:34:39 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+18:34:39 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+18:34:39 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.42s
+18:34:39 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp4_fedchain/round_3/global
+18:34:39 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+18:35:03 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0392 ppl=7.6845
+18:35:26 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0575 ppl=7.8261
+18:35:48 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0348 ppl=7.6510
+18:36:12 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0434 ppl=7.7172
+18:36:36 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0686 ppl=7.9136
+18:36:36 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+18:37:03 | INFO     | evaluation.eval_loss     |   generated 10/250
+18:37:49 | INFO     | evaluation.eval_loss     |   generated 20/250
+18:38:21 | INFO     | evaluation.eval_loss     |   generated 30/250
+18:39:14 | INFO     | evaluation.eval_loss     |   generated 40/250
+18:39:55 | INFO     | evaluation.eval_loss     |   generated 50/250
+18:40:39 | INFO     | evaluation.eval_loss     |   generated 60/250
+18:41:24 | INFO     | evaluation.eval_loss     |   generated 70/250
+18:41:42 | INFO     | evaluation.eval_loss     |   generated 80/250
+18:42:25 | INFO     | evaluation.eval_loss     |   generated 90/250
+18:43:07 | INFO     | evaluation.eval_loss     |   generated 100/250
+18:43:55 | INFO     | evaluation.eval_loss     |   generated 110/250
+18:44:35 | INFO     | evaluation.eval_loss     |   generated 120/250
+18:45:18 | INFO     | evaluation.eval_loss     |   generated 130/250
+18:45:49 | INFO     | evaluation.eval_loss     |   generated 140/250
+18:46:31 | INFO     | evaluation.eval_loss     |   generated 150/250
+18:46:58 | INFO     | evaluation.eval_loss     |   generated 160/250
+18:47:50 | INFO     | evaluation.eval_loss     |   generated 170/250
+18:48:19 | INFO     | evaluation.eval_loss     |   generated 180/250
+18:48:54 | INFO     | evaluation.eval_loss     |   generated 190/250
+18:49:39 | INFO     | evaluation.eval_loss     |   generated 200/250
+18:50:35 | INFO     | evaluation.eval_loss     |   generated 210/250
+18:51:15 | INFO     | evaluation.eval_loss     |   generated 220/250
+18:51:58 | INFO     | evaluation.eval_loss     |   generated 230/250
+18:52:45 | INFO     | evaluation.eval_loss     |   generated 240/250
+18:53:21 | INFO     | evaluation.eval_loss     |   generated 250/250
+18:53:21 | INFO     | absl                     | Using default tokenizer.
+18:53:22 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2611 BLEU=0.0501 (backend=evaluate, 16m 45.5s)
+18:53:22 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0686 ppl=7.9136 rougeL=0.2611 bleu=0.0501 over 85,843 tokens in 18m 45.1s
+18:53:23 | INFO     | reevaluate               | [23/39] exp5_noniid
+18:53:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+18:53:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+18:53:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+18:53:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.94it/s]Loading weights:  20%|█▉        | 57/290 [00:00<00:00, 326.60it/s]Loading weights:  39%|███▊      | 112/290 [00:00<00:00, 424.45it/s]Loading weights:  80%|███████▉  | 231/290 [00:00<00:00, 716.43it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 634.37it/s]
+18:53:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+18:53:24 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+18:53:24 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.41s
+18:53:24 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_42/exp5_noniid/round_3/global
+18:53:25 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+18:53:49 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0448 ppl=7.7277
+18:54:11 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0635 ppl=7.8736
+18:54:35 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0398 ppl=7.6893
+18:54:58 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0491 ppl=7.7606
+18:55:22 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0734 ppl=7.9516
+18:55:22 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+18:55:54 | INFO     | evaluation.eval_loss     |   generated 10/250
+18:56:43 | INFO     | evaluation.eval_loss     |   generated 20/250
+18:57:08 | INFO     | evaluation.eval_loss     |   generated 30/250
+18:57:54 | INFO     | evaluation.eval_loss     |   generated 40/250
+18:58:36 | INFO     | evaluation.eval_loss     |   generated 50/250
+18:59:29 | INFO     | evaluation.eval_loss     |   generated 60/250
+19:00:05 | INFO     | evaluation.eval_loss     |   generated 70/250
+19:00:29 | INFO     | evaluation.eval_loss     |   generated 80/250
+19:01:16 | INFO     | evaluation.eval_loss     |   generated 90/250
+19:02:01 | INFO     | evaluation.eval_loss     |   generated 100/250
+19:02:49 | INFO     | evaluation.eval_loss     |   generated 110/250
+19:03:31 | INFO     | evaluation.eval_loss     |   generated 120/250
+19:04:41 | INFO     | evaluation.eval_loss     |   generated 130/250
+19:06:01 | INFO     | evaluation.eval_loss     |   generated 140/250
+19:07:45 | INFO     | evaluation.eval_loss     |   generated 150/250
+19:08:55 | INFO     | evaluation.eval_loss     |   generated 160/250
+19:10:50 | INFO     | evaluation.eval_loss     |   generated 170/250
+19:11:50 | INFO     | evaluation.eval_loss     |   generated 180/250
+19:13:02 | INFO     | evaluation.eval_loss     |   generated 190/250
+19:14:18 | INFO     | evaluation.eval_loss     |   generated 200/250
+19:16:29 | INFO     | evaluation.eval_loss     |   generated 210/250
+19:17:30 | INFO     | evaluation.eval_loss     |   generated 220/250
+19:18:27 | INFO     | evaluation.eval_loss     |   generated 230/250
+19:19:21 | INFO     | evaluation.eval_loss     |   generated 240/250
+19:19:55 | INFO     | evaluation.eval_loss     |   generated 250/250
+19:19:55 | INFO     | absl                     | Using default tokenizer.
+19:19:56 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2436 BLEU=0.0447 (backend=evaluate, 24m 33.1s)
+19:19:56 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0734 ppl=7.9516 rougeL=0.2436 bleu=0.0447 over 85,843 tokens in 26m 33.3s
+19:19:57 | INFO     | reevaluate               | [24/39] exp0_local:client_1
+19:19:57 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+19:19:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+19:19:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+19:19:58 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.80it/s]Loading weights:  18%|█▊        | 52/290 [00:00<00:00, 289.78it/s]Loading weights:  51%|█████     | 147/290 [00:00<00:00, 579.10it/s]Loading weights:  84%|████████▍ | 245/290 [00:00<00:00, 721.73it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 638.39it/s]
+19:19:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+19:19:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+19:19:59 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.40s
+19:19:59 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp0_local/round_3/client_1
+19:19:59 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+19:20:23 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0477 ppl=7.7503
+19:20:45 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0688 ppl=7.9153
+19:21:07 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0454 ppl=7.7325
+19:21:31 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0555 ppl=7.8107
+19:21:55 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0809 ppl=8.0119
+19:21:55 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+19:22:28 | INFO     | evaluation.eval_loss     |   generated 10/250
+19:23:27 | INFO     | evaluation.eval_loss     |   generated 20/250
+19:23:55 | INFO     | evaluation.eval_loss     |   generated 30/250
+19:24:46 | INFO     | evaluation.eval_loss     |   generated 40/250
+19:25:32 | INFO     | evaluation.eval_loss     |   generated 50/250
+19:26:24 | INFO     | evaluation.eval_loss     |   generated 60/250
+19:27:19 | INFO     | evaluation.eval_loss     |   generated 70/250
+19:27:46 | INFO     | evaluation.eval_loss     |   generated 80/250
+19:28:47 | INFO     | evaluation.eval_loss     |   generated 90/250
+19:29:40 | INFO     | evaluation.eval_loss     |   generated 100/250
+19:30:25 | INFO     | evaluation.eval_loss     |   generated 110/250
+19:31:03 | INFO     | evaluation.eval_loss     |   generated 120/250
+19:31:51 | INFO     | evaluation.eval_loss     |   generated 130/250
+19:32:31 | INFO     | evaluation.eval_loss     |   generated 140/250
+19:33:27 | INFO     | evaluation.eval_loss     |   generated 150/250
+19:34:14 | INFO     | evaluation.eval_loss     |   generated 160/250
+19:35:06 | INFO     | evaluation.eval_loss     |   generated 170/250
+19:35:48 | INFO     | evaluation.eval_loss     |   generated 180/250
+19:36:27 | INFO     | evaluation.eval_loss     |   generated 190/250
+19:37:19 | INFO     | evaluation.eval_loss     |   generated 200/250
+19:38:44 | INFO     | evaluation.eval_loss     |   generated 210/250
+19:39:33 | INFO     | evaluation.eval_loss     |   generated 220/250
+19:40:20 | INFO     | evaluation.eval_loss     |   generated 230/250
+19:41:11 | INFO     | evaluation.eval_loss     |   generated 240/250
+19:41:44 | INFO     | evaluation.eval_loss     |   generated 250/250
+19:41:44 | INFO     | absl                     | Using default tokenizer.
+19:41:45 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2510 BLEU=0.0545 (backend=evaluate, 19m 49.4s)
+19:41:45 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0809 ppl=8.0119 rougeL=0.2510 bleu=0.0545 over 85,843 tokens in 21m 47.9s
+19:41:46 | INFO     | reevaluate               | [25/39] exp0_local:client_2
+19:41:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+19:41:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+19:41:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+19:41:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.46it/s]Loading weights:  18%|█▊        | 51/290 [00:00<00:00, 284.37it/s]Loading weights:  43%|████▎     | 125/290 [00:00<00:00, 482.66it/s]Loading weights:  76%|███████▌  | 220/290 [00:00<00:00, 663.55it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 597.49it/s]
+19:41:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+19:41:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+19:41:48 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.69s
+19:41:48 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp0_local/round_3/client_2
+19:41:48 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+19:42:12 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0499 ppl=7.7668
+19:42:34 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0670 ppl=7.9010
+19:42:57 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0439 ppl=7.7203
+19:43:20 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0517 ppl=7.7812
+19:43:44 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0767 ppl=7.9783
+19:43:44 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+19:44:12 | INFO     | evaluation.eval_loss     |   generated 10/250
+19:45:05 | INFO     | evaluation.eval_loss     |   generated 20/250
+19:45:39 | INFO     | evaluation.eval_loss     |   generated 30/250
+19:46:30 | INFO     | evaluation.eval_loss     |   generated 40/250
+19:47:06 | INFO     | evaluation.eval_loss     |   generated 50/250
+19:47:54 | INFO     | evaluation.eval_loss     |   generated 60/250
+19:48:41 | INFO     | evaluation.eval_loss     |   generated 70/250
+19:49:13 | INFO     | evaluation.eval_loss     |   generated 80/250
+19:50:03 | INFO     | evaluation.eval_loss     |   generated 90/250
+19:50:48 | INFO     | evaluation.eval_loss     |   generated 100/250
+19:51:25 | INFO     | evaluation.eval_loss     |   generated 110/250
+19:52:08 | INFO     | evaluation.eval_loss     |   generated 120/250
+19:52:48 | INFO     | evaluation.eval_loss     |   generated 130/250
+19:53:21 | INFO     | evaluation.eval_loss     |   generated 140/250
+19:54:19 | INFO     | evaluation.eval_loss     |   generated 150/250
+19:54:54 | INFO     | evaluation.eval_loss     |   generated 160/250
+19:55:46 | INFO     | evaluation.eval_loss     |   generated 170/250
+19:56:15 | INFO     | evaluation.eval_loss     |   generated 180/250
+19:57:00 | INFO     | evaluation.eval_loss     |   generated 190/250
+19:57:40 | INFO     | evaluation.eval_loss     |   generated 200/250
+19:58:39 | INFO     | evaluation.eval_loss     |   generated 210/250
+19:59:33 | INFO     | evaluation.eval_loss     |   generated 220/250
+20:00:09 | INFO     | evaluation.eval_loss     |   generated 230/250
+20:01:04 | INFO     | evaluation.eval_loss     |   generated 240/250
+20:01:43 | INFO     | evaluation.eval_loss     |   generated 250/250
+20:01:43 | INFO     | absl                     | Using default tokenizer.
+20:01:44 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2562 BLEU=0.0510 (backend=evaluate, 17m 59.0s)
+20:01:44 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0767 ppl=7.9783 rougeL=0.2562 bleu=0.0510 over 85,843 tokens in 19m 58.1s
+20:01:45 | INFO     | reevaluate               | [26/39] exp0_local:client_3
+20:01:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+20:01:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+20:01:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+20:01:45 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.64it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 297.88it/s]Loading weights:  39%|███▉      | 113/290 [00:00<00:00, 427.65it/s]Loading weights:  69%|██████▉   | 201/290 [00:00<00:00, 602.74it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 589.40it/s]
+20:01:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+20:01:46 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+20:01:46 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.46s
+20:01:46 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp0_local/round_3/client_3
+20:01:47 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+20:02:11 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0477 ppl=7.7500
+20:02:33 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0670 ppl=7.9011
+20:02:55 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0416 ppl=7.7032
+20:03:19 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0515 ppl=7.7797
+20:03:42 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0775 ppl=7.9848
+20:03:42 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+20:04:09 | INFO     | evaluation.eval_loss     |   generated 10/250
+20:04:43 | INFO     | evaluation.eval_loss     |   generated 20/250
+20:05:14 | INFO     | evaluation.eval_loss     |   generated 30/250
+20:06:14 | INFO     | evaluation.eval_loss     |   generated 40/250
+20:07:08 | INFO     | evaluation.eval_loss     |   generated 50/250
+20:07:59 | INFO     | evaluation.eval_loss     |   generated 60/250
+20:08:54 | INFO     | evaluation.eval_loss     |   generated 70/250
+20:09:16 | INFO     | evaluation.eval_loss     |   generated 80/250
+20:09:56 | INFO     | evaluation.eval_loss     |   generated 90/250
+20:10:44 | INFO     | evaluation.eval_loss     |   generated 100/250
+20:11:32 | INFO     | evaluation.eval_loss     |   generated 110/250
+20:12:25 | INFO     | evaluation.eval_loss     |   generated 120/250
+20:13:09 | INFO     | evaluation.eval_loss     |   generated 130/250
+20:13:52 | INFO     | evaluation.eval_loss     |   generated 140/250
+20:14:52 | INFO     | evaluation.eval_loss     |   generated 150/250
+20:15:21 | INFO     | evaluation.eval_loss     |   generated 160/250
+20:16:13 | INFO     | evaluation.eval_loss     |   generated 170/250
+20:16:48 | INFO     | evaluation.eval_loss     |   generated 180/250
+20:17:38 | INFO     | evaluation.eval_loss     |   generated 190/250
+20:18:17 | INFO     | evaluation.eval_loss     |   generated 200/250
+20:19:31 | INFO     | evaluation.eval_loss     |   generated 210/250
+20:20:11 | INFO     | evaluation.eval_loss     |   generated 220/250
+20:20:56 | INFO     | evaluation.eval_loss     |   generated 230/250
+20:21:44 | INFO     | evaluation.eval_loss     |   generated 240/250
+20:22:18 | INFO     | evaluation.eval_loss     |   generated 250/250
+20:22:18 | INFO     | absl                     | Using default tokenizer.
+20:22:19 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2531 BLEU=0.0483 (backend=evaluate, 18m 35.7s)
+20:22:19 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0775 ppl=7.9848 rougeL=0.2531 bleu=0.0483 over 85,843 tokens in 20m 34.4s
+20:22:20 | INFO     | reevaluate               | [27/39] exp1_sft
+20:22:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+20:22:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+20:22:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+20:22:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:29,  9.88it/s]Loading weights:  14%|█▍        | 41/290 [00:00<00:01, 231.52it/s]Loading weights:  32%|███▏      | 93/290 [00:00<00:00, 359.51it/s]Loading weights:  66%|██████▌   | 192/290 [00:00<00:00, 604.89it/s]Loading weights:  92%|█████████▏| 268/290 [00:00<00:00, 652.02it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 535.34it/s]
+20:22:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+20:22:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+20:22:21 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.50s
+20:22:21 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp1_sft/global
+20:22:22 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+20:22:46 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0210 ppl=7.5458
+20:23:08 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0391 ppl=7.6835
+20:23:31 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0170 ppl=7.5160
+20:23:54 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0252 ppl=7.5780
+20:24:18 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0504 ppl=7.7708
+20:24:18 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+20:24:46 | INFO     | evaluation.eval_loss     |   generated 10/250
+20:25:37 | INFO     | evaluation.eval_loss     |   generated 20/250
+20:26:08 | INFO     | evaluation.eval_loss     |   generated 30/250
+20:27:00 | INFO     | evaluation.eval_loss     |   generated 40/250
+20:27:41 | INFO     | evaluation.eval_loss     |   generated 50/250
+20:28:26 | INFO     | evaluation.eval_loss     |   generated 60/250
+20:29:11 | INFO     | evaluation.eval_loss     |   generated 70/250
+20:29:31 | INFO     | evaluation.eval_loss     |   generated 80/250
+20:30:11 | INFO     | evaluation.eval_loss     |   generated 90/250
+20:30:50 | INFO     | evaluation.eval_loss     |   generated 100/250
+20:31:34 | INFO     | evaluation.eval_loss     |   generated 110/250
+20:32:11 | INFO     | evaluation.eval_loss     |   generated 120/250
+20:32:52 | INFO     | evaluation.eval_loss     |   generated 130/250
+20:33:36 | INFO     | evaluation.eval_loss     |   generated 140/250
+20:34:29 | INFO     | evaluation.eval_loss     |   generated 150/250
+20:34:59 | INFO     | evaluation.eval_loss     |   generated 160/250
+20:35:47 | INFO     | evaluation.eval_loss     |   generated 170/250
+20:36:20 | INFO     | evaluation.eval_loss     |   generated 180/250
+20:37:03 | INFO     | evaluation.eval_loss     |   generated 190/250
+20:37:40 | INFO     | evaluation.eval_loss     |   generated 200/250
+20:38:32 | INFO     | evaluation.eval_loss     |   generated 210/250
+20:39:16 | INFO     | evaluation.eval_loss     |   generated 220/250
+20:39:59 | INFO     | evaluation.eval_loss     |   generated 230/250
+20:40:50 | INFO     | evaluation.eval_loss     |   generated 240/250
+20:41:30 | INFO     | evaluation.eval_loss     |   generated 250/250
+20:41:30 | INFO     | absl                     | Using default tokenizer.
+20:41:31 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2783 BLEU=0.0606 (backend=evaluate, 17m 11.6s)
+20:41:31 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0504 ppl=7.7708 rougeL=0.2783 bleu=0.0606 over 85,843 tokens in 19m 10.9s
+20:41:32 | INFO     | reevaluate               | [28/39] exp2_fl
+20:41:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+20:41:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+20:41:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+20:41:32 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.66it/s]Loading weights:  15%|█▌        | 44/290 [00:00<00:00, 252.31it/s]Loading weights:  34%|███▍      | 99/290 [00:00<00:00, 382.83it/s]Loading weights:  68%|██████▊   | 196/290 [00:00<00:00, 609.72it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 585.25it/s]
+20:41:33 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+20:41:33 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+20:41:33 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.43s
+20:41:33 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp2_fl/round_3/global
+20:41:34 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+20:41:58 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0385 ppl=7.6787
+20:42:19 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0573 ppl=7.8247
+20:42:42 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0338 ppl=7.6427
+20:43:06 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0429 ppl=7.7129
+20:43:30 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0683 ppl=7.9116
+20:43:30 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+20:44:03 | INFO     | evaluation.eval_loss     |   generated 10/250
+20:44:45 | INFO     | evaluation.eval_loss     |   generated 20/250
+20:45:14 | INFO     | evaluation.eval_loss     |   generated 30/250
+20:45:49 | INFO     | evaluation.eval_loss     |   generated 40/250
+20:46:31 | INFO     | evaluation.eval_loss     |   generated 50/250
+20:47:18 | INFO     | evaluation.eval_loss     |   generated 60/250
+20:48:06 | INFO     | evaluation.eval_loss     |   generated 70/250
+20:48:31 | INFO     | evaluation.eval_loss     |   generated 80/250
+20:49:14 | INFO     | evaluation.eval_loss     |   generated 90/250
+20:50:17 | INFO     | evaluation.eval_loss     |   generated 100/250
+20:51:00 | INFO     | evaluation.eval_loss     |   generated 110/250
+20:51:43 | INFO     | evaluation.eval_loss     |   generated 120/250
+20:52:32 | INFO     | evaluation.eval_loss     |   generated 130/250
+20:53:11 | INFO     | evaluation.eval_loss     |   generated 140/250
+20:53:56 | INFO     | evaluation.eval_loss     |   generated 150/250
+20:54:27 | INFO     | evaluation.eval_loss     |   generated 160/250
+20:55:12 | INFO     | evaluation.eval_loss     |   generated 170/250
+20:55:40 | INFO     | evaluation.eval_loss     |   generated 180/250
+20:56:16 | INFO     | evaluation.eval_loss     |   generated 190/250
+20:56:55 | INFO     | evaluation.eval_loss     |   generated 200/250
+20:57:59 | INFO     | evaluation.eval_loss     |   generated 210/250
+20:58:44 | INFO     | evaluation.eval_loss     |   generated 220/250
+20:59:27 | INFO     | evaluation.eval_loss     |   generated 230/250
+21:00:23 | INFO     | evaluation.eval_loss     |   generated 240/250
+21:00:57 | INFO     | evaluation.eval_loss     |   generated 250/250
+21:00:57 | INFO     | absl                     | Using default tokenizer.
+21:00:58 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2565 BLEU=0.0506 (backend=evaluate, 17m 26.9s)
+21:00:58 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0683 ppl=7.9116 rougeL=0.2565 bleu=0.0506 over 85,843 tokens in 19m 25.9s
+21:00:59 | INFO     | reevaluate               | [29/39] exp3_fl_bc
+21:00:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+21:00:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+21:00:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+21:00:59 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.74it/s]Loading weights:  18%|█▊        | 52/290 [00:00<00:00, 294.95it/s]Loading weights:  47%|████▋     | 137/290 [00:00<00:00, 544.01it/s]Loading weights:  84%|████████▍ | 245/290 [00:00<00:00, 751.35it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 655.61it/s]
+21:01:00 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+21:01:00 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+21:01:00 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.41s
+21:01:00 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp3_fl_bc/round_3/global
+21:01:01 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+21:01:24 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0385 ppl=7.6787
+21:01:46 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0573 ppl=7.8247
+21:02:08 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0338 ppl=7.6427
+21:02:32 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0429 ppl=7.7129
+21:02:56 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0683 ppl=7.9116
+21:02:56 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+21:03:28 | INFO     | evaluation.eval_loss     |   generated 10/250
+21:04:12 | INFO     | evaluation.eval_loss     |   generated 20/250
+21:04:43 | INFO     | evaluation.eval_loss     |   generated 30/250
+21:05:19 | INFO     | evaluation.eval_loss     |   generated 40/250
+21:06:03 | INFO     | evaluation.eval_loss     |   generated 50/250
+21:06:50 | INFO     | evaluation.eval_loss     |   generated 60/250
+21:07:37 | INFO     | evaluation.eval_loss     |   generated 70/250
+21:08:05 | INFO     | evaluation.eval_loss     |   generated 80/250
+21:08:47 | INFO     | evaluation.eval_loss     |   generated 90/250
+21:09:48 | INFO     | evaluation.eval_loss     |   generated 100/250
+21:10:29 | INFO     | evaluation.eval_loss     |   generated 110/250
+21:11:15 | INFO     | evaluation.eval_loss     |   generated 120/250
+21:11:57 | INFO     | evaluation.eval_loss     |   generated 130/250
+21:12:38 | INFO     | evaluation.eval_loss     |   generated 140/250
+21:13:25 | INFO     | evaluation.eval_loss     |   generated 150/250
+21:13:55 | INFO     | evaluation.eval_loss     |   generated 160/250
+21:14:41 | INFO     | evaluation.eval_loss     |   generated 170/250
+21:15:08 | INFO     | evaluation.eval_loss     |   generated 180/250
+21:15:50 | INFO     | evaluation.eval_loss     |   generated 190/250
+21:16:31 | INFO     | evaluation.eval_loss     |   generated 200/250
+21:17:37 | INFO     | evaluation.eval_loss     |   generated 210/250
+21:18:21 | INFO     | evaluation.eval_loss     |   generated 220/250
+21:19:02 | INFO     | evaluation.eval_loss     |   generated 230/250
+21:20:00 | INFO     | evaluation.eval_loss     |   generated 240/250
+21:20:32 | INFO     | evaluation.eval_loss     |   generated 250/250
+21:20:32 | INFO     | absl                     | Using default tokenizer.
+21:20:33 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2565 BLEU=0.0506 (backend=evaluate, 17m 35.5s)
+21:20:33 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0683 ppl=7.9116 rougeL=0.2565 bleu=0.0506 over 85,843 tokens in 19m 34.1s
+21:20:33 | INFO     | reevaluate               | [30/39] exp4_fedchain
+21:20:34 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+21:20:34 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+21:20:34 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+21:20:34 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.52it/s]Loading weights:  18%|█▊        | 52/290 [00:00<00:00, 294.92it/s]Loading weights:  51%|█████▏    | 149/290 [00:00<00:00, 597.32it/s]Loading weights:  92%|█████████▏| 268/290 [00:00<00:00, 827.28it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 679.79it/s]
+21:20:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+21:20:35 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+21:20:35 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.39s
+21:20:35 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp4_fedchain/round_3/global
+21:20:36 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+21:20:59 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0385 ppl=7.6787
+21:21:22 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0573 ppl=7.8247
+21:21:44 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0338 ppl=7.6427
+21:22:07 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0429 ppl=7.7129
+21:22:31 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0683 ppl=7.9116
+21:22:31 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+21:23:02 | INFO     | evaluation.eval_loss     |   generated 10/250
+21:23:44 | INFO     | evaluation.eval_loss     |   generated 20/250
+21:24:17 | INFO     | evaluation.eval_loss     |   generated 30/250
+21:24:52 | INFO     | evaluation.eval_loss     |   generated 40/250
+21:25:34 | INFO     | evaluation.eval_loss     |   generated 50/250
+21:26:22 | INFO     | evaluation.eval_loss     |   generated 60/250
+21:27:08 | INFO     | evaluation.eval_loss     |   generated 70/250
+21:27:35 | INFO     | evaluation.eval_loss     |   generated 80/250
+21:28:17 | INFO     | evaluation.eval_loss     |   generated 90/250
+21:29:22 | INFO     | evaluation.eval_loss     |   generated 100/250
+21:30:05 | INFO     | evaluation.eval_loss     |   generated 110/250
+21:30:46 | INFO     | evaluation.eval_loss     |   generated 120/250
+21:31:29 | INFO     | evaluation.eval_loss     |   generated 130/250
+21:32:10 | INFO     | evaluation.eval_loss     |   generated 140/250
+21:32:54 | INFO     | evaluation.eval_loss     |   generated 150/250
+21:33:24 | INFO     | evaluation.eval_loss     |   generated 160/250
+21:34:11 | INFO     | evaluation.eval_loss     |   generated 170/250
+21:34:37 | INFO     | evaluation.eval_loss     |   generated 180/250
+21:35:16 | INFO     | evaluation.eval_loss     |   generated 190/250
+21:35:57 | INFO     | evaluation.eval_loss     |   generated 200/250
+21:37:02 | INFO     | evaluation.eval_loss     |   generated 210/250
+21:37:47 | INFO     | evaluation.eval_loss     |   generated 220/250
+21:38:30 | INFO     | evaluation.eval_loss     |   generated 230/250
+21:39:31 | INFO     | evaluation.eval_loss     |   generated 240/250
+21:40:03 | INFO     | evaluation.eval_loss     |   generated 250/250
+21:40:03 | INFO     | absl                     | Using default tokenizer.
+21:40:04 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2565 BLEU=0.0506 (backend=evaluate, 17m 31.8s)
+21:40:04 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0683 ppl=7.9116 rougeL=0.2565 bleu=0.0506 over 85,843 tokens in 19m 30.4s
+21:40:05 | INFO     | reevaluate               | [31/39] exp5_noniid
+21:40:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+21:40:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+21:40:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+21:40:05 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.99it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 302.57it/s]Loading weights:  51%|█████     | 148/290 [00:00<00:00, 591.22it/s]Loading weights:  89%|████████▊ | 257/290 [00:00<00:00, 784.51it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 674.91it/s]
+21:40:06 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+21:40:06 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+21:40:06 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.33s
+21:40:06 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_43/exp5_noniid/round_3/global
+21:40:07 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+21:40:30 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0454 ppl=7.7321
+21:40:53 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0638 ppl=7.8758
+21:41:15 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0395 ppl=7.6864
+21:41:38 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0482 ppl=7.7537
+21:42:02 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0724 ppl=7.9435
+21:42:02 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+21:42:34 | INFO     | evaluation.eval_loss     |   generated 10/250
+21:43:19 | INFO     | evaluation.eval_loss     |   generated 20/250
+21:43:48 | INFO     | evaluation.eval_loss     |   generated 30/250
+21:44:44 | INFO     | evaluation.eval_loss     |   generated 40/250
+21:45:28 | INFO     | evaluation.eval_loss     |   generated 50/250
+21:46:23 | INFO     | evaluation.eval_loss     |   generated 60/250
+21:47:08 | INFO     | evaluation.eval_loss     |   generated 70/250
+21:47:34 | INFO     | evaluation.eval_loss     |   generated 80/250
+21:48:19 | INFO     | evaluation.eval_loss     |   generated 90/250
+21:49:08 | INFO     | evaluation.eval_loss     |   generated 100/250
+21:49:55 | INFO     | evaluation.eval_loss     |   generated 110/250
+21:50:39 | INFO     | evaluation.eval_loss     |   generated 120/250
+21:51:35 | INFO     | evaluation.eval_loss     |   generated 130/250
+21:52:12 | INFO     | evaluation.eval_loss     |   generated 140/250
+21:53:00 | INFO     | evaluation.eval_loss     |   generated 150/250
+21:53:38 | INFO     | evaluation.eval_loss     |   generated 160/250
+21:54:32 | INFO     | evaluation.eval_loss     |   generated 170/250
+21:55:04 | INFO     | evaluation.eval_loss     |   generated 180/250
+21:55:49 | INFO     | evaluation.eval_loss     |   generated 190/250
+21:56:37 | INFO     | evaluation.eval_loss     |   generated 200/250
+21:57:44 | INFO     | evaluation.eval_loss     |   generated 210/250
+21:58:31 | INFO     | evaluation.eval_loss     |   generated 220/250
+21:59:23 | INFO     | evaluation.eval_loss     |   generated 230/250
+22:00:16 | INFO     | evaluation.eval_loss     |   generated 240/250
+22:00:45 | INFO     | evaluation.eval_loss     |   generated 250/250
+22:00:45 | INFO     | absl                     | Using default tokenizer.
+22:00:46 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2423 BLEU=0.0494 (backend=evaluate, 18m 43.0s)
+22:00:46 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0724 ppl=7.9435 rougeL=0.2423 bleu=0.0494 over 85,843 tokens in 20m 41.4s
+22:00:47 | INFO     | reevaluate               | [32/39] exp0_local:client_1
+22:00:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+22:00:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+22:00:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+22:00:47 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.54it/s]Loading weights:  14%|█▍        | 40/290 [00:00<00:01, 223.52it/s]Loading weights:  55%|█████▍    | 159/290 [00:00<00:00, 654.12it/s]Loading weights:  92%|█████████▏| 268/290 [00:00<00:00, 820.82it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 680.79it/s]
+22:00:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+22:00:48 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+22:00:48 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.38s
+22:00:48 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_1
+22:00:49 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+22:01:13 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0481 ppl=7.7528
+22:01:35 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0665 ppl=7.8970
+22:01:58 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0432 ppl=7.7149
+22:02:21 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0539 ppl=7.7985
+22:02:45 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0794 ppl=7.9996
+22:02:45 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+22:03:23 | INFO     | evaluation.eval_loss     |   generated 10/250
+22:04:14 | INFO     | evaluation.eval_loss     |   generated 20/250
+22:04:47 | INFO     | evaluation.eval_loss     |   generated 30/250
+22:05:40 | INFO     | evaluation.eval_loss     |   generated 40/250
+22:06:20 | INFO     | evaluation.eval_loss     |   generated 50/250
+22:07:08 | INFO     | evaluation.eval_loss     |   generated 60/250
+22:08:02 | INFO     | evaluation.eval_loss     |   generated 70/250
+22:08:27 | INFO     | evaluation.eval_loss     |   generated 80/250
+22:09:13 | INFO     | evaluation.eval_loss     |   generated 90/250
+22:10:00 | INFO     | evaluation.eval_loss     |   generated 100/250
+22:10:47 | INFO     | evaluation.eval_loss     |   generated 110/250
+22:11:38 | INFO     | evaluation.eval_loss     |   generated 120/250
+22:12:25 | INFO     | evaluation.eval_loss     |   generated 130/250
+22:13:07 | INFO     | evaluation.eval_loss     |   generated 140/250
+22:13:59 | INFO     | evaluation.eval_loss     |   generated 150/250
+22:14:37 | INFO     | evaluation.eval_loss     |   generated 160/250
+22:15:27 | INFO     | evaluation.eval_loss     |   generated 170/250
+22:16:13 | INFO     | evaluation.eval_loss     |   generated 180/250
+22:16:49 | INFO     | evaluation.eval_loss     |   generated 190/250
+22:17:24 | INFO     | evaluation.eval_loss     |   generated 200/250
+22:18:32 | INFO     | evaluation.eval_loss     |   generated 210/250
+22:19:21 | INFO     | evaluation.eval_loss     |   generated 220/250
+22:20:03 | INFO     | evaluation.eval_loss     |   generated 230/250
+22:20:44 | INFO     | evaluation.eval_loss     |   generated 240/250
+22:21:19 | INFO     | evaluation.eval_loss     |   generated 250/250
+22:21:19 | INFO     | absl                     | Using default tokenizer.
+22:21:20 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2446 BLEU=0.0523 (backend=evaluate, 18m 33.8s)
+22:21:20 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0794 ppl=7.9996 rougeL=0.2446 bleu=0.0523 over 85,843 tokens in 20m 33.2s
+22:21:21 | INFO     | reevaluate               | [33/39] exp0_local:client_2
+22:21:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+22:21:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+22:21:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+22:21:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|▏         | 4/290 [00:00<00:07, 37.83it/s]Loading weights:  22%|██▏       | 63/290 [00:00<00:00, 349.15it/s]Loading weights:  40%|████      | 116/290 [00:00<00:00, 428.94it/s]Loading weights:  73%|███████▎  | 213/290 [00:00<00:00, 638.86it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 606.15it/s]
+22:21:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+22:21:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+22:21:22 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.44s
+22:21:22 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_2
+22:21:23 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+22:21:46 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0530 ppl=7.7913
+22:22:08 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0686 ppl=7.9140
+22:22:31 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0462 ppl=7.7387
+22:22:54 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0549 ppl=7.8057
+22:23:18 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0789 ppl=7.9958
+22:23:18 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+22:23:46 | INFO     | evaluation.eval_loss     |   generated 10/250
+22:24:32 | INFO     | evaluation.eval_loss     |   generated 20/250
+22:25:13 | INFO     | evaluation.eval_loss     |   generated 30/250
+22:26:02 | INFO     | evaluation.eval_loss     |   generated 40/250
+22:26:51 | INFO     | evaluation.eval_loss     |   generated 50/250
+22:27:41 | INFO     | evaluation.eval_loss     |   generated 60/250
+22:28:21 | INFO     | evaluation.eval_loss     |   generated 70/250
+22:28:47 | INFO     | evaluation.eval_loss     |   generated 80/250
+22:29:28 | INFO     | evaluation.eval_loss     |   generated 90/250
+22:30:21 | INFO     | evaluation.eval_loss     |   generated 100/250
+22:31:08 | INFO     | evaluation.eval_loss     |   generated 110/250
+22:31:53 | INFO     | evaluation.eval_loss     |   generated 120/250
+22:32:36 | INFO     | evaluation.eval_loss     |   generated 130/250
+22:33:04 | INFO     | evaluation.eval_loss     |   generated 140/250
+22:33:54 | INFO     | evaluation.eval_loss     |   generated 150/250
+22:34:25 | INFO     | evaluation.eval_loss     |   generated 160/250
+22:35:18 | INFO     | evaluation.eval_loss     |   generated 170/250
+22:35:52 | INFO     | evaluation.eval_loss     |   generated 180/250
+22:36:34 | INFO     | evaluation.eval_loss     |   generated 190/250
+22:37:09 | INFO     | evaluation.eval_loss     |   generated 200/250
+22:38:12 | INFO     | evaluation.eval_loss     |   generated 210/250
+22:39:04 | INFO     | evaluation.eval_loss     |   generated 220/250
+22:39:49 | INFO     | evaluation.eval_loss     |   generated 230/250
+22:40:38 | INFO     | evaluation.eval_loss     |   generated 240/250
+22:41:20 | INFO     | evaluation.eval_loss     |   generated 250/250
+22:41:20 | INFO     | absl                     | Using default tokenizer.
+22:41:21 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2413 BLEU=0.0499 (backend=evaluate, 18m 02.1s)
+22:41:21 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0789 ppl=7.9958 rougeL=0.2413 bleu=0.0499 over 85,843 tokens in 20m 00.4s
+22:41:22 | INFO     | reevaluate               | [34/39] exp0_local:client_3
+22:41:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+22:41:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+22:41:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+22:41:22 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|▏         | 4/290 [00:00<00:07, 37.92it/s]Loading weights:  22%|██▏       | 65/290 [00:00<00:00, 365.75it/s]Loading weights:  61%|██████    | 176/290 [00:00<00:00, 699.84it/s]Loading weights:  97%|█████████▋| 281/290 [00:00<00:00, 827.27it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 697.85it/s]
+22:41:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+22:41:23 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+22:41:23 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.33s
+22:41:23 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp0_local/round_3/client_3
+22:41:24 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+22:41:47 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0490 ppl=7.7598
+22:42:09 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0679 ppl=7.9083
+22:42:32 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0432 ppl=7.7154
+22:42:55 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0520 ppl=7.7833
+22:43:19 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0771 ppl=7.9816
+22:43:19 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+22:43:49 | INFO     | evaluation.eval_loss     |   generated 10/250
+22:44:32 | INFO     | evaluation.eval_loss     |   generated 20/250
+22:45:00 | INFO     | evaluation.eval_loss     |   generated 30/250
+22:45:47 | INFO     | evaluation.eval_loss     |   generated 40/250
+22:46:35 | INFO     | evaluation.eval_loss     |   generated 50/250
+22:47:17 | INFO     | evaluation.eval_loss     |   generated 60/250
+22:48:05 | INFO     | evaluation.eval_loss     |   generated 70/250
+22:48:27 | INFO     | evaluation.eval_loss     |   generated 80/250
+22:49:17 | INFO     | evaluation.eval_loss     |   generated 90/250
+22:50:04 | INFO     | evaluation.eval_loss     |   generated 100/250
+22:50:51 | INFO     | evaluation.eval_loss     |   generated 110/250
+22:51:38 | INFO     | evaluation.eval_loss     |   generated 120/250
+22:52:23 | INFO     | evaluation.eval_loss     |   generated 130/250
+22:53:02 | INFO     | evaluation.eval_loss     |   generated 140/250
+22:53:56 | INFO     | evaluation.eval_loss     |   generated 150/250
+22:54:34 | INFO     | evaluation.eval_loss     |   generated 160/250
+22:55:26 | INFO     | evaluation.eval_loss     |   generated 170/250
+22:55:55 | INFO     | evaluation.eval_loss     |   generated 180/250
+22:56:38 | INFO     | evaluation.eval_loss     |   generated 190/250
+22:57:22 | INFO     | evaluation.eval_loss     |   generated 200/250
+22:58:16 | INFO     | evaluation.eval_loss     |   generated 210/250
+22:58:58 | INFO     | evaluation.eval_loss     |   generated 220/250
+22:59:46 | INFO     | evaluation.eval_loss     |   generated 230/250
+23:00:39 | INFO     | evaluation.eval_loss     |   generated 240/250
+23:01:14 | INFO     | evaluation.eval_loss     |   generated 250/250
+23:01:14 | INFO     | absl                     | Using default tokenizer.
+23:01:15 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2560 BLEU=0.0523 (backend=evaluate, 17m 54.9s)
+23:01:15 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0771 ppl=7.9816 rougeL=0.2560 bleu=0.0523 over 85,843 tokens in 19m 53.2s
+23:01:16 | INFO     | reevaluate               | [35/39] exp1_sft
+23:01:16 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+23:01:16 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+23:01:16 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+23:01:16 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.85it/s]Loading weights:  24%|██▍       | 69/290 [00:00<00:00, 398.18it/s]Loading weights:  63%|██████▎   | 184/290 [00:00<00:00, 735.20it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 734.71it/s]
+23:01:17 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+23:01:17 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+23:01:17 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.36s
+23:01:17 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp1_sft/global
+23:01:18 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+23:01:42 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0224 ppl=7.5561
+23:02:03 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0382 ppl=7.6770
+23:02:26 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0150 ppl=7.5009
+23:02:49 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0241 ppl=7.5694
+23:03:13 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0502 ppl=7.7697
+23:03:13 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+23:03:51 | INFO     | evaluation.eval_loss     |   generated 10/250
+23:04:39 | INFO     | evaluation.eval_loss     |   generated 20/250
+23:05:11 | INFO     | evaluation.eval_loss     |   generated 30/250
+23:06:15 | INFO     | evaluation.eval_loss     |   generated 40/250
+23:07:06 | INFO     | evaluation.eval_loss     |   generated 50/250
+23:07:56 | INFO     | evaluation.eval_loss     |   generated 60/250
+23:08:52 | INFO     | evaluation.eval_loss     |   generated 70/250
+23:09:19 | INFO     | evaluation.eval_loss     |   generated 80/250
+23:10:07 | INFO     | evaluation.eval_loss     |   generated 90/250
+23:10:56 | INFO     | evaluation.eval_loss     |   generated 100/250
+23:11:43 | INFO     | evaluation.eval_loss     |   generated 110/250
+23:12:26 | INFO     | evaluation.eval_loss     |   generated 120/250
+23:13:17 | INFO     | evaluation.eval_loss     |   generated 130/250
+23:14:03 | INFO     | evaluation.eval_loss     |   generated 140/250
+23:14:57 | INFO     | evaluation.eval_loss     |   generated 150/250
+23:15:33 | INFO     | evaluation.eval_loss     |   generated 160/250
+23:16:23 | INFO     | evaluation.eval_loss     |   generated 170/250
+23:16:53 | INFO     | evaluation.eval_loss     |   generated 180/250
+23:17:33 | INFO     | evaluation.eval_loss     |   generated 190/250
+23:18:19 | INFO     | evaluation.eval_loss     |   generated 200/250
+23:19:21 | INFO     | evaluation.eval_loss     |   generated 210/250
+23:20:14 | INFO     | evaluation.eval_loss     |   generated 220/250
+23:21:07 | INFO     | evaluation.eval_loss     |   generated 230/250
+23:21:59 | INFO     | evaluation.eval_loss     |   generated 240/250
+23:22:38 | INFO     | evaluation.eval_loss     |   generated 250/250
+23:22:38 | INFO     | absl                     | Using default tokenizer.
+23:22:39 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2679 BLEU=0.0635 (backend=evaluate, 19m 24.5s)
+23:22:39 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0502 ppl=7.7697 rougeL=0.2679 bleu=0.0635 over 85,843 tokens in 21m 23.0s
+23:22:39 | INFO     | reevaluate               | [36/39] exp2_fl
+23:22:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+23:22:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+23:22:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+23:22:40 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|▏         | 4/290 [00:00<00:07, 37.79it/s]Loading weights:  19%|█▉        | 56/290 [00:00<00:00, 313.27it/s]Loading weights:  51%|█████▏    | 149/290 [00:00<00:00, 588.09it/s]Loading weights:  89%|████████▉ | 258/290 [00:00<00:00, 783.72it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 668.61it/s]
+23:22:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+23:22:41 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+23:22:41 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.39s
+23:22:41 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp2_fl/round_3/global
+23:22:42 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+23:23:05 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0400 ppl=7.6905
+23:23:27 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0581 ppl=7.8307
+23:23:50 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0349 ppl=7.6516
+23:24:13 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0443 ppl=7.7239
+23:24:36 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0690 ppl=7.9171
+23:24:36 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+23:25:04 | INFO     | evaluation.eval_loss     |   generated 10/250
+23:25:49 | INFO     | evaluation.eval_loss     |   generated 20/250
+23:26:23 | INFO     | evaluation.eval_loss     |   generated 30/250
+23:27:08 | INFO     | evaluation.eval_loss     |   generated 40/250
+23:27:45 | INFO     | evaluation.eval_loss     |   generated 50/250
+23:28:30 | INFO     | evaluation.eval_loss     |   generated 60/250
+23:29:17 | INFO     | evaluation.eval_loss     |   generated 70/250
+23:29:37 | INFO     | evaluation.eval_loss     |   generated 80/250
+23:30:27 | INFO     | evaluation.eval_loss     |   generated 90/250
+23:31:21 | INFO     | evaluation.eval_loss     |   generated 100/250
+23:32:08 | INFO     | evaluation.eval_loss     |   generated 110/250
+23:32:52 | INFO     | evaluation.eval_loss     |   generated 120/250
+23:33:32 | INFO     | evaluation.eval_loss     |   generated 130/250
+23:34:08 | INFO     | evaluation.eval_loss     |   generated 140/250
+23:34:57 | INFO     | evaluation.eval_loss     |   generated 150/250
+23:35:29 | INFO     | evaluation.eval_loss     |   generated 160/250
+23:36:23 | INFO     | evaluation.eval_loss     |   generated 170/250
+23:37:10 | INFO     | evaluation.eval_loss     |   generated 180/250
+23:37:54 | INFO     | evaluation.eval_loss     |   generated 190/250
+23:38:36 | INFO     | evaluation.eval_loss     |   generated 200/250
+23:39:46 | INFO     | evaluation.eval_loss     |   generated 210/250
+23:40:32 | INFO     | evaluation.eval_loss     |   generated 220/250
+23:41:14 | INFO     | evaluation.eval_loss     |   generated 230/250
+23:42:05 | INFO     | evaluation.eval_loss     |   generated 240/250
+23:42:40 | INFO     | evaluation.eval_loss     |   generated 250/250
+23:42:40 | INFO     | absl                     | Using default tokenizer.
+23:42:41 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2517 BLEU=0.0543 (backend=evaluate, 18m 03.4s)
+23:42:41 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0690 ppl=7.9171 rougeL=0.2517 bleu=0.0543 over 85,843 tokens in 20m 01.4s
+23:42:42 | INFO     | reevaluate               | [37/39] exp3_fl_bc
+23:42:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+23:42:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+23:42:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+23:42:42 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 29.80it/s]Loading weights:  20%|█▉        | 57/290 [00:00<00:00, 328.42it/s]Loading weights:  56%|█████▌    | 162/290 [00:00<00:00, 656.88it/s]Loading weights:  97%|█████████▋| 281/290 [00:00<00:00, 860.55it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 713.43it/s]
+23:42:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+23:42:43 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+23:42:43 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.33s
+23:42:43 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp3_fl_bc/round_3/global
+23:42:44 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+23:43:07 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0400 ppl=7.6905
+23:43:29 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0581 ppl=7.8307
+23:43:51 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0349 ppl=7.6516
+23:44:15 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0443 ppl=7.7239
+23:44:38 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0690 ppl=7.9171
+23:44:38 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+23:45:05 | INFO     | evaluation.eval_loss     |   generated 10/250
+23:45:54 | INFO     | evaluation.eval_loss     |   generated 20/250
+23:46:27 | INFO     | evaluation.eval_loss     |   generated 30/250
+23:47:21 | INFO     | evaluation.eval_loss     |   generated 40/250
+23:48:00 | INFO     | evaluation.eval_loss     |   generated 50/250
+23:48:45 | INFO     | evaluation.eval_loss     |   generated 60/250
+23:49:34 | INFO     | evaluation.eval_loss     |   generated 70/250
+23:49:54 | INFO     | evaluation.eval_loss     |   generated 80/250
+23:50:43 | INFO     | evaluation.eval_loss     |   generated 90/250
+23:51:40 | INFO     | evaluation.eval_loss     |   generated 100/250
+23:52:29 | INFO     | evaluation.eval_loss     |   generated 110/250
+23:53:13 | INFO     | evaluation.eval_loss     |   generated 120/250
+23:53:54 | INFO     | evaluation.eval_loss     |   generated 130/250
+23:54:29 | INFO     | evaluation.eval_loss     |   generated 140/250
+23:55:19 | INFO     | evaluation.eval_loss     |   generated 150/250
+23:55:51 | INFO     | evaluation.eval_loss     |   generated 160/250
+23:56:43 | INFO     | evaluation.eval_loss     |   generated 170/250
+23:57:28 | INFO     | evaluation.eval_loss     |   generated 180/250
+23:58:10 | INFO     | evaluation.eval_loss     |   generated 190/250
+23:58:50 | INFO     | evaluation.eval_loss     |   generated 200/250
+23:59:58 | INFO     | evaluation.eval_loss     |   generated 210/250
+00:00:47 | INFO     | evaluation.eval_loss     |   generated 220/250
+00:01:29 | INFO     | evaluation.eval_loss     |   generated 230/250
+00:02:19 | INFO     | evaluation.eval_loss     |   generated 240/250
+00:02:53 | INFO     | evaluation.eval_loss     |   generated 250/250
+00:02:53 | INFO     | absl                     | Using default tokenizer.
+00:02:54 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2517 BLEU=0.0543 (backend=evaluate, 18m 15.1s)
+00:02:54 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0690 ppl=7.9171 rougeL=0.2517 bleu=0.0543 over 85,843 tokens in 20m 12.6s
+00:02:55 | INFO     | reevaluate               | [38/39] exp4_fedchain
+00:02:55 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+00:02:55 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+00:02:56 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+00:02:56 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|          | 3/290 [00:00<00:09, 30.00it/s]Loading weights:  21%|██        | 61/290 [00:00<00:00, 352.49it/s]Loading weights:  62%|██████▏   | 181/290 [00:00<00:00, 738.58it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 724.01it/s]
+00:02:56 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+00:02:56 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+00:02:56 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.34s
+00:02:56 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp4_fedchain/round_3/global
+00:02:57 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+00:03:21 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0400 ppl=7.6905
+00:03:42 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0581 ppl=7.8307
+00:04:05 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0349 ppl=7.6516
+00:04:28 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0443 ppl=7.7239
+00:04:52 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0690 ppl=7.9171
+00:04:52 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+00:05:20 | INFO     | evaluation.eval_loss     |   generated 10/250
+00:06:11 | INFO     | evaluation.eval_loss     |   generated 20/250
+00:06:48 | INFO     | evaluation.eval_loss     |   generated 30/250
+00:07:32 | INFO     | evaluation.eval_loss     |   generated 40/250
+00:08:11 | INFO     | evaluation.eval_loss     |   generated 50/250
+00:09:00 | INFO     | evaluation.eval_loss     |   generated 60/250
+00:09:47 | INFO     | evaluation.eval_loss     |   generated 70/250
+00:10:06 | INFO     | evaluation.eval_loss     |   generated 80/250
+00:10:56 | INFO     | evaluation.eval_loss     |   generated 90/250
+00:11:49 | INFO     | evaluation.eval_loss     |   generated 100/250
+00:12:39 | INFO     | evaluation.eval_loss     |   generated 110/250
+00:13:22 | INFO     | evaluation.eval_loss     |   generated 120/250
+00:14:04 | INFO     | evaluation.eval_loss     |   generated 130/250
+00:14:40 | INFO     | evaluation.eval_loss     |   generated 140/250
+00:15:31 | INFO     | evaluation.eval_loss     |   generated 150/250
+00:16:04 | INFO     | evaluation.eval_loss     |   generated 160/250
+00:16:56 | INFO     | evaluation.eval_loss     |   generated 170/250
+00:17:42 | INFO     | evaluation.eval_loss     |   generated 180/250
+00:18:26 | INFO     | evaluation.eval_loss     |   generated 190/250
+00:19:09 | INFO     | evaluation.eval_loss     |   generated 200/250
+00:20:21 | INFO     | evaluation.eval_loss     |   generated 210/250
+00:21:09 | INFO     | evaluation.eval_loss     |   generated 220/250
+00:21:50 | INFO     | evaluation.eval_loss     |   generated 230/250
+00:22:44 | INFO     | evaluation.eval_loss     |   generated 240/250
+00:23:18 | INFO     | evaluation.eval_loss     |   generated 250/250
+00:23:18 | INFO     | absl                     | Using default tokenizer.
+00:23:19 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2517 BLEU=0.0543 (backend=evaluate, 18m 25.6s)
+00:23:19 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0690 ppl=7.9171 rougeL=0.2517 bleu=0.0543 over 85,843 tokens in 20m 23.7s
+00:23:19 | INFO     | reevaluate               | [39/39] exp5_noniid
+00:23:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+00:23:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+00:23:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+00:23:20 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   1%|▏         | 4/290 [00:00<00:07, 38.10it/s]Loading weights:  18%|█▊        | 53/290 [00:00<00:00, 292.35it/s]Loading weights:  42%|████▏     | 121/290 [00:00<00:00, 465.17it/s]Loading weights:  80%|████████  | 233/290 [00:00<00:00, 715.06it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 622.69it/s]
+00:23:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+00:23:21 | INFO     | httpx                    | HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-0.5B-Instruct/7ae557604adf67be50417f59c2c2f167def9a775/generation_config.json "HTTP/1.1 200 OK"
+00:23:21 | INFO     | evaluation.eval_loss     | Evaluation base model load took 1.42s
+00:23:21 | INFO     | evaluation.eval_loss     | Attaching adapter /home/mann/FedChain/outputs/qwen-0.5b/seed_44/exp5_noniid/round_3/global
+00:23:21 | INFO     | evaluation.eval_loss     | Scoring 500 evaluation samples for loss ...
+00:23:45 | INFO     | evaluation.eval_loss     |   100/500 scored | running loss=2.0423 ppl=7.7084
+00:24:07 | INFO     | evaluation.eval_loss     |   200/500 scored | running loss=2.0614 ppl=7.8572
+00:24:29 | INFO     | evaluation.eval_loss     |   300/500 scored | running loss=2.0369 ppl=7.6666
+00:24:53 | INFO     | evaluation.eval_loss     |   400/500 scored | running loss=2.0463 ppl=7.7391
+00:25:16 | INFO     | evaluation.eval_loss     |   500/500 scored | running loss=2.0711 ppl=7.9337
+00:25:16 | INFO     | evaluation.eval_loss     | Generating 250 responses for ROUGE-L / BLEU ...
+00:25:48 | INFO     | evaluation.eval_loss     |   generated 10/250
+00:26:38 | INFO     | evaluation.eval_loss     |   generated 20/250
+00:27:10 | INFO     | evaluation.eval_loss     |   generated 30/250
+00:27:56 | INFO     | evaluation.eval_loss     |   generated 40/250
+00:28:43 | INFO     | evaluation.eval_loss     |   generated 50/250
+00:29:35 | INFO     | evaluation.eval_loss     |   generated 60/250
+00:30:12 | INFO     | evaluation.eval_loss     |   generated 70/250
+00:30:32 | INFO     | evaluation.eval_loss     |   generated 80/250
+00:31:17 | INFO     | evaluation.eval_loss     |   generated 90/250
+00:32:06 | INFO     | evaluation.eval_loss     |   generated 100/250
+00:32:58 | INFO     | evaluation.eval_loss     |   generated 110/250
+00:33:41 | INFO     | evaluation.eval_loss     |   generated 120/250
+00:34:18 | INFO     | evaluation.eval_loss     |   generated 130/250
+00:34:53 | INFO     | evaluation.eval_loss     |   generated 140/250
+00:35:43 | INFO     | evaluation.eval_loss     |   generated 150/250
+00:36:12 | INFO     | evaluation.eval_loss     |   generated 160/250
+00:37:03 | INFO     | evaluation.eval_loss     |   generated 170/250
+00:37:36 | INFO     | evaluation.eval_loss     |   generated 180/250
+00:38:16 | INFO     | evaluation.eval_loss     |   generated 190/250
+00:38:55 | INFO     | evaluation.eval_loss     |   generated 200/250
+00:39:59 | INFO     | evaluation.eval_loss     |   generated 210/250
+00:40:47 | INFO     | evaluation.eval_loss     |   generated 220/250
+00:41:33 | INFO     | evaluation.eval_loss     |   generated 230/250
+00:42:23 | INFO     | evaluation.eval_loss     |   generated 240/250
+00:42:53 | INFO     | evaluation.eval_loss     |   generated 250/250
+00:42:53 | INFO     | absl                     | Using default tokenizer.
+00:42:54 | INFO     | evaluation.eval_loss     | Generation quality over 250 samples: ROUGE-L=0.2506 BLEU=0.0524 (backend=evaluate, 17m 36.2s)
+00:42:54 | INFO     | evaluation.eval_loss     | Evaluation: loss=2.0711 ppl=7.9337 rougeL=0.2506 bleu=0.0524 over 85,843 tokens in 19m 34.1s
+00:42:54 | INFO     | reevaluate               | Written: results/qwen-0.5b/reeval250
+00:42:54 | INFO     | reevaluate               | Generation metric backend(s) used: evaluate
