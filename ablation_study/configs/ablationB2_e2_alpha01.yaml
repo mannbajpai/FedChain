@@ -1,0 +1,64 @@
+# =============================================================================
+# Ablation B2c :: FedAvg on Dirichlet(0.1) shards
+# -----------------------------------------------------------------------------
+# The federated arm of the alpha=0.1 triple. Paired with ablationB2_e0_alpha01
+# this gives the quantity the alpha sweep exists to produce:
+#
+#     (E0 - E2) / (E0 - E1)   =   the share of the isolation->centralized gap
+#                                 that averaging recovers, at this alpha
+#
+# Measured so far at qwen-0.5b: 34.0% +- 4.3% (IID), 41.5% +- 7.7% (alpha=0.3).
+# H-B1 predicts alpha=0.1 exceeds 41.5%. H-B2 predicts the mechanism: E0
+# degrades faster than E2 as alpha falls (2.82x faster between IID and 0.3).
+#
+# Plain FedAvg, not FedChain. The audit layer is proven bit-identical to plain
+# FedAvg on two partitions now (18/18 global under IID, 27/27 client at
+# alpha=0.3), so running the cheaper arm loses nothing and skips the chain and
+# IPFS setup. B2/B3 do not need to re-confirm hash equality a third time.
+#
+# Generate the shards first (see ablationB2_e0_alpha01.yaml for the full gate):
+#
+#   python data/prepare_data.py --partition dirichlet --alpha 0.1 \
+#       --output-dir data/dirichlet_a01
+#
+#   python main.py --config ablation_study/configs/ablationB2_e2_alpha01.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB2_e2_alpha01"
+exp_description: "FedAvg on Dirichlet(0.1) shards: does aggregation's advantage keep growing as alpha falls?"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet_a01/client1.jsonl"
+  - "data/dirichlet_a01/client2.jsonl"
+  - "data/dirichlet_a01/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500        # must match ablationB2_e0_alpha01 exactly
+
+# --- Aggregation -------------------------------------------------------------
+# Sample-weighted, matching every other federated arm in the study.
+#
+# At alpha=0.3 this was a no-op: max_train_samples capped all three clients at
+# 500 and the weights came out uniform, so the skew was *label* skew with
+# balanced quantities. At alpha=0.1 the smallest shard may fall below the cap,
+# in which case the weighting becomes live and the run carries quantity skew
+# too. That is a different experiment from B1 - if it happens, say so in the
+# write-up rather than reporting B1 and B2 as one sweep.
+fedavg_weighted: true
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

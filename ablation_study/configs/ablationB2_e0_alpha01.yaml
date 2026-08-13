@@ -1,0 +1,71 @@
+# =============================================================================
+# Ablation B2a :: Local-only on Dirichlet(0.1) shards
+# -----------------------------------------------------------------------------
+# The isolation arm of the alpha=0.1 triple (B2a/B2b/B2c). B1 measured a single
+# contrast - IID vs alpha=0.3 - which is a direction, not the ordering H-B1
+# actually predicted. B2 (alpha=0.1) and B3 (alpha=1.0) are what turn two points
+# into a curve.
+#
+# MEASURED SO FAR (qwen-0.5b, 3 seeds), FedAvg's recovery of the E0->E1 gap:
+#     IID        34.0% +- 4.3%     (E0-E2 = +0.00964 +- 0.00093)
+#     alpha=0.3  41.5% +- 7.7%     (E0-E2 = +0.01626 +- 0.00128)
+# H-B1 predicts alpha=0.1 lands above 41.5% and alpha=1.0 between 34% and 41.5%.
+#
+# ---------------------------------------------------------------------------
+# GENERATE THE SHARDS FIRST - AND DO NOT LET THEM OVERWRITE alpha=0.3
+# ---------------------------------------------------------------------------
+# prepare_data.py writes non-IID shards to `data/<partition>/`, i.e.
+# `data/dirichlet/` for EVERY alpha. Running it again at a different alpha
+# silently destroys the shards B1 was run on and makes B1 unreproducible.
+# Always pass --output-dir:
+#
+#   python data/prepare_data.py --partition dirichlet --alpha 0.1 \
+#       --output-dir data/dirichlet_a01
+#
+# ---------------------------------------------------------------------------
+# HARD GATE - CHECK BEFORE RUNNING
+# ---------------------------------------------------------------------------
+# Lower alpha skews harder, so the smallest shard shrinks. At alpha=0.3 it was
+# 2,715 records, capping the round count at floor(2715/500) = 5. At alpha=0.1 it
+# will be smaller and MAY FALL BELOW 1,500, which is what R=3 x 500 needs. Read
+# the sizes prepare_data.py prints. If the smallest shard is under 1,500, lower
+# `max_train_samples` for ALL THREE ARMS of this triple rather than dropping a
+# round - the budget match across arms is what makes the comparison fair.
+#
+#   python main.py --config ablation_study/configs/ablationB2_e0_alpha01.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB2_e0_alpha01"
+exp_description: "Local-only QLoRA on Dirichlet(0.1) shards: the isolation baseline under severe label skew"
+
+# --- Paradigm switches -------------------------------------------------------
+# enable_fl with aggregation OFF is how the local-only arm is expressed: three
+# clients train in parallel and are never averaged.
+enable_fl: true
+enable_aggregation: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet_a01/client1.jsonl"
+  - "data/dirichlet_a01/client2.jsonl"
+  - "data/dirichlet_a01/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500        # lower this if the smallest shard is under 1,500
+
+# --- Evaluation --------------------------------------------------------------
+# H-B2 says isolated clients degrade faster than the averaged model as alpha
+# falls. That is a statement about the trajectory, and B1 could not check it
+# because E0 evaluated only at the end. Turn the per-round client evaluation on
+# here so B2 can.
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

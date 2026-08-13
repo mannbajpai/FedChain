@@ -1,0 +1,53 @@
+# =============================================================================
+# Ablation B2b :: Centralized SFT on the pooled Dirichlet(0.1) union
+# -----------------------------------------------------------------------------
+# The upper bound of the alpha=0.1 triple, and a control.
+#
+# As a control it is the more interesting of the two roles. Centralized training
+# sees the union of all shards, so how that union was partitioned should not
+# reach it: E1 must come out the same at every alpha. B1 confirmed this at
+# alpha=0.3 - 2.0492 +- 0.0042 against 2.0499 +- 0.0016 for IID, unions equal at
+# 14,511 records. If E1 moves at alpha=0.1, the repartition changed the corpus
+# rather than redistributing it, and the whole triple is invalid. Check this
+# before reading anything else from B2.
+#
+# Generate the shards first (see ablationB2_e0_alpha01.yaml for the full gate):
+#
+#   python data/prepare_data.py --partition dirichlet --alpha 0.1 \
+#       --output-dir data/dirichlet_a01
+#
+#   python main.py --config ablation_study/configs/ablationB2_e1_alpha01.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB2_e1_alpha01"
+exp_description: "Centralized QLoRA SFT on the pooled union of the Dirichlet(0.1) shards"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Data --------------------------------------------------------------------
+# The union of the same three shards the federated arms hold.
+data_path:
+  - "data/dirichlet_a01/client1.jsonl"
+  - "data/dirichlet_a01/client2.jsonl"
+  - "data/dirichlet_a01/client3.jsonl"
+
+num_rounds: 1
+
+# --- Budget matching ---------------------------------------------------------
+# 1,500 per shard x 3 shards = 4,500 pooled samples, matching the federated arms
+# at 3 rounds x 3 clients x 500. Budget matching at the update level is what
+# makes E2-E1 a fair statement of the cost of federating.
+#
+# If the alpha=0.1 gate forced max_train_samples below 500 in the E0/E2 arms,
+# this value must move with it: keep it at 3 x whatever the federated arms use.
+max_train_samples: 1500
+
+# --- Evaluation --------------------------------------------------------------
+eval_final: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

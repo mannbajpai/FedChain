@@ -16,20 +16,27 @@
 # result is a property of the design rather than an artefact of one
 # configuration. Any hash divergence is a bug, not a measurement.
 #
-# Run the sweep by overriding rather than duplicating this file:
+# Run the sweep by overriding rather than duplicating this file. `--local-epochs`
+# exists on main.py, so no code change is needed (the earlier note in this header
+# saying otherwise was stale and has been removed):
 #
 #   for E in 1 2 4; do
 #     python main.py --config ablation_study/configs/ablationC_local_epochs.yaml \
-#         --model smol --seed 42 --exp-name "ablationC_iid_e${E}" -- --local-epochs $E
+#         --model qwen --seed 42 --exp-name "ablationC_iid_e${E}" --local-epochs $E
 #   done
 #
-# NOTE: main.py has no --local-epochs flag as of this writing. Either add one
-# alongside --num-rounds and --max-train-samples (a two-line change following
-# the existing pattern), or copy this file per epoch value. The former is
-# preferred - the sweep is run twice, once per partition.
+# For the alpha=0.3 half of the sweep, point client_files at data/dirichlet/ and
+# name the runs ablationC_a03_e${E}. H-C1 is a *contrast* between the two halves
+# - drift should hurt under skew and not under IID - so neither half means much
+# without the other.
+#
+# H-C2 needs a plain-FedAvg partner at each epoch setting to hash against. Run
+# each point twice, once with enable_blockchain/enable_ipfs false, and diff the
+# client adapter hashes exactly as B1 was diffed against E5 (27/27 identical).
 #
 # Cost scales with the setting: E=2 roughly doubles training time, E=4 roughly
-# quadruples it. Budget ~7.2 h per seed for the three IID points.
+# quadruples it. Budget ~7.2 h per seed for the three IID points, and double
+# that if the hash-partner runs are included.
 # =============================================================================
 extends: base_config.yaml
 
@@ -71,3 +78,4 @@ verify_hash_on_download: true
 eval_every_round: true
 eval_final: true
 gen_num_samples: 50
+require_metric_backend: "evaluate"

@@ -1,0 +1,52 @@
+# =============================================================================
+# Ablation F (N=10) :: Local-only partner
+# -----------------------------------------------------------------------------
+# The isolation baseline at N=10, and the run that decides how N=10 is read.
+#
+# If the federated N=10 arm underperforms N=5, this arm tells you why. Isolated
+# clients at N=10 train on 150 records per round; if they collapse too, the
+# shards are simply too small and the result is about the corpus. If they hold
+# while the federated arm degrades, that is a genuine statement about averaging
+# over many small updates. The two cases license opposite sentences in the
+# paper, so do not run the federated arm without this one.
+#
+#   python data/prepare_data.py --num-clients 10 --output-dir data/iid_n10
+#
+#   python main.py --config ablation_study/configs/ablationF_clients10_local.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationF_clients10_local"
+exp_description: "Local-only QLoRA across 10 isolated clients at constant total data"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_aggregation: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 10
+client_files:
+  - "data/iid_n10/client1.jsonl"
+  - "data/iid_n10/client2.jsonl"
+  - "data/iid_n10/client3.jsonl"
+  - "data/iid_n10/client4.jsonl"
+  - "data/iid_n10/client5.jsonl"
+  - "data/iid_n10/client6.jsonl"
+  - "data/iid_n10/client7.jsonl"
+  - "data/iid_n10/client8.jsonl"
+  - "data/iid_n10/client9.jsonl"
+  - "data/iid_n10/client10.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 150        # must match ablationF_clients10.yaml exactly
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

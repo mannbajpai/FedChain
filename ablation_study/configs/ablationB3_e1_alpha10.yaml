@@ -1,0 +1,52 @@
+# =============================================================================
+# Ablation B3b :: Centralized SFT on the pooled Dirichlet(1.0) union
+# -----------------------------------------------------------------------------
+# Upper bound for the alpha=1.0 triple, and the partition-invariance control at
+# this alpha.
+#
+# The control is the point. Centralized training pools the shards, so how they
+# were split must not reach it - E1 should read the same at every alpha. Two
+# measurements agree so far:
+#
+#     IID        2.0499 +- 0.0016
+#     alpha=0.3  2.0492 +- 0.0042
+#
+# A third agreeing value makes "the Dirichlet repartition redistributes the
+# corpus rather than changing it" a measured property across the whole sweep,
+# which is the cleanest answer available to a reviewer who suspects the non-IID
+# arms are solving a different task.
+#
+# Generate the shards first (see ablationB3_e0_alpha10.yaml):
+#
+#   python data/prepare_data.py --partition dirichlet --alpha 1.0 \
+#       --output-dir data/dirichlet_a10
+#
+#   python main.py --config ablation_study/configs/ablationB3_e1_alpha10.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB3_e1_alpha10"
+exp_description: "Centralized QLoRA SFT on the pooled union of the Dirichlet(1.0) shards"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Data --------------------------------------------------------------------
+data_path:
+  - "data/dirichlet_a10/client1.jsonl"
+  - "data/dirichlet_a10/client2.jsonl"
+  - "data/dirichlet_a10/client3.jsonl"
+
+num_rounds: 1
+
+# --- Budget matching ---------------------------------------------------------
+# 1,500 per shard x 3 = 4,500 pooled, matching 3 rounds x 3 clients x 500.
+max_train_samples: 1500
+
+# --- Evaluation --------------------------------------------------------------
+eval_final: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

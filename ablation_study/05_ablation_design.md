@@ -12,6 +12,22 @@ FedAvg recovers 2.4% of the isolation→centralized gap. Ablations **A** and **B
 exist to test the two explanations that would rescue that (too few rounds; IID
 makes isolation nearly optimal). Everything else is supporting work.
 
+> ### ⚠ Tier caveat added 2026-08-13 — read before using any threshold below
+>
+> **That 2.4% is the smollm2-360m figure**, and every decision threshold in this
+> document was calibrated on it. The study then moved to **qwen-0.5b**, where the
+> IID baseline is **−0.00964 ± 0.00093 = 34.0%** of the gap — five times the
+> `|E2 − E0| < 0.002` cut-off that the "nothing is happening" branch uses.
+>
+> Ablation B1 was executed at qwen-0.5b. Its decision rules therefore never had a
+> live null case, and its absolute triggers do **not** transfer. The *direction*
+> triggers (does the gain grow as α falls? does E0 degrade faster than E2?) do
+> transfer, and are what [07](07_ablation_conclusions.md) evaluates.
+>
+> This is recorded as a pre-registration defect rather than quietly rescaled. If
+> further blocks are run, **re-derive the thresholds for the tier they run on**
+> and record the derivation here before starting.
+
 ## Cost model
 
 Measured from the baseline, per seed on the T600:
@@ -181,6 +197,15 @@ No retraining: 6 arms × 3 seeds = 18 adapters × ~20 min ≈ **6 h**.
 
 **H-E1.** CIs narrow by ~`sqrt(250/50) = 2.24×`; E5's ROUGE-L interval goes from
 ±0.042 to roughly ±0.019.
+
+> **⚠ H-E1 was malformed, and was falsified on that account (2026-08-13).** The
+> reported ±CI is a **between-seed** interval at n=3. `gen_num_samples` controls
+> Monte-Carlo error *inside* each seed's point estimate, which the interval does
+> not measure. Measured 50 → 250 CI ratios: 0.08×, 0.63×, 0.43×, 1.86× — three of
+> four **widened**. Narrower generation intervals require more **seeds**. What
+> 250 samples did buy was less noisy per-seed estimates, which is why the
+> qwen-0.5b ROUGE-L ordering became coherent with the loss ordering. See
+> [06 §E.2](06_ablation_results.md#e2-does-250-samples-buy-narrower-intervals).
 
 **H-E2.** No between-arm ROUGE-L ordering becomes significant even at 250. If
 so, the honest move is to report loss/perplexity as the accuracy result and

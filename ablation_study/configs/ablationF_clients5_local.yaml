@@ -1,0 +1,48 @@
+# =============================================================================
+# Ablation F (N=5) :: Local-only partner
+# -----------------------------------------------------------------------------
+# The isolation baseline at N=5. Without it ablationF_clients5.yaml produces a
+# loss number with nothing to compare it to: F asks what federation size does to
+# *the benefit of federating*, which is E2-E0, not E2 alone.
+#
+# `enable_aggregation: false` is a config key rather than a CLI flag, which is
+# why this exists as its own file rather than as an override.
+#
+# Shard the corpus exactly as the federated arm does - same directory, same
+# constant union:
+#
+#   python data/prepare_data.py --num-clients 5 --output-dir data/iid_n5
+#
+#   python main.py --config ablation_study/configs/ablationF_clients5_local.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationF_clients5_local"
+exp_description: "Local-only QLoRA across 5 isolated clients at constant total data"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_aggregation: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 5
+client_files:
+  - "data/iid_n5/client1.jsonl"
+  - "data/iid_n5/client2.jsonl"
+  - "data/iid_n5/client3.jsonl"
+  - "data/iid_n5/client4.jsonl"
+  - "data/iid_n5/client5.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 300        # must match ablationF_clients5.yaml exactly
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

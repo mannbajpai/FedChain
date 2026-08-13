@@ -19,7 +19,16 @@ different experiment:
 | The audit layer costs no accuracy | FL with and without it, over multiple seeds | E2 vs E3, E4 |
 | The audit layer *does something* | attacks that it must catch, and benign churn it must not | E6 |
 | The design is deployable | cost as a function of federation size and model size | E7 |
-| It holds where FL is hard | the non-IID regime | E5 |
+| The *systems* result holds where FL is hard | the non-IID regime | E5 |
+| The *learning* result holds where FL is hard | non-IID arms for the lower and upper bounds too | **Ablation B1** |
+
+That last row is a distinction worth keeping sharp. E5 is Dirichlet-sharded
+while E0/E1/E2 are IID, so on its own **E5 licenses no learning claim** — every
+E5−E0 or E5−E2 difference would confound the partition with federation. E5 alone
+says the audit layer survives skew, which is a systems statement.
+[Ablation B1](ablation_study/06_ablation_results.md#b--data-heterogeneity) supplies
+the matched non-IID E0/E1/E2 and is what makes the learning claim sayable. It has
+been run at qwen-0.5b only.
 
 ## Experiments
 
@@ -75,15 +84,23 @@ clients 2 and 3.
 # Infrastructure: anvil + IPFS daemon + contract artifact
 ./infra.sh
 
-# Main result: three seeds, all five training experiments, plus the
+# Main result: three seeds, all six training experiments, plus the
 # audit-layer experiments. This is what the paper's tables come from.
-./run_all.sh --model smol --seeds "42 43 44" --audit-experiments
+# Both tiers have been run; qwen-0.5b is the one the paper leads with.
+./run_all.sh --model smol      --seeds "42 43 44" --audit-experiments
+./run_all.sh --model qwen-0.5b --seeds "42 43 44" --audit-experiments
 
-# Non-IID regime (generates data/dirichlet/ first)
-./run_all.sh --model smol --noniid 0.3 --experiments "0 1 2 5" --seeds "42 43 44"
+# Matched non-IID baselines (Ablation B1). Run at qwen-0.5b; the 360M
+# equivalent is the highest-value outstanding run.
+python data/prepare_data.py --partition dirichlet --alpha 0.3
+./ablation_study/run_ablation.sh --block B1 --model qwen-0.5b --seeds "42 43 44"
 
-# Scale up once the small tier looks right
-./run_all.sh --model qwen-1.5b --seeds "42 43 44" --audit-experiments
+# Generation metrics on one scorer at 250 samples. Required before any
+# ROUGE-L/BLEU number is quoted -- see "Reading the output" below.
+python scripts/reevaluate.py --sweep results/qwen-0.5b \
+    --config configs/exp4_fedchain.yaml --model qwen-0.5b \
+    --gen-num-samples 250 --require-backend evaluate \
+    --out results/qwen-0.5b/reeval250
 ```
 
 Audit-layer experiments standalone (no GPU, minutes):
@@ -110,6 +127,23 @@ python scripts/scalability_experiment.py --clients 1,3,5,10,25,50,100
 A "Significant: no" on the E3/E4-vs-E2 rows is a **positive** result — it is the
 audit layer failing to change anything measurable, which is the paper's claim.
 
+> ### ⚠ Do not quote the ROUGE-L or BLEU rows from `comparison.md`
+>
+> They mix two scorers. `evaluation/eval_loss.py` falls back to a self-contained
+> ROUGE/BLEU implementation when the HF `evaluate` library cannot be imported,
+> and records which was used as `generation_metric_backend`. **All 30 main-table
+> runs took the fallback; Ablation B1's 6 arms did not.** The absolute values are
+> therefore not comparable between the two tables — and are not the standard
+> implementation in the `builtin` case.
+>
+> This is historical: `require_metric_backend: "evaluate"` has been set in
+> `base_config.yaml` since 2026-08-07 and makes a missing metric stack a hard
+> failure, but the affected runs predate it.
+>
+> **Quote `results/<tier>/reeval250` instead** — every arm, one scorer, 250
+> samples. On that common scorer, E5 and B1-E2 (bit-identical adapters) agree to
+> 6 dp, which is the check that surfaced the split in the first place.
+
 ## Statistical reporting
 
 With three seeds you can state:
@@ -120,11 +154,28 @@ With three seeds you can state:
 You cannot state:
 
 - that E2 and E3 are *equal* (absence of evidence is not equivalence — if you
-  need an equivalence claim, pre-register a margin and run a TOST);
+  need an equivalence claim, pre-register a margin and run a TOST). For the audit
+  layer this is moot: **artefact hash equality is a stronger claim than any
+  statistical test**, and it is what the paper should lead with;
 - that a ROUGE-L or BLEU difference is meaningful at `gen_num_samples: 50`.
-  Fifty greedy generations is enough for a sanity check and not enough for a
-  claim; raise it to 200+ before putting a generation-quality difference in a
-  table.
+  Fifty greedy generations is a sanity check, not a claim.
+
+**And one thing that turned out to be wrong.** An earlier version of this section
+advised raising `gen_num_samples` to 200+ "before putting a generation-quality
+difference in a table", on the theory that the confidence intervals would narrow
+by `sqrt(n)`. [Ablation E](ablation_study/06_ablation_results.md#e2-does-250-samples-buy-narrower-intervals)
+tested that directly and it is false: at 50 → 250 the measured CI ratios were
+0.08×, 0.43×, 0.63× and 1.86× — **three of four widened**.
+
+The reason is that the reported ±CI is a **between-seed** interval at n=3.
+Generation sample count controls the Monte-Carlo error *inside* each seed's point
+estimate; the interval is measuring seed-to-seed spread, which it does not touch.
+The interval is floored by seed variance at any sample count.
+
+So: raising the sample count buys a less noisy point estimate per seed — worth
+doing, and it is what made the qwen-0.5b ROUGE-L ordering agree with the loss
+ordering — but **narrower generation intervals require more seeds, not more
+samples.** Budget accordingly.
 
 ## Threat model for E6
 

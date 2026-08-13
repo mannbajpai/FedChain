@@ -1,0 +1,59 @@
+# =============================================================================
+# Ablation B3a :: Local-only on Dirichlet(1.0) shards
+# -----------------------------------------------------------------------------
+# The isolation arm of the alpha=1.0 triple - the *mild* skew point, and the one
+# that makes the alpha sweep a curve rather than a slope.
+#
+# alpha=1.0 sits between alpha=0.3 and IID: clients hold different category
+# mixtures, but every client still sees most categories. H-B1 predicts FedAvg's
+# recovery lands between the two measured points:
+#
+#     IID        34.0% +- 4.3%
+#     alpha=1.0  ???            <- expected here, between the two
+#     alpha=0.3  41.5% +- 7.7%
+#
+# This is the arm most likely to falsify H-B1 cheaply. If alpha=1.0 comes out
+# *above* alpha=0.3, the relationship is not monotone in alpha and the "skew
+# helps federation" story needs restating as something narrower.
+#
+# Generate the shards into their own directory - `data/dirichlet/` holds the
+# alpha=0.3 shards B1 was run on and must not be overwritten:
+#
+#   python data/prepare_data.py --partition dirichlet --alpha 1.0 \
+#       --output-dir data/dirichlet_a10
+#
+# At alpha=1.0 the shards are more balanced than at 0.3, so the round cap is
+# looser than the floor(2715/500) = 5 that applied there. Read the sizes
+# prepare_data.py prints and confirm the smallest exceeds 1,500 before running.
+#
+#   python main.py --config ablation_study/configs/ablationB3_e0_alpha10.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB3_e0_alpha10"
+exp_description: "Local-only QLoRA on Dirichlet(1.0) shards: the isolation baseline under mild label skew"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_aggregation: false
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet_a10/client1.jsonl"
+  - "data/dirichlet_a10/client2.jsonl"
+  - "data/dirichlet_a10/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

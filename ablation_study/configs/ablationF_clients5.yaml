@@ -1,0 +1,65 @@
+# =============================================================================
+# Ablation F (N=5) :: Federation size, learning side
+# -----------------------------------------------------------------------------
+# E7 already answers the *audit* cost of scale: gas is linear in participants
+# (gas = 301,120 + 290,533*N, R^2 = 0.999994) and flat across a 220x model-size
+# range. F answers the other half - what more clients do to the model.
+#
+# THE CONTROL THAT MAKES THIS AN ABLATION AND NOT A CONFOUND
+# ---------------------------------------------------------
+# More clients must not mean more data, or the result says nothing about
+# federation size. Re-shard so the union is constant at 14,511 records, the same
+# corpus the 3-client arms use:
+#
+#   python data/prepare_data.py --num-clients 5 --output-dir data/iid_n5
+#
+# That yields ~2,902 records per shard against 4,837 at N=3. With
+# max_train_samples: 300 and 3 rounds each client contributes 900 of its ~2,902,
+# and the federation total is 5 x 3 x 300 = 4,500 sample-updates - matched to
+# every other arm in the study. Do not leave max_train_samples at 500: that
+# would give the N=5 arm 7,500 updates and turn a federation-size result into a
+# budget result.
+#
+#   python main.py --config ablation_study/configs/ablationF_clients5.yaml \
+#       --model qwen --seed 42
+#
+# Pair with ablationF_clients5_local.yaml (aggregation off) for the E2-E0
+# contrast at this N. Deprioritised in 05 as Tier 3 - nice to have, not
+# load-bearing.
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationF_clients5"
+exp_description: "FedAvg over 5 clients at constant total data: does the accuracy picture change with federation size?"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 5
+client_files:
+  - "data/iid_n5/client1.jsonl"
+  - "data/iid_n5/client2.jsonl"
+  - "data/iid_n5/client3.jsonl"
+  - "data/iid_n5/client4.jsonl"
+  - "data/iid_n5/client5.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+
+# --- Budget matching ---------------------------------------------------------
+# 5 clients x 3 rounds x 300 = 4,500 updates, matching the N=3 arms.
+max_train_samples: 300
+
+# --- Aggregation -------------------------------------------------------------
+# IID shards of near-equal size, so weighting is a near no-op; left on for
+# consistency with the rest of the study.
+fedavg_weighted: true
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

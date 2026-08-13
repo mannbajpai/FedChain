@@ -1,0 +1,62 @@
+# =============================================================================
+# Ablation F (N=10) :: Federation size, learning side
+# -----------------------------------------------------------------------------
+# The far end of the F sweep. See ablationF_clients5.yaml for the design and the
+# constant-union control; the same reasoning applies with the numbers changed.
+#
+#   python data/prepare_data.py --num-clients 10 --output-dir data/iid_n10
+#
+# That yields ~1,451 records per shard against 4,837 at N=3. With
+# max_train_samples: 150 and 3 rounds each client contributes 450 of its ~1,451,
+# and the federation total is 10 x 3 x 150 = 4,500 sample-updates - matched to
+# every other arm.
+#
+# WATCH THE SHARD FLOOR. At N=10 each client trains on 150 records per round.
+# That is small enough that per-client gradient noise, not federation size, may
+# dominate the result. If N=10 comes out worse than N=5, check the per-client
+# training curves before attributing it to aggregation: the honest reading may
+# be that the shards got too small to learn from, which is a statement about the
+# corpus rather than about federated averaging. Say which one it is.
+#
+#   python main.py --config ablation_study/configs/ablationF_clients10.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationF_clients10"
+exp_description: "FedAvg over 10 clients at constant total data: federation size at the small-shard limit"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 10
+client_files:
+  - "data/iid_n10/client1.jsonl"
+  - "data/iid_n10/client2.jsonl"
+  - "data/iid_n10/client3.jsonl"
+  - "data/iid_n10/client4.jsonl"
+  - "data/iid_n10/client5.jsonl"
+  - "data/iid_n10/client6.jsonl"
+  - "data/iid_n10/client7.jsonl"
+  - "data/iid_n10/client8.jsonl"
+  - "data/iid_n10/client9.jsonl"
+  - "data/iid_n10/client10.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+
+# --- Budget matching ---------------------------------------------------------
+# 10 clients x 3 rounds x 150 = 4,500 updates, matching the N=3 arms.
+max_train_samples: 150
+
+# --- Aggregation -------------------------------------------------------------
+fedavg_weighted: true
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"

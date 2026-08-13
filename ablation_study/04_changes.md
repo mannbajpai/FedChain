@@ -78,10 +78,13 @@ them as stale and skips:
 SKIPPED [1] no post-fix local-only reports to check (3 stale)
 ```
 
-Those three are the shipped `exp0_local` runs for seeds 42/43/44. **Their 299.202
-MiB cannot be corrected without re-running the arm** — the phantom bytes were
-never measured, so there is nothing to recompute from. Re-running E0 turns the
-skip into an enforced assertion automatically.
+Those three were the shipped 360M `exp0_local` runs for seeds 42/43/44. Their
+299.202 MiB could not be corrected without re-running the arm — the phantom bytes
+were never measured, so there was nothing to recompute from.
+
+> **Closed 2026-08-12.** The 360M E0 arm was re-run and now reports **0.000 MiB**,
+> matching qwen-0.5b. No stale local-only report remains, so the guard is an
+> enforced assertion rather than a skip.
 
 ---
 
@@ -169,6 +172,22 @@ minutes. `scripts/reevaluate.py --require-backend evaluate` sets it too.
 **Use it for the paper run.** Add `require_metric_backend: "evaluate"` to the
 config, or accept the built-in implementation and say so in the paper. Either is
 defensible; falling back silently is not.
+
+> **Outcome, 2026-08-13.** `require_metric_backend: "evaluate"` is now set in
+> `base_config.yaml` (since `f175959`, 2026-08-07) and in every ablation config,
+> so it is live for all future runs. Ablation E exercised it in anger.
+>
+> **The original diagnosis understated the damage in one respect.** "The fallback
+> is consistent across runs so internal comparisons hold" turned out to be false
+> once B1 ran on a machine that *did* have the metric stack: the 30 main-table
+> runs used `builtin`, B1's 6 arms used `evaluate`, and the two sets are not
+> comparable. E5 and B1-E2 have **bit-identical adapters** and printed ROUGE-L of
+> 0.2276 and 0.2340 respectively — which is how the split was found.
+>
+> The affected reports are unfixable in place; `results/<tier>/reeval250`
+> re-scores every adapter on one backend and is the only quotable source for
+> generation metrics. See
+> [06 §E.0](06_ablation_results.md#e0--the-backend-split-read-this-before-any-generation-number).
 
 ---
 

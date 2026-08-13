@@ -276,49 +276,61 @@ benefit at a matched 4,500-update budget.
 | 100% detection / 0% FP | **solid; FP interval weak at 0.5B** | E6, real adapters both tiers |
 | Gas linear in N | **solid, fitted** | R² = 0.999994 |
 | Non-IID robustness (systems) | **solid** | E5, 9/9 integrity both tiers |
-| Non-IID robustness (learning) | **not measured** | needs Ablation B1 |
+| Non-IID robustness (learning) | **measured at 0.5B** (2026-08-12) | B1: 41.5% ± 7.7% of the gap at α=0.3 — [06 §B](06_ablation_results.md#b--data-heterogeneity) |
 | Benefit at convergence | **not measured** | needs Ablation A |
-| Generation metrics usable | **no** | still 50 samples, builtin backend |
+| Generation metrics usable | **partially** (2026-08-13) | Ablation E: centralized-vs-rest only, at 0.5B only — [06 §E](06_ablation_results.md#e--evaluation-fidelity) |
 
 ---
 
-## Stale artefacts to clear before submission
+## Stale artefacts — status as of 2026-08-13
 
-1. **`results/smollm2-360m/` E0 still reports 299.202 MiB communication.** That
-   tier predates the [C1](04_changes.md#c1--fix-phantom-communication-accounting-in-the-local-only-arm)
-   fix (run 2026-08-04/05; C1 landed 2026-08-06). The cross-model table now
-   prints 0.000 for qwen-0.5b beside 299.202 for smollm2-360m, which invites
-   exactly the wrong question. Re-run the 360M E0 arm (~3.3 h) — the phantom
-   bytes were never measured, so there is nothing to recompute from.
-2. **C3 and C4 were implemented but never enabled in either sweep.** Every run
-   still carries `gen_num_samples: 50`, `require_metric_backend: ''` and
-   `generation_metric_backend: builtin`. ROUGE-L and BLEU remain unusable for any
-   between-arm claim, and their absolute values are not the standard
-   implementation. Ablation E fixes this with **no retraining**.
+1. ~~**`results/smollm2-360m/` E0 reports 299.202 MiB communication.**~~
+   **Resolved 2026-08-12.** The 360M E0 arm was re-run post-[C1](04_changes.md#c1--fix-phantom-communication-accounting-in-the-local-only-arm)
+   and now reports **0.000 MiB**, matching qwen-0.5b. The phantom bytes are gone
+   from the cross-model table.
+2. ~~**C3 and C4 implemented but never enabled.**~~ **Resolved 2026-08-13** by
+   Ablation E — but not the way this document expected. Re-scoring at
+   `gen_num_samples: 250` with `require_metric_backend: evaluate` produced usable
+   numbers only for the *centralized-vs-rest* contrast at 0.5B, and **the
+   intervals did not narrow** (they are between-seed intervals; sample count does
+   not touch them). Two further findings, both in
+   [06 §E](06_ablation_results.md#e--evaluation-fidelity):
+   - **All 30 main-table runs used the `builtin` scorer while B1's 6 arms used
+     `evaluate`.** ROUGE-L/BLEU in `results/*/comparison.md` are therefore *not
+     comparable* between the main and ablation tables. Quote
+     `results/<tier>/reeval250` and nothing else.
+   - Those runs stored `require_metric_backend: ''`; the guard that makes a
+     missing metric stack a hard failure landed 2026-08-07 and every run since
+     has stored `'evaluate'`. **Historical contamination, not a live defect.**
 3. **`results/qwen-0.5b.leaky_backup/`** — keep for the leak comparison, exclude
-   from every table.
-4. **E7 protocol parity** — 360M swept to N=100, 0.5B stopped at N=50.
+   from every table. Now enforced by the tooling, not by memory.
+4. **E7 protocol parity** — **still open.** 360M swept to N=100, 0.5B stopped at
+   N=50. `finish_study.sh` skipped this on 2026-08-13 because no chain was
+   running and `anvil` was not on PATH. Minutes of compute once it is.
 
 ---
 
 ## What I'd do next, in order
 
-1. **Ablation B1 at 0.5B** (~12 h) — E0/E1/E2 on the same Dirichlet(0.3) shards.
-   The only run that converts E5 from a systems result into a learning result,
-   and the highest-value item on the list. Configs already exist.
-2. **Ablation E** (~6 h, no training) — re-score existing adapters at
-   `gen_num_samples: 250` with `require_metric_backend: evaluate`. Cheapest win
-   available; turns two decorative table rows into either usable numbers or a
-   defensible demotion to a collapse check.
-3. **E6 at 50 trials and E7 to N=100 for qwen-0.5b** (~minutes) — protocol
-   parity, and it tightens the false-positive bound from 14% to 5.8%.
-4. **Re-run 360M E0** (~3.3 h) — kills the 299.202 artefact.
-5. **Ablation A at 0.5B** (~37 h) — the trajectory is unconverged, so 34.0% is a
-   lower bound of unknown tightness. A is no longer rescuing the motivation, but
-   it now bounds a claim the paper leads with. Priority raised from the previous
-   version of this document.
-6. **Ablation D** (~3.3 h, 1 seed) — attributes the +31.8% communication overhead
-   to the global model's IPFS round-trip. Cheap, and it converts an
-   unattributed cost into an implementation choice.
-7. **qwen-1.5b** — the 5.2 GB peak that made it hopeless was the leak; a clean
+Items 1, 2 and 4 of the previous list are **done** (B1, Ablation E, 360M E0
+re-run). What remains, re-ranked:
+
+1. **E6 at 50 trials and E7 to N=100 for qwen-0.5b** (~minutes) — protocol
+   parity, and it tightens the false-positive bound from 13.9% to 5.8%. Blocked
+   only on starting a local chain. **Cheapest outstanding item by far; do it
+   first.**
+2. **Ablation B1 at smollm2-360m** (~12 h) — the tier where FedAvg recovered only
+   2.4% under IID has **no non-IID arm**, so the "skew rescues a near-zero
+   baseline" contrast does not exist in this study. B1 at 0.5B started from an
+   already-open 34% gap. This is now the highest-value *training* run, and it
+   supersedes the previous ranking — see
+   [06 §B.6](06_ablation_results.md#the-premise-correction).
+3. **Ablation A at 0.5B** (~37 h) — the trajectory is unconverged, so 34.0% and
+   41.5% are lower bounds of unknown tightness on claims the paper leads with.
+4. **Ablation D** (~3.3 h, 1 seed) — attributes the +31.8% communication
+   overhead. E3 already establishes that anchoring contributes **zero** of it and
+   the whole of it arrives with IPFS; D2 splits it *within* IPFS.
+5. **qwen-1.5b** — the 5.2 GB peak that made it hopeless was the leak; a clean
    run holds 1.39 GB at 0.5B. Turns the scale trend from two points into three.
+6. **Ablations B2/B3 (α ∈ {0.1, 1.0})** — B1 gives one contrast, which is a
+   direction. These make it a curve and are what H-B1 actually predicted.

@@ -6,12 +6,24 @@
 #
 #     E2_noniid - E0_noniid   =   what FedAvg buys under label skew
 #
-# On IID shards that quantity is -0.00085 +- 0.00022, i.e. 2.4% of the distance
-# to the centralized bound - close to nothing. H-B1 predicts it grows as alpha
-# falls, because isolated clients overfit their skewed slice while averaging
-# regularises across them. If it does not grow even at alpha=0.1, then at this
-# model scale FedAvg genuinely does not help, and the paper is reframed around
-# the audit contribution (Branch 3 in 07_ablation_conclusions.md).
+# CAUTION - tier mismatch in the original premise, corrected 2026-08-13.
+# This header used to quote "-0.00085 +- 0.00022, i.e. 2.4% of the distance to
+# the centralized bound - close to nothing." That is the *smollm2-360m* figure.
+# This config was run at qwen-0.5b, where the IID quantity is -0.00964 +- 0.00093
+# = 34.0% of the gap. FedAvg was already helping substantially before any skew
+# was added, so the outcome here is "skew widens an open margin", not "skew
+# rescues a null result". See 06_ablation_results.md#the-premise-correction.
+#
+# MEASURED (qwen-0.5b, 3 seeds, 2026-08-11/12):
+#   IID      E0-E2 = +0.00964 +- 0.00093   -> 34.0% +- 4.3% of the gap
+#   alpha0.3 E0-E2 = +0.01626 +- 0.00128   -> 41.5% +- 7.7% of the gap
+#   growth 1.69x, intervals disjoint. H-B1 direction confirmed on this contrast.
+#   H-B2 confirmed: E0 degrades 2.82x faster than E2 as alpha falls; E1 unmoved.
+#
+# H-B1 predicts the gain keeps growing as alpha falls, because isolated clients
+# overfit their skewed slice while averaging regularises across them. Only one
+# contrast has been run - B2 (alpha=0.1) and B3 (alpha=1.0) are what turn this
+# into the ordering H-B1 actually stated.
 #
 # This is deliberately E2 (plain FedAvg), not E4. The audit layer is proven to
 # be bit-identical to plain FedAvg, so running the cheaper arm loses nothing and

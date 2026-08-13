@@ -1,0 +1,61 @@
+# =============================================================================
+# Ablation B3c :: FedAvg on Dirichlet(1.0) shards
+# -----------------------------------------------------------------------------
+# The federated arm of the alpha=1.0 triple. With B3a it yields the third point
+# of the alpha sweep:
+#
+#     recovery = (E0 - E2) / (E0 - E1)
+#
+#     IID        34.0% +- 4.3%   measured
+#     alpha=1.0  ???             this run
+#     alpha=0.3  41.5% +- 7.7%   measured
+#     alpha=0.1  ???             ablation B2
+#
+# H-B1 predicts these come out ordered. Three interior points is the minimum
+# that can show an ordering rather than a slope, which is why B3 is worth
+# running even though alpha=1.0 is the least dramatic setting in the sweep.
+#
+# Plain FedAvg, not FedChain - hash equality is already established on two
+# partitions and does not need re-confirming here.
+#
+# Generate the shards first (see ablationB3_e0_alpha10.yaml):
+#
+#   python data/prepare_data.py --partition dirichlet --alpha 1.0 \
+#       --output-dir data/dirichlet_a10
+#
+#   python main.py --config ablation_study/configs/ablationB3_e2_alpha10.yaml \
+#       --model qwen --seed 42
+# =============================================================================
+extends: base_config.yaml
+
+exp_name: "ablationB3_e2_alpha10"
+exp_description: "FedAvg on Dirichlet(1.0) shards: the mild-skew point of the alpha sweep"
+
+# --- Paradigm switches -------------------------------------------------------
+enable_fl: true
+enable_blockchain: false
+enable_ipfs: false
+
+# --- Federation topology -----------------------------------------------------
+num_clients: 3
+client_files:
+  - "data/dirichlet_a10/client1.jsonl"
+  - "data/dirichlet_a10/client2.jsonl"
+  - "data/dirichlet_a10/client3.jsonl"
+
+num_rounds: 3
+local_epochs: 1
+max_train_samples: 500        # must match ablationB3_e0_alpha10 exactly
+
+# --- Aggregation -------------------------------------------------------------
+# At alpha=1.0 the shards are near-balanced and every shard comfortably exceeds
+# the 500 cap, so the weights come out uniform and this is label skew with
+# balanced quantities - the same regime as B1.
+fedavg_weighted: true
+
+# --- Evaluation --------------------------------------------------------------
+eval_every_round: true
+eval_final: true
+eval_local_clients_every_round: true
+gen_num_samples: 50
+require_metric_backend: "evaluate"
