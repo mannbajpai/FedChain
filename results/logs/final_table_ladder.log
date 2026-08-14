@@ -80,3 +80,6 @@ _Not training runs — they carry no loss or perplexity, so they are reported he
 | smollm2-360m | small   | 3.5145        | 311,451 | 32             |
 | smollm2-360m | medium  | 14.0288       | 311,463 | 32             |
 | smollm2-360m | large   | 49.0503       | 311,451 | 32             |
+
+
+Written: results/comparison_across_models.md

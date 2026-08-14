@@ -90,3 +90,8 @@ per-run values, which mix two scorers.
 - **SmolLM2-360M**: gas = 299,069 + 290,702·N, R² = 0.999999.
 - **Qwen2.5-0.5B**: gas = 299,069 + 290,702·N, R² = 0.999999.
 - Mean integrity-check latency: **13.5 ms** per artefact.
+
+
+Written: results/paper/tables.md
+Written: results/paper/tables.tex
+Written: results/paper/paper_numbers.json

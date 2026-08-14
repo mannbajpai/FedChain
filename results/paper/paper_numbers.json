@@ -37,6 +37,34 @@
         "ci": 0.006736490142455112
       }
     },
+    "smollm2-360m|Dirichlet \u03b1=0.3": {
+      "n_seeds": 3,
+      "e0": {
+        "mean": 2.0301823333333333,
+        "ci": 0.0006369812806240134
+      },
+      "e1": {
+        "mean": 1.9885106666666665,
+        "ci": 0.0012198640297801887
+      },
+      "e2": {
+        "mean": 2.0248830000000004,
+        "ci": 0.00061987100945932
+      },
+      "gain_e0_minus_e2": {
+        "mean": 0.005299333333333174,
+        "ci": 0.000574072094572413,
+        "significant": true
+      },
+      "headroom_e0_minus_e1": {
+        "mean": 0.0416716666666667,
+        "ci": 0.001341380067181591
+      },
+      "recovered_fraction": {
+        "mean": 0.12721117347657554,
+        "ci": 0.016538933327365765
+      }
+    },
     "qwen-0.5b|IID": {
       "n_seeds": 3,
       "e0": {
@@ -73,7 +101,7 @@
       },
       "e1": {
         "mean": 2.0492243333333335,
-        "ci": 0.0042028720202742596
+        "ci": 0.004202872020274259
       },
       "e2": {
         "mean": 2.072283666666667,
@@ -95,6 +123,14 @@
     }
   },
   "skew_growth": {
+    "smollm2-360m": {
+      "iid_gain": 0.0008529999999999186,
+      "noniid_gain": 0.005299333333333174,
+      "factor": 6.212583040250504,
+      "intervals_disjoint": true,
+      "recovered_iid": 0.024263555313770096,
+      "recovered_noniid": 0.12721117347657554
+    },
     "qwen-0.5b": {
       "iid_gain": 0.009640999999999936,
       "noniid_gain": 0.016262333333333306,
@@ -119,6 +155,16 @@
       "tier": "smollm2-360m",
       "partition": "IID",
       "comparison": "E3 vs E4 (+IPFS)",
+      "client_adapters": 27,
+      "client_identical": 27,
+      "global_models": 9,
+      "global_identical": 9,
+      "delta_val_loss": 0.0
+    },
+    {
+      "tier": "smollm2-360m",
+      "partition": "Dirichlet \u03b1=0.3",
+      "comparison": "E2 vs E4-equiv (chain+IPFS)",
       "client_adapters": 27,
       "client_identical": 27,
       "global_models": 9,
@@ -157,10 +203,10 @@
     }
   ],
   "hash_equality_total": {
-    "client_comparisons": 135,
-    "client_identical": 135,
-    "global_comparisons": 45,
-    "global_identical": 45,
+    "client_comparisons": 162,
+    "client_identical": 162,
+    "global_comparisons": 54,
+    "global_identical": 54,
     "distinct_client_adapters": 108,
     "distinct_global_models": 36,
     "all_identical": true
@@ -189,9 +235,9 @@
       "arm": "E4 +chain+IPFS",
       "comm_mib": 393.55926666666664,
       "gas": 3785372.0,
-      "total_time_sec": 4771.593333333334,
+      "total_time_sec": 4771.593333333333,
       "comm_overhead_pct": 31.545233771539728,
-      "time_overhead_pct": 0.714616895127862
+      "time_overhead_pct": 0.7146168951278398
     },
     {
       "tier": "qwen-0.5b",
@@ -271,49 +317,49 @@
       "tier": "qwen-0.5b",
       "perturbation": "bitflip",
       "benign_control": false,
-      "trials": 20,
-      "flagged": 20,
-      "bound_95": 0.13910834066826516,
-      "mean_verify_latency_sec": 0.013128
+      "trials": 50,
+      "flagged": 50,
+      "bound_95": 0.058155079116972264,
+      "mean_verify_latency_sec": 0.014449
     },
     {
       "tier": "qwen-0.5b",
       "perturbation": "scale",
       "benign_control": false,
-      "trials": 20,
-      "flagged": 20,
-      "bound_95": 0.13910834066826516,
-      "mean_verify_latency_sec": 0.012716
+      "trials": 50,
+      "flagged": 50,
+      "bound_95": 0.058155079116972264,
+      "mean_verify_latency_sec": 0.013017
     },
     {
       "tier": "qwen-0.5b",
       "perturbation": "substitute",
       "benign_control": false,
-      "trials": 20,
-      "flagged": 20,
-      "bound_95": 0.13910834066826516,
-      "mean_verify_latency_sec": 0.013486
+      "trials": 50,
+      "flagged": 50,
+      "bound_95": 0.058155079116972264,
+      "mean_verify_latency_sec": 0.013315
     },
     {
       "tier": "qwen-0.5b",
       "perturbation": "replay",
       "benign_control": false,
-      "trials": 20,
-      "flagged": 20,
-      "bound_95": 0.13910834066826516,
-      "mean_verify_latency_sec": 0.012979
+      "trials": 50,
+      "flagged": 50,
+      "bound_95": 0.058155079116972264,
+      "mean_verify_latency_sec": 0.013256
     },
     {
       "tier": "qwen-0.5b",
       "perturbation": "reserialize",
       "benign_control": true,
-      "trials": 20,
+      "trials": 50,
       "flagged": 0,
-      "bound_95": 0.13910834066826516,
-      "mean_verify_latency_sec": 0.014269
+      "bound_95": 0.058155079116972264,
+      "mean_verify_latency_sec": 0.01459
     }
   ],
-  "verify_latency_sec_mean": 0.013297900000000001,
+  "verify_latency_sec_mean": 0.0135028,
   "gas_scaling": [
     {
       "tier": "smollm2-360m",
@@ -340,11 +386,11 @@
       "tier": "qwen-0.5b",
       "sweep": "clients",
       "n_min": 1,
-      "n_max": 50,
-      "intercept": 301119.88511749357,
-      "slope": 290533.1775456919,
-      "r2": 0.9999942328013508,
-      "gas_per_client_at_max": 296636.2
+      "n_max": 100,
+      "intercept": 299068.6907074498,
+      "slope": 290702.21734560747,
+      "r2": 0.9999985948367616,
+      "gas_per_client_at_max": 293728.7
     },
     {
       "tier": "qwen-0.5b",
@@ -368,7 +414,7 @@
         "ci": 0.0022054053920520567
       },
       "bleu": {
-        "mean": 0.058675666666666675,
+        "mean": 0.05867566666666666,
         "ci": 0.003327845293529351
       },
       "n_seeds": 3
@@ -393,11 +439,53 @@
       "arm": "exp0_local",
       "rouge_l": {
         "mean": 0.24352444444444443,
-        "ci": 0.006999652934545489
+        "ci": 0.006999652934545508
       },
       "bleu": {
         "mean": 0.059425,
-        "ci": 0.0020635397963157604
+        "ci": 0.0020635397963157686
+      },
+      "n_seeds": 3
+    },
+    {
+      "tier": "smollm2-360m",
+      "partition": "Dirichlet \u03b1=0.3",
+      "arm": "ablationB_e1_noniid",
+      "rouge_l": {
+        "mean": 0.250077,
+        "ci": 0.0020377434897195347
+      },
+      "bleu": {
+        "mean": 0.056210666666666666,
+        "ci": 0.007308457004691582
+      },
+      "n_seeds": 3
+    },
+    {
+      "tier": "smollm2-360m",
+      "partition": "Dirichlet \u03b1=0.3",
+      "arm": "ablationB_e2_noniid",
+      "rouge_l": {
+        "mean": 0.245412,
+        "ci": 0.015887244944624505
+      },
+      "bleu": {
+        "mean": 0.05691533333333334,
+        "ci": 0.01150464121030498
+      },
+      "n_seeds": 3
+    },
+    {
+      "tier": "smollm2-360m",
+      "partition": "Dirichlet \u03b1=0.3",
+      "arm": "ablationB_e0_noniid",
+      "rouge_l": {
+        "mean": 0.24231422222222224,
+        "ci": 0.009222450672117969
+      },
+      "bleu": {
+        "mean": 0.05681111111111111,
+        "ci": 0.008500506458363108
       },
       "n_seeds": 3
     },
@@ -420,7 +508,7 @@
       "partition": "IID",
       "arm": "exp2_fl",
       "rouge_l": {
-        "mean": 0.2564423333333334,
+        "mean": 0.2564423333333333,
         "ci": 0.011692340908793003
       },
       "bleu": {
@@ -448,7 +536,7 @@
       "partition": "Dirichlet \u03b1=0.3",
       "arm": "ablationB_e1_noniid",
       "rouge_l": {
-        "mean": 0.27017066666666667,
+        "mean": 0.2701706666666666,
         "ci": 0.013000781192325974
       },
       "bleu": {
@@ -462,12 +550,12 @@
       "partition": "Dirichlet \u03b1=0.3",
       "arm": "ablationB_e2_noniid",
       "rouge_l": {
-        "mean": 0.24550799999999998,
+        "mean": 0.24550800000000003,
         "ci": 0.01103625131930677
       },
       "bleu": {
-        "mean": 0.048839333333333325,
-        "ci": 0.009685918656430504
+        "mean": 0.04883933333333334,
+        "ci": 0.009685918656430505
       },
       "n_seeds": 3
     },
@@ -476,12 +564,12 @@
       "partition": "Dirichlet \u03b1=0.3",
       "arm": "ablationB_e0_noniid",
       "rouge_l": {
-        "mean": 0.2462757777777778,
-        "ci": 0.01073376732973361
+        "mean": 0.24627577777777776,
+        "ci": 0.010733767329733666
       },
       "bleu": {
         "mean": 0.04945388888888889,
-        "ci": 0.007353323195811907
+        "ci": 0.007353323195811927
       },
       "n_seeds": 3
     }

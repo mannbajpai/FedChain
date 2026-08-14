@@ -11,7 +11,7 @@
 \textbf{Model} & \textbf{Partition} & \textbf{Local-only (E0)} & \textbf{Centralized (E1)} & \textbf{FedAvg (E2)} & \textbf{E0 − E2 (paired)} & \textbf{Gap recovered} \\
 \midrule
 SmolLM2-360M & IID & 2.0236 $\pm$ 0.0011 & 1.9884 $\pm$ 0.0006 & 2.0228 $\pm$ 0.0013 & 0.00085 $\pm$ 0.00022 & 2.4% $\pm$ 0.7% \\
-SmolLM2-360M & Dirichlet $\alpha$=0.3 & -- & -- & -- & -- & *(not run)* \\
+SmolLM2-360M & Dirichlet $\alpha$=0.3 & 2.0302 $\pm$ 0.0006 & 1.9885 $\pm$ 0.0012 & 2.0249 $\pm$ 0.0006 & 0.00530 $\pm$ 0.00057 & 12.7% $\pm$ 1.7% \\
 Qwen2.5-0.5B & IID & 2.0783 $\pm$ 0.0007 & 2.0499 $\pm$ 0.0016 & 2.0686 $\pm$ 0.0009 & 0.00964 $\pm$ 0.00093 & 34.0% $\pm$ 4.3% \\
 Qwen2.5-0.5B & Dirichlet $\alpha$=0.3 & 2.0885 $\pm$ 0.0016 & 2.0492 $\pm$ 0.0042 & 2.0723 $\pm$ 0.0028 & 0.01626 $\pm$ 0.00128 & 41.5% $\pm$ 7.7% \\
 \bottomrule
@@ -29,7 +29,7 @@ Qwen2.5-0.5B & Dirichlet $\alpha$=0.3 & 2.0885 $\pm$ 0.0016 & 2.0492 $\pm$ 0.004
 \midrule
 SmolLM2-360M & IID & E2 vs E3 (chain) & **27/27** & **9/9** & 0.000000 \\
 SmolLM2-360M & IID & E3 vs E4 (+IPFS) & **27/27** & **9/9** & 0.000000 \\
-SmolLM2-360M & Dirichlet $\alpha$=0.3 & E2 vs E4-equiv (chain+IPFS) & *(not run)* & *(not run)* & -- \\
+SmolLM2-360M & Dirichlet $\alpha$=0.3 & E2 vs E4-equiv (chain+IPFS) & **27/27** & **9/9** & 0.000000 \\
 Qwen2.5-0.5B & IID & E2 vs E3 (chain) & **27/27** & **9/9** & 0.000000 \\
 Qwen2.5-0.5B & IID & E3 vs E4 (+IPFS) & **27/27** & **9/9** & 0.000000 \\
 Qwen2.5-0.5B & Dirichlet $\alpha$=0.3 & E2 vs E4-equiv (chain+IPFS) & **27/27** & **9/9** & 0.000000 \\
@@ -70,11 +70,11 @@ SmolLM2-360M & scale & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
 SmolLM2-360M & substitute & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
 SmolLM2-360M & replay & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
 SmolLM2-360M & reserialize & benign control & 0/50 & 0% & FPR $\leq$ 5.8% \\
-Qwen2.5-0.5B & bitflip & attack & 20/20 & 100% & miss $\leq$ 13.9% \\
-Qwen2.5-0.5B & scale & attack & 20/20 & 100% & miss $\leq$ 13.9% \\
-Qwen2.5-0.5B & substitute & attack & 20/20 & 100% & miss $\leq$ 13.9% \\
-Qwen2.5-0.5B & replay & attack & 20/20 & 100% & miss $\leq$ 13.9% \\
-Qwen2.5-0.5B & reserialize & benign control & 0/20 & 0% & FPR $\leq$ 13.9% \\
+Qwen2.5-0.5B & bitflip & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
+Qwen2.5-0.5B & scale & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
+Qwen2.5-0.5B & substitute & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
+Qwen2.5-0.5B & replay & attack & 50/50 & 100% & miss $\leq$ 5.8% \\
+Qwen2.5-0.5B & reserialize & benign control & 0/50 & 0% & FPR $\leq$ 5.8% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -90,7 +90,7 @@ Qwen2.5-0.5B & reserialize & benign control & 0/20 & 0% & FPR $\leq$ 13.9% \\
 \midrule
 SmolLM2-360M & clients & N = 1–100 & gas = 299,069 + 290,702·N, R² = 0.999999 & linear in participants \\
 SmolLM2-360M & artefact size & 0.22–49.1 MiB (220$\times$) & gas spread 0.0077% & flat; 32 bytes anchored at every size \\
-Qwen2.5-0.5B & clients & N = 1–50 & gas = 301,120 + 290,533·N, R² = 0.999994 & linear in participants \\
+Qwen2.5-0.5B & clients & N = 1–100 & gas = 299,069 + 290,702·N, R² = 0.999999 & linear in participants \\
 Qwen2.5-0.5B & artefact size & 0.22–49.1 MiB (220$\times$) & gas spread 0.0077% & flat; 32 bytes anchored at every size \\
 \bottomrule
 \end{tabular}
@@ -108,6 +108,9 @@ Qwen2.5-0.5B & artefact size & 0.22–49.1 MiB (220$\times$) & gas spread 0.0077
 SmolLM2-360M & IID & E1 Centralized & 0.2477 $\pm$ 0.0022 & 0.0587 $\pm$ 0.0033 \\
 SmolLM2-360M & IID & E2 FedAvg & 0.2417 $\pm$ 0.0135 & 0.0579 $\pm$ 0.0113 \\
 SmolLM2-360M & IID & E0 Local-only & 0.2435 $\pm$ 0.0070 & 0.0594 $\pm$ 0.0021 \\
+SmolLM2-360M & Dirichlet $\alpha$=0.3 & E1 Centralized & 0.2501 $\pm$ 0.0020 & 0.0562 $\pm$ 0.0073 \\
+SmolLM2-360M & Dirichlet $\alpha$=0.3 & E2 FedAvg & 0.2454 $\pm$ 0.0159 & 0.0569 $\pm$ 0.0115 \\
+SmolLM2-360M & Dirichlet $\alpha$=0.3 & E0 Local-only & 0.2423 $\pm$ 0.0092 & 0.0568 $\pm$ 0.0085 \\
 Qwen2.5-0.5B & IID & E1 Centralized & 0.2737 $\pm$ 0.0132 & 0.0612 $\pm$ 0.0049 \\
 Qwen2.5-0.5B & IID & E2 FedAvg & 0.2564 $\pm$ 0.0117 & 0.0517 $\pm$ 0.0057 \\
 Qwen2.5-0.5B & IID & E0 Local-only & 0.2527 $\pm$ 0.0127 & 0.0501 $\pm$ 0.0057 \\
