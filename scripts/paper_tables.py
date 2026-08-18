@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -280,13 +281,42 @@ def md_table(headers: Sequence[str], rows: Iterable[Sequence[str]]) -> str:
     return "\n".join(out)
 
 
+# Unicode the cell builders emit, and its LaTeX equivalent. Every one of these
+# is either invalid or renders wrong under pdflatex with the standard T1 font
+# encoding, which is what a conference template pins.
+TEX_UNICODE = {
+    "±": r"$\pm$", "→": r"$\rightarrow$", "×": r"$\times$", "α": r"$\alpha$",
+    "≤": r"$\leq$", "≥": r"$\geq$", "≈": r"$\approx$", "Δ": r"$\Delta$",
+    "−": "$-$", "·": r"$\cdot$", "²": "$^2$", "–": "--", "—": "---",
+}
+
+
+def esc_tex(s: str) -> str:
+    """Make a shared Markdown/LaTeX cell safe to drop into a tabular.
+
+    Cells are built once and rendered into both ``tables.md`` and
+    ``tables.tex``, so they carry Markdown emphasis and Unicode that LaTeX will
+    not take. A bare ``%`` is the dangerous one: it comments out the rest of the
+    line *including the row terminator*, so the table silently merges two rows
+    instead of failing to compile.
+
+    Captions are hand-written LaTeX (``4{,}500``, ``\\%``, ``\\texttt{}``), so
+    backslashes and braces are deliberately left alone and ``%`` is escaped only
+    where it is not already.
+    """
+    s = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\1}", s)
+    s = re.sub(r"\*\((.+?)\)\*", r"\\textit{(\1)}", s)
+    for uni, tex in TEX_UNICODE.items():
+        s = s.replace(uni, tex)
+    s = s.replace("_", r"\_")
+    return re.sub(r"(?<!\\)%", r"\\%", s)
+
+
 def tex_table(headers: Sequence[str], rows: Iterable[Sequence[str]],
               caption: str, label: str, align: Optional[str] = None) -> str:
     rows = [list(map(str, r)) for r in rows]
     align = align or ("l" + "r" * (len(headers) - 1))
-    esc = lambda s: (s.replace("±", "$\\pm$").replace("_", "\\_")
-                      .replace("→", "$\\rightarrow$").replace("×", "$\\times$")
-                      .replace("α", "$\\alpha$").replace("≤", "$\\leq$"))
+    esc = esc_tex
     lines = [r"\begin{table}[t]", r"\centering", r"\small",
              f"\\caption{{{esc(caption)}}}", f"\\label{{{label}}}",
              f"\\begin{{tabular}}{{{align}}}", r"\toprule",

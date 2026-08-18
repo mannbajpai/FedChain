@@ -15,7 +15,9 @@ fine-tuning paradigms, built to run end-to-end on consumer hardware
 
 ## Model & training setup
 
-- `Qwen/Qwen2.5-1.5B-Instruct`, 4-bit NF4 (BitsAndBytes, double quantization)
+- `Qwen/Qwen2.5-1.5B-Instruct` is the `base_config.yaml` default; the reported
+  study was run at the two smaller tiers (see [model ladder](#model-ladder))
+- 4-bit NF4 (BitsAndBytes, double quantization)
 - LoRA `r=16`, `alpha=32`, `dropout=0.05` on
   `q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj`
 - Gradient checkpointing, `max_seq_length=512`, micro-batch 1, grad-accum 8
@@ -28,11 +30,17 @@ The 1.5B model sits at the 4 GB VRAM ceiling, so validate on smaller models
 first. `--model` selects the tier; hyperparameters are identical across all
 three, and each writes to its own `results/<key>/` and `outputs/<key>/`.
 
-| `--model` | Model | Purpose |
+| `--model` | Model | Status |
 |---|---|---|
-| `smol` / `smollm2-360m` | `HuggingFaceTB/SmolLM2-360M-Instruct` | pipeline shakedown |
-| `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | preliminary results |
-| `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | the paper configuration |
+| `smol` / `smollm2-360m` | `HuggingFaceTB/SmolLM2-360M-Instruct` | **reported** — full sweep, 3 seeds |
+| `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | **reported** — full sweep, 3 seeds |
+| `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | not run; at the 4 GB ceiling |
+
+The reported study is the two-tier ladder: every table in `results/paper/`
+covers 360M and 0.5B at seeds 42/43/44, over both the IID and the
+Dirichlet(0.3) partition. Scale enters as a two-point comparison, which is a
+direction and not a trend — see
+[ablation_study/12_paper_plan.md](ablation_study/12_paper_plan.md).
 
 ```bash
 ./run_all.sh --model smol         # 1. prove the pipeline

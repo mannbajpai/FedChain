@@ -1,0 +1,246 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+
+% FedChain -- ICON 2026 short paper (4 pages incl. references).
+% Build:  pdflatex fedchain_icon2026 && bibtex fedchain_icon2026 && pdflatex fedchain_icon2026 && pdflatex fedchain_icon2026
+% Remove the [review] option below to produce the camera-ready (de-anonymised,
+% no ruler, no page numbers).
+
+\documentclass[11pt]{article}
+
+\usepackage[review]{acl2023}
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\title{FedChain: Verifiable Provenance for Federated LLM Fine-Tuning\\at Zero Accuracy Cost}
+
+% For the camera-ready, replace the anonymous block by filling in the authors:
+% \author{First Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   \texttt{email@domain} \\\And
+%   Second Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   \texttt{email@domain} \\}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Federated fine-tuning lets institutions adapt a large language model without pooling data, but a participant cannot check what was actually aggregated: the aggregator is trusted end to end. Systems that add a blockchain audit trail typically justify the extra machinery by reporting that its effect on accuracy is \emph{statistically insignificant} --- the weakest available form of the claim. We present FedChain, an auditable federated QLoRA pipeline that commits every local adapter as a SHA-256 digest over a canonical serialization, anchors that digest with an IPFS content identifier in an append-only smart contract, and verifies the commitment before aggregation. Across two model scales, two data partitions and three seeds, all 162 client-adapter and 54 aggregated-model comparisons between audited and un-audited federated training are \emph{bit-identical}: the accuracy cost is exactly zero, and no statistical test is needed. The cost that does exist decomposes --- anchoring adds no communication and under 1\% wall clock, gas is linear in participants and flat across a 220$\times$ artefact-size range, and the entire $+$31.5--31.8\% communication overhead comes from content-addressed transport. Four transport attacks are caught in 50/50 trials each, with 0/50 false positives on a benign re-serialization control.
+\end{abstract}
+
+\section{Introduction}
+
+Parameter-efficient fine-tuning has made it practical to adapt a large language model on data that cannot leave the institution that holds it \cite{hu2022lora,dettmers2023qlora}. Combined with federated averaging \cite{mcmahan2017communication}, a hospital consortium or a group of firms can jointly specialise a model while every shard stays local. What such a deployment does not give a participant is \emph{provenance}: a client hands an adapter to an aggregator, receives a global adapter back, and has no way to establish that its update was the one incorporated, that the artefact it downloaded is the artefact that was published, or that a round can be reconstructed later by an auditor.
+
+A line of work answers this by anchoring model updates on a blockchain \cite{kim2020blockchained,lu2020blockchain,warnat2021swarm}. These systems are evaluated on a standard we think is too weak. The accuracy claim is almost always that the audited and un-audited variants differ by a statistically insignificant amount --- an absence of evidence, usually at a handful of seeds with intervals wide enough to hide a real effect. It is also the wrong instrument: an audit layer touches transport and bookkeeping, not the learning objective, so if it is implemented correctly the two variants should not merely be close, they should produce the \emph{same bytes}.
+
+FedChain is built to make that the reported quantity. Every local QLoRA adapter is committed as a SHA-256 digest over a canonical serialization, pinned to IPFS \cite{benet2014ipfs}, and anchored together with its content identifier in an append-only Ethereum contract \cite{wood2014ethereum}; the aggregator re-derives the digest from the retrieved bytes and refuses anything that does not match. Our contributions are:
+
+\begin{enumerate}[noitemsep,topsep=2pt,leftmargin=*]
+\item \textbf{Bit-identity as the evaluation standard.} Over two model scales, two partitions and three seeds, 162/162 client-adapter and 54/54 aggregated-model comparisons between the audited and un-audited arms are byte-for-byte identical, with validation loss agreeing to six decimal places (\S\ref{sec:noop}). The claim is exact, needs no statistical test, and cannot be manufactured by an underpowered experiment.
+\item \textbf{Canonical serialization is what makes an anchored commitment reproducible} (\S\ref{sec:canon}), and the benign control of our tamper experiment is the measurement that shows it, rather than an assertion.
+\item \textbf{A decomposition of the audit cost.} Anchoring is the free part: it adds zero communication and under 1\% wall clock, and gas is linear in participants and flat across a 220$\times$ artefact-size range. The whole $+$31.5--31.8\% volume overhead belongs to content-addressed transport, which is a tunable implementation choice (\S\ref{sec:cost}).
+\item \textbf{A 2$\times$2 over scale and skew with matched bounds}, including an isolation lower bound and a pooled centralized upper bound trained on the same shards at a matched update budget (\S\ref{sec:learning}).
+\end{enumerate}
+
+\section{Related Work}
+
+Federated averaging \cite{mcmahan2017communication} and its open problems \cite{kairouz2021advances} frame the setting; we use the standard Dirichlet label-skew protocol \cite{hsu2019measuring} for the non-IID arm. LoRA \cite{hu2022lora}, its quantised form QLoRA \cite{dettmers2023qlora} and the PEFT library \cite{mangrulkar2022peft} reduce a round's payload from a full model to a 17\,MiB adapter, which is what makes per-artefact hashing and content-addressed transport affordable in the first place.
+
+Blockchain-based federated learning replaces or audits the central server: \citet{kim2020blockchained} exchange updates through a blockchain and analyse the resulting latency, \citet{lu2020blockchain} combine it with federated learning for industrial data sharing, and \citet{warnat2021swarm} deploy a permissioned-ledger variant on clinical data. FedChain does not propose a new consensus mechanism or aggregation rule, and it is not an alternative to Byzantine-robust aggregation \cite{blanchard2017krum} or differentially private training \cite{mcmahan2018learning}. Its contribution is at the level of evidence: we keep the aggregation math untouched precisely so that the audit layer's effect can be reported as artefact equality rather than as a non-significant difference.
+
+\section{FedChain}
+
+\subsection{Commitment and anchoring}
+
+$N$ clients run $R$ rounds. In round $r$ client $k$ fine-tunes a QLoRA adapter $\theta_k^{(r)}$ on its local window, then computes the commitment
+\[
+c_k^{(r)} = H\!\left(\kappa\!\left(\theta_k^{(r)}\right)\right),
+\]
+where $H$ is SHA-256 and $\kappa$ is the canonical serialization of \S\ref{sec:canon}. The adapter is pinned to IPFS, yielding a content identifier $\mathrm{cid}_k^{(r)}$, and the pair is anchored by a call to \texttt{logUpdate($r$, $k$, $c_k^{(r)}$, $\mathrm{cid}_k^{(r)}$)} on an append-only registry contract. The chain stores commitments and identifiers only --- 32 bytes of digest per update, never weights, so nothing about the training data is disclosed by anchoring.
+
+The aggregator resolves each CID, recomputes $H\circ\kappa$ over the retrieved bytes, compares it against the on-chain record, and admits only matching artefacts into FedAvg. The resulting global adapter is itself pinned and anchored, so round $r$'s output is the commitment that round $r{+}1$ builds on and the trail links rounds into a chain that a third party can replay from the ledger alone.
+
+\subsection{Canonical serialization}
+\label{sec:canon}
+
+Hashing the raw bytes of an adapter directory is the obvious implementation and it is wrong. PEFT stores \texttt{target\_modules} in a Python \texttt{set}, and string hashing is salted per process, so two honest runs that produce \emph{bit-identical weights} serialise \texttt{adapter\_config.json} in different orders. A raw-byte digest is therefore not reproducible: an auditor who retrains from the same seed and data computes a different value and concludes the artefact was tampered with.
+
+$\kappa$ folds each file's POSIX-normalised relative path and its contents into the digest in sorted path order --- so a rename is as detectable as an edit, and the result is stable across operating systems --- and folds configuration files in as canonical JSON (sorted keys, sorted string lists) rather than as raw bytes. The digest then depends on the content of the adapter and not on incidental serialisation order. \S\ref{sec:tamper} measures this rather than assuming it.
+
+\subsection{Threat model}
+
+The aggregator is honest; transport is not. An adversary controls storage or the network path and substitutes a different artefact before retrieval, but cannot rewrite the chain. This is the boundary the commitment scheme is designed for. Two things are outside it by construction. A malicious client that anchors a poisoned adapter it genuinely trained passes integrity checking, because the hash matches --- that is Byzantine robustness \cite{blanchard2017krum}, orthogonal to provenance. And anchoring a digest leaks nothing, but LoRA updates are not themselves differentially private \cite{mcmahan2018learning}.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrrrcc}
+\toprule
+ & & \multicolumn{2}{c}{Communication} & & \multicolumn{2}{c}{Wall clock} & \multicolumn{2}{c}{Identical to E2} \\
+\cmidrule(lr){3-4}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+\textbf{Model} & \textbf{Arm} & \textbf{MiB} & \textbf{$\Delta$} & \textbf{Gas} & \textbf{s} & \textbf{$\Delta$} & \textbf{client} & \textbf{global} \\
+\midrule
+SmolLM2-360M & E2 FedAvg          & 299.18 & ---        & 0         & 4737.7 & ---        & ---   & --- \\
+SmolLM2-360M & E3 $+$chain        & 299.18 & $+$0.0\%   & 2{,}997{,}464 & 4749.6 & $+$0.2\%   & 27/27 & 9/9 \\
+SmolLM2-360M & E4 $+$chain$+$IPFS & 393.56 & $+$31.5\%  & 3{,}785{,}372 & 4771.6 & $+$0.7\%   & 27/27 & 9/9 \\
+\midrule
+Qwen2.5-0.5B & E2 FedAvg          & 302.86 & ---        & 0         & 4779.7 & ---        & ---   & --- \\
+Qwen2.5-0.5B & E3 $+$chain        & 302.86 & $+$0.0\%   & 2{,}997{,}464 & 4770.8 & $-$0.2\%   & 27/27 & 9/9 \\
+Qwen2.5-0.5B & E4 $+$chain$+$IPFS & 399.32 & $+$31.8\%  & 3{,}785{,}372 & 4787.3 & $+$0.2\%   & 27/27 & 9/9 \\
+\bottomrule
+\end{tabular}
+\caption{What the audit layer changes, and what it does not. Every trained artefact is compared to the un-audited federated arm by SHA-256 over its canonical serialization; 27 client adapters (3 seeds $\times$ 3 rounds $\times$ 3 clients) and 9 aggregated models are identical in every arm, and validation loss agrees to six decimal places. Equality is exact, so no statistical test is reported. The same comparison on the Dirichlet($\alpha{=}0.3$) partition is also 27/27 and 9/9 at both scales. Anchoring (E3) leaves communication volume unchanged; the whole increase arrives with IPFS transport (E4). Wall-clock differences are within seed noise (95\% Student's $t$ over three seeds, e.g. $4737.7 \pm 292.0$\,s for E2 at 360M).}
+\label{tab:audit}
+\end{table*}
+
+\section{Experimental Setup}
+
+\paragraph{Models and training.} SmolLM2-360M-Instruct \cite{allal2025smollm2} and Qwen2.5-0.5B-Instruct \cite{qwen2024qwen25}, both fine-tuned with 4-bit NF4 double-quantised QLoRA \cite{dettmers2023qlora}: LoRA $r{=}16$, $\alpha{=}32$, dropout $0.05$ on all seven attention and MLP projections, learning rate $2{\times}10^{-4}$ with cosine decay, sequence length 512, micro-batch 1 with gradient accumulation 8, gradient checkpointing. Every run fits on one 4\,GB NVIDIA T600; an adapter is 16.6--16.8\,MiB.
+
+\paragraph{Data and budget matching.} Dolly-15k \cite{conover2023dolly}, with the first 500 records held out as a fixed evaluation split \emph{before} shuffling and excluded from every client shard. Three clients, IID and Dirichlet($\alpha{=}0.3$) label-skew partitions \cite{hsu2019measuring}. The arms are matched on updates and on unique data: the federated arms see $3\ \text{rounds} \times 3\ \text{clients} \times 500 = 4{,}500$ sample-updates, with round $r$ reading window $[(r{-}1)\cdot 500,\, r\cdot 500)$ of each shard, and the centralized arm pools exactly the union those windows cover. Without the windowing, an $R$-round federated run would be $R$ epochs over the same 500 examples and the measured cost of federation would mostly be a data-budget artefact.
+
+\paragraph{Arms.} E0 trains three clients in isolation (lower bound); E1 is centralized on the pooled union (upper bound); E2 is FedAvg with a trusted aggregator; E3 adds on-chain anchoring; E4 adds IPFS transport with a verified round trip.
+
+\paragraph{Infrastructure and reporting.} A live Anvil devnet (chain id 31337) and a local Kubo IPFS daemon --- no mocks in any reported run. Three seeds (42/43/44); intervals are 95\% Student's $t$ ($t_{.975,2}{=}4.303$), and every difference is paired per seed so that shared seed variance cancels. Validation loss is full-sequence cross-entropy over the held-out 500. Generation metrics use 250 greedy decodes scored by a single backend \cite{lin-2004-rouge,papineni-etal-2002-bleu}. We release the implementation, configurations and all metrics files from which the tables are derived.
+
+\section{Results}
+
+\subsection{The audit layer is an exact no-op}
+\label{sec:noop}
+
+Table~\ref{tab:audit} reports the central result. Between the un-audited federated arm and both audited arms, all 162 client-adapter comparisons and all 54 aggregated-model comparisons are byte-for-byte identical, across two model scales and both partitions; validation loss, perplexity, ROUGE-L and BLEU agree to six decimal places, and the per-round loss trajectories coincide exactly. We state this as equality rather than as a non-significant difference: the two are not the same claim, and only the former is immune to the objection that three seeds cannot resolve a small effect. The digest that certifies each aggregated model is also the value anchored on-chain, so an auditor who retrains from the released seed and shards re-derives it independently.
+
+\subsection{What the audit layer costs}
+\label{sec:cost}
+
+The cost decomposes into a free part and a transport part. Anchoring (E3) is byte-identical to E2 in communication volume --- a digest is 32 bytes and never travels with the payload --- and costs 2,997,464 gas over the twelve anchoring transactions of a run (nine client updates and three global models), at 74\,ms mean transaction latency on the devnet. The entire $+$31.5\% (360M) and $+$31.8\% (0.5B) volume overhead arrives with E4, and is the aggregator's download leg through IPFS: 1.50\,s mean upload and 0.33\,s mean download per 16.6--16.8\,MiB adapter. That is an implementation choice about transport, not a cost of auditability, and it is where a deployment should tune. Wall-clock overhead is at most $+$0.7\% and lies inside seed noise; verifying a retrieved artefact against its commitment costs 13.5\,ms on average.
+
+\paragraph{Anchoring scales cheaply.} E4's higher gas is the CID string travelling alongside the digest, not the larger payload it points at. Sweeping the participant count over $N \in [1, 100]$ against the deployed contract gives $\text{gas} = 299{,}069 + 290{,}702\cdot N$ with $R^2 = 0.999999$: linear in participants, as one push per update implies. Sweeping the artefact size over 0.22--49.1\,MiB, a 220$\times$ range, moves gas by 0.0077\%, because what is anchored is 32 bytes at every size. The two sweeps are byte-identical across the two tiers by construction --- the sweep anchors digests and never loads a model --- so they are one measurement, not two.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llcc}
+\toprule
+\textbf{Perturbation} & \textbf{Type} & \textbf{360M} & \textbf{0.5B} \\
+\midrule
+bitflip     & attack & 50/50 & 50/50 \\
+scale       & attack & 50/50 & 50/50 \\
+substitute  & attack & 50/50 & 50/50 \\
+replay      & attack & 50/50 & 50/50 \\
+\midrule
+reserialize & benign & 0/50 & 0/50 \\
+\bottomrule
+\end{tabular}
+\caption{Artefacts flagged by the integrity check, out of 50 trials per cell, against a hostile transport layer. The four attacks must be flagged and the benign re-serialization must not. Bounds are exact one-sided 95\% Clopper--Pearson \cite{clopper1934use}: a perfect score over $n{=}50$ bounds the error rate at $1 - 0.05^{1/50} = 5.8\%$, so it is the trial count the claim rests on.}
+\label{tab:tamper}
+\end{table}
+
+\subsection{What the audit layer buys}
+\label{sec:tamper}
+
+Table~\ref{tab:tamper} exercises the commitment against the threat model. Four substitutions are attempted: a single flipped bit in the weight file; scaling the LoRA $B$ factors, which is the classic model-replacement attack and leaves the file structurally valid; serving another client's adapter under the victim's CID; and replaying the victim's own adapter from an earlier round, whose every byte was legitimately produced at some point. All four are flagged in 50/50 trials at both scales, bounding the miss rate at 5.8\%.
+
+The last row is the one that matters for \S\ref{sec:canon}. Re-serialising \texttt{adapter\_config.json} with its keys and \texttt{target\_modules} in a different order, leaving weights untouched, is flagged 0 times out of 50 --- a false-positive rate bounded at 5.8\%, not zero, and we report the bound. Under a raw-byte digest this row would fire, honest clients would be rejected at random and the anchored commitment would not be reproducible by an auditor.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{\textbf{SmolLM2-360M}} & \multicolumn{2}{c}{\textbf{Qwen2.5-0.5B}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+ & IID & Dirichlet $\alpha{=}0.3$ & IID & Dirichlet $\alpha{=}0.3$ \\
+\midrule
+Local-only (E0)  & 2.0236 $\pm$ 0.0011 & 2.0302 $\pm$ 0.0006 & 2.0783 $\pm$ 0.0007 & 2.0885 $\pm$ 0.0016 \\
+Centralized (E1) & 1.9884 $\pm$ 0.0006 & 1.9885 $\pm$ 0.0012 & 2.0499 $\pm$ 0.0016 & 2.0492 $\pm$ 0.0042 \\
+FedAvg (E2)      & 2.0228 $\pm$ 0.0013 & 2.0249 $\pm$ 0.0006 & 2.0686 $\pm$ 0.0009 & 2.0723 $\pm$ 0.0028 \\
+\midrule
+E0 $-$ E2 (paired) & 0.00085 $\pm$ 0.00022 & 0.00530 $\pm$ 0.00057 & 0.00964 $\pm$ 0.00093 & 0.01626 $\pm$ 0.00128 \\
+Gap recovered      & 2.4\% $\pm$ 0.7\% & 12.7\% $\pm$ 1.7\% & 34.0\% $\pm$ 4.3\% & 41.5\% $\pm$ 7.7\% \\
+\bottomrule
+\end{tabular}
+\caption{Federated averaging against matched isolated and centralized bounds at a 4{,}500-update budget ($R{=}3$). Validation cross-entropy, lower is better; intervals are 95\% Student's $t$ over three seeds, and the E0\,$-$\,E2 difference is paired per seed. `Gap recovered' is (E0\,$-$\,E2)/(E0\,$-$\,E1) computed per seed. The E1 row is the partition-invariance control: re-partitioning leaves the centralized bound unmoved (2.0499 vs.\ 2.0492 at 0.5B), which is what shows the Dirichlet split redistributed the corpus rather than changing the task.}
+\label{tab:learning}
+\end{table*}
+
+\subsection{Federation under matched bounds}
+\label{sec:learning}
+
+Since the audit layer is an exact no-op, the learning question can be settled on the un-audited arm and transfers to the audited one by construction. Table~\ref{tab:learning} reports it. At a matched 4,500-update budget with $R{=}3$, FedAvg improves on isolated training at both scales and under both partitions, with paired intervals excluding zero in all four cells, and recovers a larger share of the isolation-to-centralized gap under label skew: 2.4\% to 12.7\% at 360M and 34.0\% to 41.5\% at 0.5B, with the absolute paired gain growing 6.21$\times$ and 1.69$\times$ respectively and the intervals disjoint. The mechanism is visible in the two bounds: moving from IID to $\alpha{=}0.3$ costs the isolated clients about $3\times$ more than it costs the averaged model ($2.8\times$ at 0.5B, $3.1\times$ at 360M), while the centralized bound is unmoved within its interval. This is one $\alpha$ and two scales, so it is a direction and not a trend.
+
+Generation quality behaves as a collapse check rather than an independent ordering. At 250 greedy decodes on a single scorer (Appendix~\ref{sec:appendix-gen}), ROUGE-L and BLEU reproduce the loss ordering at 0.5B under IID (E1 $>$ E2 $>$ E0); in the other three settings the arms overlap within their intervals and the metric separates nothing. Those intervals are between-seed at $n{=}3$ and are floored by seed variance, so decoding more prompts sharpens each seed's point estimate without narrowing them.
+
+\section{Conclusion}
+
+An audit layer for federated fine-tuning does not have to cost accuracy, and the right way to show that is not a failed significance test. FedChain anchors a canonical digest and a content identifier per update and produces artefacts that are bit-identical to un-audited FedAvg across 216 comparisons spanning two model scales and two partitions, at under 1\% wall clock and zero added communication for the anchoring itself.
+
+\section*{Limitations}
+
+\textbf{Fixed budget, not convergence.} All runs stop at $R{=}3$ and 4,500 updates. The loss is still descending at that point (per-round decrement ratio 0.36 at 360M and 0.30 at 0.5B), so Table~\ref{tab:learning} compares arms at a matched budget and says nothing about their asymptotes.
+
+\textbf{Seeds share a partition.} The three seeds read the same shards, so every interval is a training-noise interval and understates uncertainty on the partition-dependent results. Resampling the partition would need a larger seed budget than a 4\,GB GPU affords.
+
+\textbf{One $\alpha$, label skew only.} The per-round sample cap sits below the smallest shard, so quantity skew is removed and only label skew remains. This is the standard Dirichlet benchmark and is weaker than setups that skew both; the skew result is a single contrast, not a curve in $\alpha$.
+
+\textbf{Small scale.} Two models (360M, 0.5B), three clients, one dataset. Scale enters as a two-point comparison and licenses a direction only.
+
+\textbf{Devnet latency.} Gas is a property of the contract and transfers to a real deployment; Anvil's transaction latency does not. Fees on a public L2 would be dominated by calldata and base fee, which our measurements do not model.
+
+\textbf{Out of scope by construction.} Byzantine robustness and privacy are not addressed, for the reasons given in the threat model: a client that anchors a poisoned adapter it genuinely trained is silent to integrity checking, and a digest reveals nothing but does not make the update private.
+
+\section*{Ethics Statement}
+
+FedChain is designed for settings where data cannot be pooled, and it reduces one class of trust assumption --- that the aggregator faithfully incorporated what was submitted --- to something a participant can check. It does not make federated fine-tuning private: LoRA updates can leak information about their training data, and anchoring a digest neither adds nor removes that risk. A deployment handling personal data should combine the audit layer with differentially private training and with a Byzantine-robust aggregation rule; we report the boundary of what our commitments cover so that this is not misread. All experiments use the publicly released Dolly-15k instruction dataset and openly licensed models, on a single local GPU, on a local development chain; no personal data and no public-network transactions are involved.
+
+\bibliography{fedchain}
+\bibliographystyle{acl_natbib}
+
+\appendix
+
+\section{Generation quality}
+\label{sec:appendix-gen}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrr}
+\toprule
+\textbf{Model / Partition} & \textbf{Arm} & \textbf{ROUGE-L} & \textbf{BLEU} \\
+\midrule
+360M, IID    & E1 & 0.2477 & 0.0587 \\
+             & E2 & 0.2417 & 0.0579 \\
+             & E0 & 0.2435 & 0.0594 \\
+360M, $\alpha{=}0.3$ & E1 & 0.2501 & 0.0562 \\
+             & E2 & 0.2454 & 0.0569 \\
+             & E0 & 0.2423 & 0.0568 \\
+\midrule
+0.5B, IID    & E1 & 0.2737 & 0.0612 \\
+             & E2 & 0.2564 & 0.0517 \\
+             & E0 & 0.2527 & 0.0501 \\
+0.5B, $\alpha{=}0.3$ & E1 & 0.2702 & 0.0583 \\
+             & E2 & 0.2455 & 0.0488 \\
+             & E0 & 0.2463 & 0.0495 \\
+\bottomrule
+\end{tabular}
+\caption{Mean over three seeds at 250 greedy decodes, scored with a single backend. Reported as a collapse check supporting the loss result in Table~\ref{tab:learning}, not as an independent ordering: the intervals (omitted here, up to $\pm$0.016 for ROUGE-L) are between-seed at $n{=}3$ and do not respond to decode count.}
+\label{tab:gen}
+\end{table}
+
+\end{document}

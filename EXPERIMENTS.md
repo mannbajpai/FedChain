@@ -28,7 +28,7 @@ E5−E0 or E5−E2 difference would confound the partition with federation. E5 a
 says the audit layer survives skew, which is a systems statement.
 [Ablation B1](ablation_study/06_ablation_results.md#b--data-heterogeneity) supplies
 the matched non-IID E0/E1/E2 and is what makes the learning claim sayable. It has
-been run at qwen-0.5b only.
+been run at **both** reported tiers, so the 2x2 over (scale, partition) is complete.
 
 ## Experiments
 
@@ -90,10 +90,10 @@ clients 2 and 3.
 ./run_all.sh --model smol      --seeds "42 43 44" --audit-experiments
 ./run_all.sh --model qwen-0.5b --seeds "42 43 44" --audit-experiments
 
-# Matched non-IID baselines (Ablation B1). Run at qwen-0.5b; the 360M
-# equivalent is the highest-value outstanding run.
+# Matched non-IID baselines (Ablation B1). Run at both reported tiers.
 python data/prepare_data.py --partition dirichlet --alpha 0.3
-./ablation_study/run_ablation.sh --block B1 --model qwen-0.5b --seeds "42 43 44"
+./ablation_study/run_ablation.sh --block B1 --model qwen-0.5b    --seeds "42 43 44"
+./ablation_study/run_ablation.sh --block B1 --model smollm2-360m --seeds "42 43 44"
 
 # Generation metrics on one scorer at 250 samples. Required before any
 # ROUGE-L/BLEU number is quoted -- see "Reading the output" below.

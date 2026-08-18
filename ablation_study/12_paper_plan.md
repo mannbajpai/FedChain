@@ -98,8 +98,11 @@ budget does not fit six tables. Promote four, demote two to prose.
 **Demote to prose:**
 
 - **T5 — gas scaling.** Two sentences plus the fitted equation inline:
-  *"gas = 301,120 + 290,533·N (R² = 0.999994) over N ∈ {1…100}, and varies by
+  *"gas = 299,069 + 290,702·N (R² = 0.999999) over N ∈ {1…100}, and varies by
   0.0077% across a 220× artefact-size range."*
+  The table itself reports both tiers, but the sweep anchors 32 bytes and never
+  loads a model, so the two rows are byte-identical by construction. State it
+  once and say why — two rows read as two independent measurements.
 - **T6 — generation quality.** One sentence: ROUGE-L/BLEU at 250 decodes on a
   single scorer agree with the loss ordering at 0.5B and separate nothing at
   360M; reported as a collapse check. Full table to the repo.
