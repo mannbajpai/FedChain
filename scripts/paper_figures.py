@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
@@ -47,8 +48,20 @@ BLUE, ORANGE, GREEN, VERM = "#0072B2", "#E69F00", "#009E73", "#D55E00"
 SKY, PURPLE = "#56B4E9", "#CC79A7"
 INK, MUTED, GRID = "#1a1a1a", "#5c5c5c", "#d8d8d8"
 
-TIERS = ("smollm2-360m", "qwen-0.5b")
-TIER_LABEL = {"smollm2-360m": "SmolLM2-360M", "qwen-0.5b": "Qwen2.5-0.5B"}
+# --- model ladder ------------------------------------------------------------
+# Shared with scripts/paper_tables.py rather than restated: the two scripts have
+# to agree on which tiers exist and what they are called, and the failure mode of
+# two copies is a figure and a table that disagree about the study. paper_tables
+# imports nothing heavier than the standard library, so this is a cheap import.
+# TIERS is populated in main() from what is actually on disk, so a ladder whose
+# newest rung has not finished renders the rungs that have.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paper_tables import discover_tiers, tier_label            # noqa: E402
+
+TIERS: Sequence[str] = ()
+
+#: Per-tier marker shapes, cycled. Used only where several tiers share one axis.
+TIER_MARKERS = ("o", "^", "s", "D", "v", "P")
 IID, NONIID = "IID", "Dirichlet α=0.3"
 
 # Column widths for a two-column conference template, in inches.
@@ -205,8 +218,17 @@ def fig_gap_recovery(d: Data, out: Path) -> None:
     (E0) to the pooled bound (E1); FedAvg sits on it, and the labelled fraction
     is how much of that span it recovered.
     """
-    cells = [(t, p) for t in TIERS for p in (IID, NONIID)]
-    fig, ax = plt.subplots(figsize=(FULL, 2.35))
+    # A cell needs BOTH bounds and the FedAvg arm at a matched partition, so a
+    # tier whose non-IID triple has not been run yet contributes its IID row
+    # only, rather than crashing the whole figure on a missing key.
+    cells = [(t, p) for t in TIERS for p in (IID, NONIID)
+             if f"{t}|{p}" in d.N["learning"]]
+    if not cells:
+        print("  skip fig2: no learning cells in paper_numbers.json")
+        return
+    # Fixed height PER ROW, so the segments keep their aspect as rungs are added
+    # and only the figure grows.
+    fig, ax = plt.subplots(figsize=(FULL, 0.44 * len(cells) + 0.6))
     ys = np.arange(len(cells))[::-1]
 
     for y, (tier, part) in zip(ys, cells):
@@ -226,10 +248,18 @@ def fig_gap_recovery(d: Data, out: Path) -> None:
                     va="center", fontsize=7, color=INK)
 
     ax.set_yticks(ys)
-    ax.set_yticklabels([f"{TIER_LABEL[t]}\n{p.replace('Dirichlet ', 'Dir. ')}"
+    ax.set_yticklabels([f"{tier_label(t)}\n{p.replace('Dirichlet ', 'Dir. ')}"
                         for t, p in cells], fontsize=7)
     ax.set_xlabel("validation loss (lower is better)")
-    ax.set_xlim(1.975, 2.115)
+    # Data-driven, with headroom on the right for the recovered-fraction labels.
+    # The fixed window this replaces was correct for two Qwen-family rungs and
+    # would silently clip a rung whose loss scale differs - which is exactly
+    # what adding a second model family does.
+    vals = [d.N["learning"][f"{t}|{p}"][k]["mean"]
+            for t, p in cells for k in ("e0", "e1", "e2")]
+    lo, hi = min(vals), max(vals)
+    pad = max((hi - lo) * 0.08, 0.004)
+    ax.set_xlim(lo - pad, hi + pad * 4.5)
     ax.margins(y=0.18)
     vgrid(ax, axis="x")
     ax.legend(handles=[
@@ -257,8 +287,14 @@ def fig_trajectory(d: Data, out: Path) -> None:
     claim. The skewed cells are Fig. 2's job, where each is drawn against its
     own matched bounds.
     """
-    fig, axes = plt.subplots(1, 2, figsize=(FULL, 2.5), sharex=True,
-                             gridspec_kw={"wspace": 0.2})
+    # squeeze=False so a single-tier results tree still yields an indexable row.
+    # Only the leftmost panel is labelled, but every panel keeps its own y tick
+    # numbers (the losses are not on a shared scale), so the gutter has to widen
+    # once there are more than two of them or the numbers run into the neighbour.
+    fig, axes = plt.subplots(1, len(TIERS), figsize=(FULL, 2.5), sharex=True,
+                             squeeze=False,
+                             gridspec_kw={"wspace": 0.2 if len(TIERS) < 3 else 0.32})
+    axes = axes[0]
     for ax, tier in zip(axes, TIERS):
         iid = d.trajectory(tier, "exp2_fl")
         x = np.arange(1, len(iid) + 1)
@@ -270,7 +306,7 @@ def fig_trajectory(d: Data, out: Path) -> None:
             ax.axhline(v, color=col, ls=(0, (4, 2)), lw=1.0, zorder=2)
             ax.annotate(lab, xy=(1.02, v), xytext=(0, 2.5), textcoords="offset points",
                         fontsize=6.5, color=col)
-        ax.set_title(TIER_LABEL[tier], pad=5)
+        ax.set_title(tier_label(tier), pad=5)
         ax.set_xticks(x)
         ax.set_xlabel("federated round")
         vgrid(ax)
@@ -285,23 +321,37 @@ def fig_systems(d: Data, out: Path) -> None:
     colors = [GRID, BLUE, ORANGE]
     S = {(r["tier"], r["arm"]): r for r in d.N["systems"]}
 
+    tiers = [t for t in TIERS if all((t, a) in S for a in arms)]
+    if not tiers:
+        print("  skip fig4: no tier has all three systems arms")
+        return
+
     fig, axes = plt.subplots(1, 2, figsize=(FULL, 2.4),
                              gridspec_kw={"wspace": 0.28})
-    w, xs = 0.26, np.arange(len(TIERS))
+    # Group pitch held at 0.84 of the slot however many arms there are, so adding
+    # a tier widens the axis rather than fattening the bars. GAP is the white
+    # channel between bars within a group; at three arms this reproduces the
+    # original w=0.26 / pitch=0.28 geometry exactly.
+    GAP = 0.02
+    pitch = 0.84 / len(arms)
+    w, xs = pitch - GAP, np.arange(len(tiers))
+    # Bar width shrinks with the tier count but the annotation width does not, so
+    # the label size has to follow it or neighbouring percentages overprint.
+    note_fs = 6.2 if len(tiers) < 3 else max(4.8, 6.2 - 0.55 * (len(tiers) - 2))
 
     for j, arm in enumerate(arms):
-        off = (j - 1) * (w + 0.02)
-        comm = [S[(t, arm)]["comm_mib"] for t in TIERS]
-        gas = [S[(t, arm)]["gas"] / 1e6 for t in TIERS]
+        off = (j - (len(arms) - 1) / 2) * pitch
+        comm = [S[(t, arm)]["comm_mib"] for t in tiers]
+        gas = [S[(t, arm)]["gas"] / 1e6 for t in tiers]
         axes[0].bar(xs + off, comm, w, color=colors[j], label=arm,
                     edgecolor="white", lw=0.8, zorder=3)
         axes[1].bar(xs + off, gas, w, color=colors[j], edgecolor="white",
                     lw=0.8, zorder=3)
-        for x, t in zip(xs + off, TIERS):
+        for x, t in zip(xs + off, tiers):
             pct = S[(t, arm)]["comm_overhead_pct"]
             axes[0].annotate(f"{pct:+.1f}%", xy=(x, S[(t, arm)]["comm_mib"]),
                              xytext=(0, 2), textcoords="offset points",
-                             ha="center", fontsize=6.2,
+                             ha="center", fontsize=note_fs,
                              color=INK if pct else MUTED)
             # A zero bar draws nothing, and "FedAvg anchors nothing" is the
             # whole point of the panel - so it is labelled rather than absent.
@@ -309,17 +359,30 @@ def fig_systems(d: Data, out: Path) -> None:
             axes[1].annotate("0" if not g else f"{g / 1e6:.2f}M",
                              xy=(x, g / 1e6), xytext=(0, 2),
                              textcoords="offset points", ha="center",
-                             fontsize=6.2, color=INK if g else MUTED)
+                             fontsize=note_fs, color=INK if g else MUTED)
+
+    # Both limits are derived. A 1B-parameter rung ships a larger adapter than
+    # either Qwen rung below it, so the fixed 470 MiB ceiling this replaces would
+    # have put its E4 bar off the top of the panel with no visible sign that it
+    # had gone.
+    def headroom(values: Sequence[float]) -> float:
+        top = max(values) if values else 0.0
+        return top * 1.18 if top else 1.0
 
     axes[0].set_ylabel("communication volume (MiB)")
-    axes[0].set_ylim(0, 470)
+    axes[0].set_ylim(0, headroom([S[(t, a)]["comm_mib"] for t in tiers for a in arms]))
     axes[1].set_ylabel("gas used (millions)")
-    axes[1].set_ylim(0, 4.4)
+    axes[1].set_ylim(0, headroom([S[(t, a)]["gas"] / 1e6 for t in tiers for a in arms]))
     for ax in axes:
         ax.set_xticks(xs)
-        ax.set_xticklabels([TIER_LABEL[t] for t in TIERS])
+        ax.set_xticklabels([tier_label(t) for t in tiers])
         vgrid(ax)
-    axes[0].legend(loc="upper left", ncol=1, fontsize=6.8)
+    if len(tiers) < 3:
+        axes[0].legend(loc="upper left", ncol=1, fontsize=6.8)
+    else:
+        axes[0].legend(loc="lower left", bbox_to_anchor=(0.0, 1.0), ncol=3,
+                       fontsize=6.6, handlelength=1.3, columnspacing=1.0,
+                       handletextpad=0.5)
     save(fig, out, "fig4_systems_cost")
 
 
@@ -327,13 +390,22 @@ def fig_gas_scaling(d: Data, out: Path) -> None:
     """F5 - anchoring cost is linear in participants and flat in artefact size.
 
     One tier only: the sweep anchors 32-byte digests and never loads a model, so
-    both tiers produce byte-identical numbers and plotting both would imply two
-    independent measurements.
+    every tier produces byte-identical numbers and plotting them all would imply
+    N independent measurements. Which tier supplies them is therefore arbitrary,
+    and picking the first one that has E7 beats naming a rung that a future
+    results tree might not contain.
     """
-    m = json.loads((d.results / "qwen-0.5b" / "exp7_scalability_metrics.json")
+    src = next((t for t in TIERS
+                if (d.results / t / "exp7_scalability_metrics.json").is_file()
+                and any(r["tier"] == t and r["sweep"] == "clients"
+                        for r in d.N["gas_scaling"])), None)
+    if src is None:
+        print("  skip fig5: no tier has an E7 client sweep")
+        return
+    m = json.loads((d.results / src / "exp7_scalability_metrics.json")
                    .read_text(encoding="utf-8"))
     fit = next(r for r in d.N["gas_scaling"]
-               if r["tier"] == "qwen-0.5b" and r["sweep"] == "clients")
+               if r["tier"] == src and r["sweep"] == "clients")
 
     fig, axes = plt.subplots(1, 2, figsize=(FULL, 2.4),
                              gridspec_kw={"wspace": 0.26})
@@ -381,7 +453,11 @@ def fig_tamper(d: Data, out: Path) -> None:
     """
     order = ["bitflip", "scale", "substitute", "replay", "reserialize"]
     rows = {(r["tier"], r["perturbation"]): r for r in d.N["tamper"]}
-    marks = {TIERS[0]: "o", TIERS[1]: "^"}
+    tiers = [t for t in TIERS if all((t, q) in rows for q in order)]
+    if not tiers:
+        print("  skip fig6: no tier has a complete E6 sweep")
+        return
+    marks = {t: TIER_MARKERS[i % len(TIER_MARKERS)] for i, t in enumerate(tiers)}
 
     # Bars are the wrong mark here: every outcome is 0 or 100, so a bar encodes
     # nothing the label does not, and the zero-height control bar would vanish.
@@ -390,18 +466,35 @@ def fig_tamper(d: Data, out: Path) -> None:
     ys = np.arange(len(order))[::-1]
 
     for y, pert in zip(ys, order):
-        ctrl = rows[(TIERS[0], pert)]["benign_control"]
+        ctrl = rows[(tiers[0], pert)]["benign_control"]
         col = VERM if ctrl else BLUE
-        lo, hi = cp_bounds(rows[(TIERS[0], pert)]["flagged"],
-                           rows[(TIERS[0], pert)]["trials"])
+        lo, hi = cp_bounds(rows[(tiers[0], pert)]["flagged"],
+                           rows[(tiers[0], pert)]["trials"])
         ax.plot([lo * 100, hi * 100], [y, y], color=col, lw=4.5, alpha=0.28,
                 solid_capstyle="butt", zorder=2)
-        for i, tier in enumerate(TIERS):
+        # Markers are spread symmetrically about the row whatever N is, so the
+        # tiers stay distinguishable instead of stacking on the centre line.
+        span = 0.22 * (len(tiers) - 1)
+        for i, tier in enumerate(tiers):
             r = rows[(tier, pert)]
-            ax.plot(100 * r["flagged"] / r["trials"], y + (0.5 - i) * 0.22,
+            dy = 0.0 if len(tiers) == 1 else span / 2 - i * 0.22
+            ax.plot(100 * r["flagged"] / r["trials"], y + dy,
                     marks[tier], ms=5, color=col, mec="white", mew=0.8, zorder=4)
-        r = rows[(TIERS[0], pert)]
-        txt = (f"{r['flagged']}/{r['trials']} both tiers    "
+        r = rows[(tiers[0], pert)]
+        # The shared "k/n" label is only honest while every tier agrees, which is
+        # the expected outcome (E6 is deterministic given the config) but not one
+        # to assume: a divergence must show up as a changed label, not as four
+        # tiers silently reported as the first one.
+        counts = {(rows[(t, pert)]["flagged"], rows[(t, pert)]["trials"]) for t in tiers}
+        if len(counts) > 1:
+            scope = "TIERS DIFFER"
+        elif len(tiers) == 1:
+            scope = tier_label(tiers[0])
+        elif len(tiers) == 2:
+            scope = "both tiers"
+        else:
+            scope = f"all {len(tiers)} tiers"
+        txt = (f"{r['flagged']}/{r['trials']} {scope}    "
                + (f"miss $\\leq$ {(1 - lo) * 100:.1f}%" if r["flagged"]
                   else f"FPR $\\leq$ {hi * 100:.1f}%"))
         ax.annotate(txt, xy=(112, y), va="center", ha="left", fontsize=6.5,
@@ -423,10 +516,8 @@ def fig_tamper(d: Data, out: Path) -> None:
                label="benign re-serialization (must not be)"),
         Line2D([], [], color=MUTED, lw=4.5, alpha=0.28,
                label="exact one-sided 95% interval, $n$=50"),
-        Line2D([], [], marker=marks[TIERS[0]], ls="", color=MUTED, ms=5,
-               mec="white", label=TIER_LABEL[TIERS[0]]),
-        Line2D([], [], marker=marks[TIERS[1]], ls="", color=MUTED, ms=5,
-               mec="white", label=TIER_LABEL[TIERS[1]]),
+        *[Line2D([], [], marker=marks[t], ls="", color=MUTED, ms=5,
+                 mec="white", label=tier_label(t)) for t in tiers],
     ], loc="lower left", bbox_to_anchor=(0.0, 1.0), ncol=3, fontsize=6.5,
         handlelength=1.4, columnspacing=1.0)
     save(fig, out, "fig6_tamper_detection")
@@ -437,15 +528,27 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--results-dir", default="results", type=Path)
     ap.add_argument("--out", default=Path("paper") / "figures", type=Path)
+    ap.add_argument("--tiers", default=None,
+                    help="Comma/space separated tier keys to draw. Default: every "
+                         "tier under --results-dir that has results, ladder-ordered.")
     args = ap.parse_args()
 
     root = Path(__file__).resolve().parent.parent
     results = args.results_dir if args.results_dir.is_absolute() else root / args.results_dir
     out = args.out if args.out.is_absolute() else root / args.out
 
+    global TIERS
+    if args.tiers:
+        TIERS = tuple(t for t in args.tiers.replace(",", " ").split() if t)
+    else:
+        TIERS = discover_tiers(results)
+    if not TIERS:
+        print(f"error: no model-tier directories with results under {results}")
+        return 2
+
     style()
     d = Data(results)
-    print(f"Rendering to {out}")
+    print(f"Rendering to {out}  (tiers: {', '.join(TIERS)})")
     fig_heterogeneity(root, out)
     fig_gap_recovery(d, out)
     fig_trajectory(d, out)

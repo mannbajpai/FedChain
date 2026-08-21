@@ -508,5 +508,74 @@ class ModelTeardownTests(unittest.TestCase):
         )
 
 
+class ModelLadderTests(unittest.TestCase):
+    """The tier registry is the single source of truth for keys and paths.
+
+    Artefacts are scoped by tier key (``results/<key>/``, ``outputs/<key>/``), so
+    a duplicated or drifting key silently merges two sweeps into one directory,
+    and a tier the paper scripts cannot label shows up in a figure under its bare
+    directory name.
+    """
+
+    def setUp(self):
+        from utils import models
+
+        self.models = models
+
+    def test_tier_keys_and_aliases_are_unique(self):
+        keys = [s.key for s in self.models.MODEL_TIERS]
+        self.assertEqual(len(keys), len(set(keys)), "duplicate tier key")
+        names = []
+        for spec in self.models.MODEL_TIERS:
+            names.append(spec.key.lower())
+            names.extend(a.lower() for a in spec.aliases)
+        dupes = {n for n in names if names.count(n) > 1}
+        self.assertEqual(dupes, set(), f"an alias resolves to two tiers: {dupes}")
+
+    def test_keys_are_filesystem_safe(self):
+        import re
+
+        for spec in self.models.MODEL_TIERS:
+            self.assertRegex(spec.key, r"^[a-z0-9][a-z0-9._-]*$", spec.key)
+
+    def test_registered_id_resolves_to_its_key_not_its_slug(self):
+        """``model_key_for`` must prefer the registry over ``slugify_model``.
+
+        They disagree: the Llama rung is keyed ``llama-3.2-1b`` while its id
+        slugifies to ``llama-3.2-1b-instruct``. If the slug ever won, a run
+        launched by Hugging Face id would write beside - not into - the tier
+        directory that the same run launched by key uses.
+        """
+        for spec in self.models.MODEL_TIERS:
+            self.assertEqual(self.models.model_key_for(spec.hf_id), spec.key)
+
+    def test_gated_tiers_are_declared(self):
+        """meta-llama repositories 401 without a token; the flag drives preflight."""
+        for spec in self.models.MODEL_TIERS:
+            if spec.hf_id.lower().startswith("meta-llama/"):
+                self.assertTrue(spec.gated, f"{spec.key} must be marked gated")
+
+    def test_paper_scripts_read_the_real_registry(self):
+        """paper_tables must load the ladder, not quietly use its fallback.
+
+        The fallback exists for a broken checkout, but it is two tiers long: if
+        it silently took over, every tier added since would be labelled with its
+        directory name in the tables *and* the figures, which share this loader.
+        Loading utils/models.py by path is also delicate - the registry declares
+        a dataclass, and executing the module without registering it in
+        sys.modules first makes the decorator raise.
+        """
+        sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+        import paper_tables
+
+        ladder = paper_tables._load_ladder()
+        self.assertEqual([k for k, _ in ladder],
+                         [s.key for s in self.models.MODEL_TIERS])
+        self.assertNotEqual(ladder, list(paper_tables.LADDER_FALLBACK))
+        for key, label in ladder:
+            self.assertTrue(label and not label.endswith("-Instruct"), label)
+            self.assertEqual(paper_tables.tier_label(key), label)
+
+
 if __name__ == "__main__":
     unittest.main()

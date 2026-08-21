@@ -16,7 +16,7 @@ fine-tuning paradigms, built to run end-to-end on consumer hardware
 ## Model & training setup
 
 - `Qwen/Qwen2.5-1.5B-Instruct` is the `base_config.yaml` default; the reported
-  study was run at the two smaller tiers (see [model ladder](#model-ladder))
+  study is run at the smaller tiers (see [model ladder](#model-ladder))
 - 4-bit NF4 (BitsAndBytes, double quantization)
 - LoRA `r=16`, `alpha=32`, `dropout=0.05` on
   `q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj`
@@ -28,25 +28,41 @@ fine-tuning paradigms, built to run end-to-end on consumer hardware
 
 The 1.5B model sits at the 4 GB VRAM ceiling, so validate on smaller models
 first. `--model` selects the tier; hyperparameters are identical across all
-three, and each writes to its own `results/<key>/` and `outputs/<key>/`.
+four, and each writes to its own `results/<key>/` and `outputs/<key>/`.
 
-| `--model` | Model | Status |
-|---|---|---|
-| `smol` / `smollm2-360m` | `HuggingFaceTB/SmolLM2-360M-Instruct` | **reported** — full sweep, 3 seeds |
-| `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | **reported** — full sweep, 3 seeds |
-| `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | not run; at the 4 GB ceiling |
+| `--model` | Model | Params | Family | Status |
+|---|---|---|---|---|
+| `smol` / `smollm2-360m` | `HuggingFaceTB/SmolLM2-360M-Instruct` | 360M | Llama | **reported** — full sweep, 3 seeds |
+| `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | 0.5B | Qwen2 | **reported** — full sweep, 3 seeds |
+| `llama` / `llama-3.2-1b` | `meta-llama/Llama-3.2-1B-Instruct` | 1.2B | Llama | in progress — **gated**, needs `HF_TOKEN` |
+| `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | 1.5B | Qwen2 | not run; at the 4 GB ceiling |
 
-The reported study is the two-tier ladder: every table in `results/paper/`
-covers 360M and 0.5B at seeds 42/43/44, over both the IID and the
-Dirichlet(0.3) partition. Scale enters as a two-point comparison, which is a
-direction and not a trend — see
+The ladder varies two things at once, and the two are worth keeping apart when
+reading a cross-tier table. **Scale** moves 360M → 0.5B → 1.2B. **Family**
+moves Qwen2 → Llama. The 1B rung is the one that separates them: it is both the
+largest completed tier and a second family, so a Llama-vs-Qwen difference has
+to be read against the 360M rung — SmolLM2 is Llama-architecture too — rather
+than attributed to size. Scale still enters as a small number of points, which
+is a direction and not a trend; see
 [ablation_study/12_paper_plan.md](ablation_study/12_paper_plan.md).
 
 ```bash
-./run_all.sh --model smol         # 1. prove the pipeline
-./run_all.sh --model qwen-0.5b    # 2. check the numbers
-./run_all.sh --model qwen-1.5b    # 3. the paper run
-./run_all.sh --model all          # ...or all three, smallest first
+./run_all.sh --model smol            # 1. prove the pipeline
+./run_all.sh --model qwen-0.5b       # 2. check the numbers
+./run_all.sh --model llama-3.2-1b    # 3. second family, larger scale
+./run_all.sh --model qwen-1.5b       # 4. the paper run
+./run_all.sh --model all             # ...or all four, smallest first
+```
+
+`run_all.sh` covers the training arms only. To take a tier all the way to the
+paper tables and figures — sweep, the matched non-IID ablation, the audit
+experiments at the reported protocol, the single-scorer re-evaluation, then
+every table — use the finisher, which is idempotent and resumable:
+
+```bash
+export HF_TOKEN=hf_...                                   # gated tiers only
+bash scripts/run_tier.sh --model llama-3.2-1b --seeds "42 43 44"
+bash scripts/run_tier.sh --model llama-3.2-1b --dry-run  # print the plan first
 ```
 
 `results/comparison_across_models.md` puts every tier in one table.

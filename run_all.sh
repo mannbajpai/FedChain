@@ -85,6 +85,8 @@ Options:
                             Hugging Face id, a list, or "all":
                               smollm2-360m | smol   HuggingFaceTB/SmolLM2-360M-Instruct
                               qwen-0.5b            Qwen/Qwen2.5-0.5B-Instruct
+                              llama-3.2-1b | llama meta-llama/Llama-3.2-1B-Instruct
+                                                   (gated: needs HF_TOKEN)
                               qwen-1.5b | qwen     Qwen/Qwen2.5-1.5B-Instruct
                               all                  the full ladder, smallest first
                             Artefacts are scoped to results/<key>/ and
@@ -132,8 +134,9 @@ Crash recovery:
 Recommended ladder (validate cheaply, then scale up):
   ./run_all.sh --model smol           # 1. shakedown on SmolLM2-360M
   ./run_all.sh --model qwen-0.5b      # 2. preliminary results
-  ./run_all.sh --model qwen-1.5b      # 3. the paper configuration
-  ./run_all.sh --model all            # ...or all three back to back
+  ./run_all.sh --model llama-3.2-1b   # 3. second family, larger scale
+  ./run_all.sh --model qwen-1.5b      # 4. the paper configuration
+  ./run_all.sh --model all            # ...or all four back to back
 
 Examples:
   ./run_all.sh                                   # full benchmark, config default model
@@ -521,6 +524,22 @@ if [[ -n "$MODEL" ]]; then
         MODEL_IDS+=("$_id")
     done <<< "$MODEL_LINES"
     info "model ladder: ${MODEL_KEYS[*]}"
+
+    # Gated repositories (meta-llama/*) 401 on download. Without this the sweep
+    # gets as far as the first experiment's model load - after the venv build,
+    # the node startup and the data prep - and dies there. Checking the token up
+    # front costs one subprocess and moves that failure to second one.
+    GATED_LINES="$("$PYTHON" utils/models.py --gated-list "$MODEL" 2>/dev/null || true)"
+    if [[ -n "$GATED_LINES" && -z "${HF_TOKEN:-${HUGGING_FACE_HUB_TOKEN:-}}" ]]; then
+        fail "gated model selected but no HF_TOKEN is exported:"
+        while IFS=$'\t' read -r _gkey _gid; do
+            [[ -n "$_gkey" ]] && info "  $_gkey  ->  $_gid"
+        done <<< "$GATED_LINES"
+        info ""
+        info "Accept the licence on https://huggingface.co/<id> with the same"
+        info "account, then:  export HF_TOKEN=hf_..."
+        exit 2
+    fi
 else
     MODEL_KEYS+=("")   # empty => keep the config's model_name and default paths
     MODEL_IDS+=("")

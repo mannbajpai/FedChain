@@ -41,8 +41,103 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 T95 = {2: 12.706, 3: 4.303, 4: 3.182, 5: 2.776, 6: 2.571, 7: 2.447,
        8: 2.365, 9: 2.306, 10: 2.262}
 
-TIERS = ("smollm2-360m", "qwen-0.5b")
-TIER_LABEL = {"smollm2-360m": "SmolLM2-360M", "qwen-0.5b": "Qwen2.5-0.5B"}
+# =============================================================================
+# Model ladder
+# -----------------------------------------------------------------------------
+# The tier list is NOT hard-coded here. It is read from the registry in
+# utils/models.py and then intersected with what is actually on disk, because
+# those two answer different questions: the registry says which rungs exist,
+# the results tree says which have been run. Hard-coding the pair made adding a
+# third tier a two-file edit, and silently produced a table of "n/a" rows for
+# any rung whose sweep had not finished yet.
+#
+# utils/models.py is loaded BY PATH rather than as `from utils.models import`:
+# importing the package executes utils/__init__.py, which pulls in PyYAML and
+# torch. This script reads finished JSON and must keep working in a bare
+# interpreter, so it borrows the same trick the shell scripts use.
+# =============================================================================
+#: Used only if the registry cannot be read at all.
+LADDER_FALLBACK = (("smollm2-360m", "SmolLM2-360M"), ("qwen-0.5b", "Qwen2.5-0.5B"))
+
+#: Directory-name substrings that mark a results tree as not-for-publication.
+#: `qwen-0.5b.leaky_backup` holds a VRAM-contaminated sweep; rendering it beside
+#: the clean tier invites a reader to average the two.
+EXCLUDED_TIER_MARKERS = ("backup", "archive", "_old", "scratch")
+
+
+def _load_ladder() -> List[Tuple[str, str]]:
+    """``[(tier key, display label)]`` smallest-first, from the tier registry."""
+    import importlib.util
+
+    name = "_fedchain_model_tiers"
+    path = Path(__file__).resolve().parent.parent / "utils" / "models.py"
+    try:
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        # Registering BEFORE exec_module is load-bearing, not tidiness: the
+        # registry declares a @dataclass, and dataclasses resolves field types
+        # through sys.modules[cls.__module__]. Executing an unregistered module
+        # makes that lookup return None and the decorator raises AttributeError.
+        sys.modules[name] = module
+        try:
+            spec.loader.exec_module(module)                          # type: ignore[union-attr]
+        finally:
+            sys.modules.pop(name, None)
+        specs = module.MODEL_TIERS
+    except Exception as exc:                                         # pragma: no cover
+        # Loud, because the quiet version of this degrades to labelling an
+        # unknown tier with its bare directory name in a paper figure.
+        print(f"warn: could not read the model-tier registry ({exc!r}); "
+              f"falling back to {[k for k, _ in LADDER_FALLBACK]}", file=sys.stderr)
+        return list(LADDER_FALLBACK)
+    out: List[Tuple[str, str]] = []
+    for s in specs:
+        # "Qwen/Qwen2.5-0.5B-Instruct" -> "Qwen2.5-0.5B"; the "-Instruct" suffix
+        # is constant across the ladder and only costs column width.
+        label = str(s.hf_id).split("/")[-1]
+        if label.endswith("-Instruct"):
+            label = label[: -len("-Instruct")]
+        out.append((s.key, label))
+    return out or list(LADDER_FALLBACK)
+
+
+LADDER: List[Tuple[str, str]] = _load_ladder()
+LADDER_ORDER: List[str] = [k for k, _ in LADDER]
+TIER_LABEL: Dict[str, str] = dict(LADDER)
+
+#: Overwritten by main() with the tiers actually present under --results-dir.
+TIERS: Tuple[str, ...] = tuple(LADDER_ORDER)
+
+
+def tier_label(tier: str) -> str:
+    """Display name for a tier, falling back to the key for unknown ones."""
+    return TIER_LABEL.get(tier, tier)
+
+
+def discover_tiers(root: Path) -> Tuple[str, ...]:
+    """Tiers under ``root`` that hold results, ladder-ordered.
+
+    A tier counts as present if it has any per-seed metrics OR any audit-layer
+    report, since E6/E7 are written at the tier root and a tier can legitimately
+    carry the systems experiments before its training sweep finishes.
+    """
+    if not root.is_dir():
+        return ()
+    found: List[str] = []
+    for sub in sorted(p for p in root.iterdir() if p.is_dir() and p.name != "logs"):
+        if any(m in sub.name.lower() for m in EXCLUDED_TIER_MARKERS):
+            continue
+        has_seeds = any(sub.glob("seed_*/*_metrics.json")) or any(
+            sub.glob("ablation/seed_*/*_metrics.json")
+        )
+        has_audit = (sub / "exp6_tamper_metrics.json").is_file() or (
+            sub / "exp7_scalability_metrics.json"
+        ).is_file()
+        if has_seeds or has_audit:
+            found.append(sub.name)
+    ordered = [k for k in LADDER_ORDER if k in found]
+    ordered += sorted(k for k in found if k not in ordered)
+    return tuple(ordered)
 
 # (arm key, results subdir, human label) for the two partitions.
 IID_ARMS = {"e0": "exp0_local", "e1": "exp1_sft", "e2": "exp2_fl",
@@ -347,9 +442,9 @@ def table_main(st: Study, N: dict) -> Tuple[str, str, List[str]]:
             e1 = st.loss(tier, arms["e1"])
             e2 = st.loss(tier, arms["e2"])
             if not (e0 and e1 and e2):
-                rows.append([TIER_LABEL[tier], part, "--", "--", "--", "--",
+                rows.append([tier_label(tier), part, "--", "--", "--", "--",
                              "*(not run)*"])
-                missing.append(f"{TIER_LABEL[tier]} / {part}")
+                missing.append(f"{tier_label(tier)} / {part}")
                 continue
             n = min(len(e0), len(e1), len(e2))
             e0, e1, e2 = e0[:n], e1[:n], e2[:n]
@@ -359,7 +454,7 @@ def table_main(st: Study, N: dict) -> Tuple[str, str, List[str]]:
             fm, fh = mean_ci(frac)
             sig = significant(gm, gh)
             rows.append([
-                TIER_LABEL[tier], part,
+                tier_label(tier), part,
                 pm(*mean_ci(e0)), pm(*mean_ci(e1)), pm(*mean_ci(e2)),
                 pm(gm, gh, 5) + ("" if sig else " (n.s.)"),
                 f"{fm * 100:.1f}% ± {fh * 100:.1f}%" if fm is not None else "--",
@@ -432,15 +527,15 @@ def table_hash_equality(st: Study, N: dict) -> Tuple[str, str, List[str]]:
                 cl = compare(tier, left, right, "client")
                 gl = compare(tier, left, right, "global")
                 if cl is None and gl is None:
-                    rows.append([TIER_LABEL[tier], part, label, "*(not run)*",
+                    rows.append([tier_label(tier), part, label, "*(not run)*",
                                  "*(not run)*", "--"])
-                    missing.append(f"{TIER_LABEL[tier]} / {part} / {label}")
+                    missing.append(f"{tier_label(tier)} / {part} / {label}")
                     continue
                 fmt = lambda p: ("--" if p is None else
                                  (f"**{p[0]}/{p[1]}**" if p[0] == p[1]
                                   else f"**{p[0]}/{p[1]} MISMATCH**"))
                 dm, _ = paired(st.loss(tier, left), st.loss(tier, right))
-                rows.append([TIER_LABEL[tier], part, label, fmt(cl), fmt(gl),
+                rows.append([tier_label(tier), part, label, fmt(cl), fmt(gl),
                              "0.000000" if dm == 0 else f(dm, 6)])
                 records.append({
                     "tier": tier, "partition": part, "comparison": label,
@@ -506,7 +601,7 @@ def table_systems(st: Study, N: dict) -> Tuple[str, str, List[str]]:
                 base_c, base_t = comm, tm
             dc = "--" if comm is None or not base_c else f"{(comm / base_c - 1) * 100:+.1f}%"
             dt = "--" if tm is None or not base_t else f"{(tm / base_t - 1) * 100:+.1f}%"
-            rows.append([TIER_LABEL[tier], label, f(comm, 2), dc,
+            rows.append([tier_label(tier), label, f(comm, 2), dc,
                          f"{gas:,.0f}" if gas is not None else "--",
                          pm(tm, th, 1), dt])
             records.append({"tier": tier, "arm": label, "comm_mib": comm,
@@ -529,7 +624,7 @@ def table_tamper(st: Study, N: dict) -> Tuple[str, str, List[str]]:
     for tier in TIERS:
         d = st.audit.get((tier, "e6"))
         if not d:
-            missing.append(f"E6 at {TIER_LABEL[tier]}")
+            missing.append(f"E6 at {tier_label(tier)}")
             continue
         for s in d.get("summary", []):
             n, det = s.get("trials", 0), s.get("detected", 0)
@@ -540,7 +635,7 @@ def table_tamper(st: Study, N: dict) -> Tuple[str, str, List[str]]:
             else:
                 bound = clopper_pearson_upper(n - det, n)
                 bound_s = f"miss ≤ {bound * 100:.1f}%" if bound is not None else "--"
-            rows.append([TIER_LABEL[tier], s.get("attack", "?"),
+            rows.append([tier_label(tier), s.get("attack", "?"),
                          "benign control" if benign else "attack",
                          f"{det}/{n}", f"{s.get('detection_rate', 0) * 100:.0f}%",
                          bound_s])
@@ -567,14 +662,14 @@ def table_gas(st: Study, N: dict) -> Tuple[str, str, List[str]]:
     for tier in TIERS:
         d = st.audit.get((tier, "e7"))
         if not d:
-            missing.append(f"E7 at {TIER_LABEL[tier]}")
+            missing.append(f"E7 at {tier_label(tier)}")
             continue
         cs = d.get("clients_sweep", [])
         if cs:
             ns = [c["num_clients"] for c in cs]
             gs = [c["gas_per_round"] for c in cs]
             fit = linfit(ns, gs)
-            rows.append([TIER_LABEL[tier], "clients",
+            rows.append([tier_label(tier), "clients",
                          f"N = {min(ns)}–{max(ns)}",
                          f"gas = {fit['intercept']:,.0f} + {fit['slope']:,.0f}·N, R² = {fit['r2']:.6f}",
                          "linear in participants"])
@@ -587,7 +682,7 @@ def table_gas(st: Study, N: dict) -> Tuple[str, str, List[str]]:
             gas = [p["gas_used"] for p in ps]
             spread = (max(gas) - min(gas)) / min(gas) * 100 if min(gas) else 0.0
             anchored = {p.get("anchored_bytes") for p in ps}
-            rows.append([TIER_LABEL[tier], "artefact size",
+            rows.append([tier_label(tier), "artefact size",
                          f"{min(mb):.2f}–{max(mb):.1f} MiB ({max(mb) / min(mb):.0f}×)",
                          f"gas spread {spread:.4f}%",
                          f"flat; {sorted(anchored)[0]} bytes anchored at every size"])
@@ -617,9 +712,9 @@ def table_generation(st: Study, N: dict) -> Tuple[str, str, List[str]]:
             for arm, label in arms:
                 r, b = st.gen(tier, arm, "rouge_l"), st.gen(tier, arm, "bleu")
                 if not r:
-                    missing.append(f"reeval250 {TIER_LABEL[tier]} / {part} / {label}")
+                    missing.append(f"reeval250 {tier_label(tier)} / {part} / {label}")
                     continue
-                rows.append([TIER_LABEL[tier], part, label,
+                rows.append([tier_label(tier), part, label,
                              pm(*mean_ci(r)), pm(*mean_ci(b))])
                 records.append({"tier": tier, "partition": part, "arm": arm,
                                 "rouge_l": dict(zip(("mean", "ci"), mean_ci(r))),
@@ -646,6 +741,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--seeds", default="42 43 44")
     ap.add_argument("--check", action="store_true",
                     help="Exit non-zero if a paper-blocking table is incomplete.")
+    ap.add_argument("--tiers", default=None,
+                    help="Comma/space separated tier keys to render. Default: every "
+                         "tier under --results-dir that has results, ladder-ordered. "
+                         "Name a tier explicitly to hold a table to a fixed set while "
+                         "another tier's sweep is still running.")
     args = ap.parse_args(argv)
 
     # The tables carry U+2212, ±, α and × . Files are always written UTF-8, but
@@ -658,6 +758,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             pass
 
     seeds = [int(s) for s in args.seeds.replace(",", " ").split()]
+
+    # Discovery, not a constant: a tier appears in the tables once it has results
+    # and not before, so a partially finished ladder renders the rungs it has
+    # instead of a page of "not run" rows that --check would then treat as
+    # paper-blocking.
+    global TIERS
+    if args.tiers:
+        TIERS = tuple(t for t in args.tiers.replace(",", " ").split() if t)
+    else:
+        TIERS = discover_tiers(args.results_dir)
+    if not TIERS:
+        print(f"error: no model-tier directories with results under {args.results_dir}",
+              file=sys.stderr)
+        return 2
+    print(f"tiers: {', '.join(TIERS)}")
+
     out = args.out or (args.results_dir / "paper")
     out.mkdir(parents=True, exist_ok=True)
 
@@ -718,7 +834,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for tier, g in N.get("skew_growth", {}).items():
         if g.get("factor"):
             heads.append(
-                f"- **{TIER_LABEL[tier]}**: FedAvg recovers "
+                f"- **{tier_label(tier)}**: FedAvg recovers "
                 f"{g['recovered_iid'] * 100:.1f}% of the isolation→centralized gap under IID "
                 f"and {g['recovered_noniid'] * 100:.1f}% under Dirichlet(0.3); the absolute "
                 f"gain grows {g['factor']:.2f}× "
@@ -726,12 +842,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     fp = [r for r in N.get("tamper", []) if r.get("benign_control")]
     for r in fp:
         if r.get("bound_95") is not None:
-            heads.append(f"- **{TIER_LABEL[r['tier']]}**: {r['flagged']}/{r['trials']} false "
+            heads.append(f"- **{tier_label(r['tier'])}**: {r['flagged']}/{r['trials']} false "
                          f"positives on the benign control — FPR ≤ {r['bound_95'] * 100:.1f}% "
                          f"(one-sided 95%).")
     for r in N.get("gas_scaling", []):
         if r.get("sweep") == "clients":
-            heads.append(f"- **{TIER_LABEL[r['tier']]}**: gas = "
+            heads.append(f"- **{tier_label(r['tier'])}**: gas = "
                          f"{r['intercept']:,.0f} + {r['slope']:,.0f}·N, R² = {r['r2']:.6f}.")
     if N.get("verify_latency_sec_mean"):
         heads.append(f"- Mean integrity-check latency: "
@@ -753,7 +869,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                "measurement. Do not write the paper from these tables until it is",
                "understood.", ""]
         for r in divergent:
-            md.append(f"- {TIER_LABEL[r['tier']]} / {r['partition']} / {r['comparison']}: "
+            md.append(f"- {tier_label(r['tier'])} / {r['partition']} / {r['comparison']}: "
                       f"{r['client_identical']}/{r['client_adapters']} client, "
                       f"{r['global_identical']}/{r['global_models']} global, "
                       f"Δ loss {f(r['delta_val_loss'], 6)}")
@@ -771,7 +887,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if divergent:
         print("\nHASH DIVERGENCE (falsifies the central claim):", file=sys.stderr)
         for r in divergent:
-            print(f"  - {TIER_LABEL[r['tier']]} / {r['partition']} / {r['comparison']}: "
+            print(f"  - {tier_label(r['tier'])} / {r['partition']} / {r['comparison']}: "
                   f"{r['client_identical']}/{r['client_adapters']} client, "
                   f"{r['global_identical']}/{r['global_models']} global", file=sys.stderr)
 

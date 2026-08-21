@@ -205,13 +205,33 @@ larger models and only commit to the top rung once the pipeline is proven:
 |---|---|---|---|
 | 1 | `smol` (or `smollm2-360m`) | `HuggingFaceTB/SmolLM2-360M-Instruct` | Pipeline shakedown — fastest full run |
 | 2 | `qwen-0.5b` | `Qwen/Qwen2.5-0.5B-Instruct` | Preliminary results at a usable scale |
-| 3 | `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | The configuration reported in the paper |
+| 3 | `llama` (or `llama-3.2-1b`) | `meta-llama/Llama-3.2-1B-Instruct` | A second model family at a larger scale — **gated** |
+| 4 | `qwen-1.5b` | `Qwen/Qwen2.5-1.5B-Instruct` | The configuration reported in the paper |
 
 ```bash
-./run_all.sh --model smol           # 1. prove it works end to end
-./run_all.sh --model qwen-0.5b      # 2. sanity-check the numbers
-./run_all.sh --model qwen-1.5b      # 3. the paper run
-./run_all.sh --model all            # ...or all three back to back, smallest first
+./run_all.sh --model smol            # 1. prove it works end to end
+./run_all.sh --model qwen-0.5b       # 2. sanity-check the numbers
+./run_all.sh --model llama-3.2-1b    # 3. second family, larger scale
+./run_all.sh --model qwen-1.5b       # 4. the paper run
+./run_all.sh --model all             # ...or all four back to back, smallest first
+```
+
+Rung 3 is gated. Accept the licence at
+<https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct> with the account whose
+token you export, then `export HF_TOKEN=hf_...`. `run_all.sh`,
+`run_ablation.sh` and `run_tier.sh` all check for it before scheduling anything,
+so a missing token costs a second rather than the hours it would take to reach
+the first model load.
+
+`run_all.sh` runs the training arms. To take a tier all the way to the paper
+tables and figures in one command — sweep, the matched non-IID ablation, the
+audit experiments at the reported protocol, the single-scorer re-evaluation,
+then every table — use `scripts/run_tier.sh`, which is idempotent and skips
+whatever is already on disk:
+
+```bash
+bash scripts/run_tier.sh --model llama-3.2-1b --dry-run   # print the plan
+bash scripts/run_tier.sh --model llama-3.2-1b --seeds "42 43 44"
 ```
 
 Each tier writes to its **own** directory, so nothing overwrites anything:
@@ -219,6 +239,7 @@ Each tier writes to its **own** directory, so nothing overwrites anything:
 ```
 results/smollm2-360m/   outputs/smollm2-360m/
 results/qwen-0.5b/      outputs/qwen-0.5b/
+results/llama-3.2-1b/   outputs/llama-3.2-1b/
 results/qwen-1.5b/      outputs/qwen-1.5b/
 results/comparison_across_models.md    <- all tiers in one table
 ```
@@ -277,8 +298,9 @@ python scripts/compare_results.py
 ### Useful `main.py` flags
 
 ```
---model TIER_OR_ID          Model tier (smol | qwen-0.5b | qwen-1.5b | any HF id);
-                            scopes artefacts to results/<key>/ and outputs/<key>/
+--model TIER_OR_ID          Model tier (smol | qwen-0.5b | llama-3.2-1b |
+                            qwen-1.5b | any HF id); scopes artefacts to
+                            results/<key>/ and outputs/<key>/
 --num-rounds N              Override the federated round count
 --max-train-samples N       Samples per client per round
 --no-generation-metrics     Skip ROUGE-L / BLEU (saves several minutes per eval)

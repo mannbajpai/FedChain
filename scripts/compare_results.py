@@ -76,6 +76,39 @@ AUDIT_ONLY_EXPERIMENTS: Tuple[str, ...] = ("exp6_tamper", "exp7_scalability")
 EXCLUDED_TIER_MARKERS: Tuple[str, ...] = ("backup", "archive", "_old", "scratch")
 
 
+def ladder_order() -> List[str]:
+    """Tier keys smallest-first, from the registry in ``utils/models.py``.
+
+    The ladder table is read as a size progression, so alphabetical order is
+    actively misleading: it puts ``llama-3.2-1b`` (1.2B) ahead of
+    ``qwen-0.5b`` and ``smollm2-360m``. Tiers the registry does not know are
+    appended alphabetically after the ones it does.
+
+    Loaded by path rather than as ``from utils.models import``, because
+    importing the package runs ``utils/__init__.py`` and pulls in PyYAML and
+    torch; this script only reads finished JSON.
+    """
+    import importlib.util
+
+    name = "_fedchain_model_tiers"
+    path = Path(__file__).resolve().parent.parent / "utils" / "models.py"
+    try:
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        # Registered before exec: the registry declares a @dataclass, and
+        # dataclasses resolves field types through sys.modules[cls.__module__].
+        sys.modules[name] = module
+        try:
+            spec.loader.exec_module(module)                          # type: ignore[union-attr]
+        finally:
+            sys.modules.pop(name, None)
+        return [spec_.key for spec_ in module.MODEL_TIERS]
+    except Exception as exc:                                         # pragma: no cover
+        print(f"warn: could not read the model-tier registry ({exc!r}); "
+              "the ladder table will be in alphabetical order", file=sys.stderr)
+        return []
+
+
 def _load_schema() -> Tuple[Tuple[str, str, str], ...]:
     """Reuse main.py's schema so this script can never drift from the report."""
     try:
@@ -543,7 +576,13 @@ def build_across_models(results_root: Path, order: Sequence[str]) -> Optional[st
         ]
     ] = []
     excluded: List[str] = []
-    for sub in sorted(p for p in results_root.iterdir() if p.is_dir() and p.name != "logs"):
+    # Smallest-first, so the table reads as the progression it is meant to be.
+    rank = {key: index for index, key in enumerate(ladder_order())}
+    candidates = sorted(
+        (p for p in results_root.iterdir() if p.is_dir() and p.name != "logs"),
+        key=lambda p: (rank.get(p.name, len(rank)), p.name),
+    )
+    for sub in candidates:
         if any(marker in sub.name.lower() for marker in EXCLUDED_TIER_MARKERS):
             excluded.append(sub.name)
             continue

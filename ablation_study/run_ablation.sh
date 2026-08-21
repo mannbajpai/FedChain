@@ -16,18 +16,19 @@
 #
 # Blocks:
 #   A    round sweep       E2/E0 @ R=9, E1 budget-matched   ~37 h / 3 seeds
-#   B1   non-IID baseline  E0/E1/E2 @ alpha=0.3             ~12 h / 3 seeds   DONE @ qwen-0.5b
+#   B1   non-IID baseline  E0/E1/E2 @ alpha=0.3             ~12 h / 3 seeds   DONE @ qwen-0.5b, smollm2-360m
 #   B2   alpha sweep       E0/E1/E2 @ alpha=0.1             ~16 h / 3 seeds
 #   B3   alpha sweep       E0/E1/E2 @ alpha=1.0             ~16 h / 3 seeds
 #   C    local epochs      E in {1,2,4}                     ~22 h / 3 seeds
 #   D    audit decomp      3 systems-only variants          ~3.3 h / 1 seed
 #   F    federation size   N in {5,10}, constant union      ~18 h / 1 seed
 #
-# B1 has been run at qwen-0.5b only. The 360M tier - where FedAvg recovered just
-# 2.4% of the isolation->centralized gap under IID - still has no non-IID arm,
-# and is the highest-value outstanding run:
+# B1 is what makes the LEARNING claim sayable at a tier: E5 is Dirichlet-sharded
+# while E0/E1/E2 are IID, so without a matched non-IID triple every E5-E0 gap
+# confounds the partition with federation. A tier without B1 therefore carries a
+# systems result only. llama-3.2-1b is the tier that still needs it:
 #
-#   ./ablation_study/run_ablation.sh --block B1 --model smol --seeds "42 43 44"
+#   ./ablation_study/run_ablation.sh --block B1 --model llama-3.2-1b --seeds "42 43 44"
 #
 # PREREQUISITE: changes C1-C4 in ablation_study/04_changes.md must be applied
 # first. Block A2 in particular is inert without C2 - it will run, but it will
@@ -52,7 +53,7 @@ warn() { printf '\033[0;33m[warn]\033[0m %s\n' "$*"; }
 fail() { printf '\033[0;31m[fail]\033[0m %s\n' "$*" >&2; }
 
 usage() {
-    sed -n '2,36p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    sed -n '2,37p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 while [[ $# -gt 0 ]]; do
@@ -123,6 +124,18 @@ then
     exit 1
 fi
 info "generation-metric stack ready"
+
+# -- gated-repository preflight ----------------------------------------------
+# Same reasoning as the metric-stack check above, and the same reasoning as
+# run_all.sh's: meta-llama/* 401s without a token, and this script goes straight
+# to main.py, so the failure would otherwise land ~20 minutes in at the first
+# model load rather than here.
+GATED_LINES="$("$PYTHON" utils/models.py --gated-list "$MODEL" 2>/dev/null || true)"
+if [[ -n "$GATED_LINES" && -z "${HF_TOKEN:-${HUGGING_FACE_HUB_TOKEN:-}}" ]]; then
+    fail "model '$MODEL' is a gated Hugging Face repository and no HF_TOKEN is set."
+    fail "Accept the licence on the Hub, then: export HF_TOKEN=hf_..."
+    exit 1
+fi
 
 # -- C2 presence check --------------------------------------------------------
 # Block A2 measures a trajectory that only exists once C2 lands.

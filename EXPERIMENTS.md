@@ -27,8 +27,11 @@ while E0/E1/E2 are IID, so on its own **E5 licenses no learning claim** — ever
 E5−E0 or E5−E2 difference would confound the partition with federation. E5 alone
 says the audit layer survives skew, which is a systems statement.
 [Ablation B1](ablation_study/06_ablation_results.md#b--data-heterogeneity) supplies
-the matched non-IID E0/E1/E2 and is what makes the learning claim sayable. It has
-been run at **both** reported tiers, so the 2x2 over (scale, partition) is complete.
+the matched non-IID E0/E1/E2 and is what makes the learning claim sayable. It is
+run at **every** reported tier, so the 2x2 over (scale, partition) is complete at
+each one — a tier with E5 but no B1 carries a systems result and nothing more,
+which is why `scripts/run_tier.sh` treats B1 as part of the tier and not as an
+optional extra.
 
 ## Experiments
 
@@ -83,24 +86,61 @@ clients 2 and 3.
 ```bash
 # Infrastructure: anvil + IPFS daemon + contract artifact
 ./infra.sh
+```
 
-# Main result: three seeds, all six training experiments, plus the
-# audit-layer experiments. This is what the paper's tables come from.
-# Both tiers have been run; qwen-0.5b is the one the paper leads with.
-./run_all.sh --model smol      --seeds "42 43 44" --audit-experiments
-./run_all.sh --model qwen-0.5b --seeds "42 43 44" --audit-experiments
+**A whole tier in one command.** The steps below have an order, and each has
+parameters that must match the other tiers or the tier is not comparable with
+them. `scripts/run_tier.sh` encodes both. It is idempotent and resumable, and
+skips whatever is already on disk:
 
-# Matched non-IID baselines (Ablation B1). Run at both reported tiers.
+```bash
+bash scripts/run_tier.sh --model llama-3.2-1b --dry-run     # print the plan
+bash scripts/run_tier.sh --model llama-3.2-1b --seeds "42 43 44"
+```
+
+Gated tiers need the licence accepted on the Hub and `export HF_TOKEN=hf_...`;
+`meta-llama/Llama-3.2-1B-Instruct` is the only one so far. Every entry point
+checks for the token before scheduling anything, rather than failing hours in
+at the first model load.
+
+**Or the same thing by hand**, which is what the finisher runs:
+
+```bash
+# Main result: three seeds, all six training experiments.
+./run_all.sh --model smol         --seeds "42 43 44" --experiments "0 1 2 3 4 5" --noniid 0.3
+./run_all.sh --model qwen-0.5b    --seeds "42 43 44" --experiments "0 1 2 3 4 5" --noniid 0.3
+./run_all.sh --model llama-3.2-1b --seeds "42 43 44" --experiments "0 1 2 3 4 5" --noniid 0.3
+
+# Audit layer at the REPORTED protocol. run_all.sh's --audit-experiments uses 20
+# trials and stops at N=50; every reported tier is 50 trials and N=100. Mixing
+# the two tabulates a protocol difference as a result - the false-positive bound
+# is 13.9% at n=20 against 5.8% at n=50.
+python scripts/tamper_experiment.py --trials 50 \
+    --adapter-root outputs/<tier>/seed_42/exp4_fedchain --results-dir results/<tier>
+python scripts/scalability_experiment.py --clients 1,3,5,10,25,50,100 \
+    --results-dir results/<tier>
+
+# Matched non-IID baselines (Ablation B1). Run at EVERY reported tier: without
+# it, that tier's E5 carries a systems result only.
 python data/prepare_data.py --partition dirichlet --alpha 0.3
 ./ablation_study/run_ablation.sh --block B1 --model qwen-0.5b    --seeds "42 43 44"
 ./ablation_study/run_ablation.sh --block B1 --model smollm2-360m --seeds "42 43 44"
+./ablation_study/run_ablation.sh --block B1 --model llama-3.2-1b --seeds "42 43 44"
 
 # Generation metrics on one scorer at 250 samples. Required before any
-# ROUGE-L/BLEU number is quoted -- see "Reading the output" below.
+# ROUGE-L/BLEU number is quoted -- see "Reading the output" below. One --sweep
+# pass covers the main arms and the ablation arms together, which is the point:
+# a table mixing a re-scored IID row with a per-run non-IID row would be
+# comparing two scorers down a single column.
 python scripts/reevaluate.py --sweep results/qwen-0.5b \
     --config configs/exp4_fedchain.yaml --model qwen-0.5b \
     --gen-num-samples 250 --require-backend evaluate \
     --out results/qwen-0.5b/reeval250
+
+# Paper artefacts. Both discover their tiers from results/, so a new tier joins
+# every table and figure without an edit anywhere.
+python scripts/paper_tables.py
+python scripts/paper_figures.py
 ```
 
 Audit-layer experiments standalone (no GPU, minutes):

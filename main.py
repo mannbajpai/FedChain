@@ -124,7 +124,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
         metavar="TIER_OR_ID",
         help=(
             "Model tier to fine-tune. Accepts a ladder key or alias "
-            "(smollm2-360m|smol, qwen-0.5b, qwen-1.5b) or any Hugging Face id. "
+            "(smollm2-360m|smol, qwen-0.5b, llama-3.2-1b|llama, qwen-1.5b) or any "
+            "Hugging Face id. "
             "Artefacts are scoped under results/<key>/ and outputs/<key>/ so tiers "
             "never overwrite each other. Run `python utils/models.py --list` for the ladder."
         ),
